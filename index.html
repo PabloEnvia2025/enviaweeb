@@ -1,0 +1,1934 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRM Envia.com Fulfillment - Multiusuario</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f8fafc;
+            color: #334155;
+        }
+        
+        .container { max-width: 1400px; margin: 0 auto; padding: 20px; }
+        
+        .header {
+            background: linear-gradient(135deg, #1e293b 0%, #3b82f6 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            position: relative;
+        }
+        
+        .header h1 { font-size: 2.5em; margin-bottom: 10px; }
+        .header p { font-size: 1.1em; opacity: 0.9; }
+        
+        .user-info {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            background: rgba(255,255,255,0.15);
+            padding: 12px 18px;
+            border-radius: 25px;
+            font-size: 14px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .sync-status {
+            position: absolute;
+            bottom: 20px;
+            right: 30px;
+            font-size: 12px;
+            opacity: 0.9;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .sync-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        
+        .sync-online { background: #22c55e; }
+        .sync-offline { background: #ef4444; animation: none; }
+        .sync-saving { background: #f59e0b; }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        
+        .user-selector {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            border: 1px solid #e2e8f0;
+        }
+        
+        .user-selector h3 {
+            margin-bottom: 15px;
+            color: #1e293b;
+        }
+        
+        .user-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .user-btn {
+            padding: 8px 16px;
+            border: 2px solid #e2e8f0;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+        
+        .user-btn:hover {
+            border-color: #3b82f6;
+            background: #dbeafe;
+        }
+        
+        .user-btn.active {
+            border-color: #3b82f6;
+            background: #3b82f6;
+            color: white;
+        }
+        
+        .tabs {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        
+        .tab {
+            padding: 12px 24px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            color: #64748b;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+        }
+        
+        .tab.active {
+            color: #3b82f6;
+            border-bottom-color: #3b82f6;
+            font-weight: 600;
+        }
+        
+        .tab:hover { color: #1e40af; background: #f1f5f9; }
+        
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .metric-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            border: 1px solid #e2e8f0;
+            transition: transform 0.2s;
+        }
+        
+        .metric-card:hover { transform: translateY(-2px); }
+        
+        .metric-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-bottom: 15px;
+        }
+        
+        .metric-value {
+            font-size: 2.5em;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+        
+        .metric-label {
+            color: #64748b;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .controls {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            border: 1px solid #e2e8f0;
+        }
+        
+        .controls-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr auto;
+            gap: 15px;
+            align-items: center;
+        }
+        
+        .search-box {
+            position: relative;
+        }
+        
+        .search-box input {
+            width: 100%;
+            padding: 12px 40px 12px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        
+        .search-box input:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+        
+        .search-icon {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+        }
+        
+        select {
+            padding: 12px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+            background: white;
+            cursor: pointer;
+            transition: border-color 0.3s;
+        }
+        
+        select:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-primary {
+            background: #3b82f6;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #2563eb;
+            transform: translateY(-1px);
+        }
+        
+        .btn-secondary {
+            background: #f1f5f9;
+            color: #475569;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .btn-secondary:hover {
+            background: #e2e8f0;
+        }
+        
+        .table-container {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            border: 1px solid #e2e8f0;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th {
+            background: #f8fafc;
+            padding: 16px;
+            text-align: left;
+            font-weight: 600;
+            color: #374151;
+            border-bottom: 1px solid #e2e8f0;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        td {
+            padding: 16px;
+            border-bottom: 1px solid #f1f5f9;
+            font-size: 14px;
+        }
+        
+        tr:hover {
+            background: #f8fafc;
+        }
+        
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .status-nuevo { background: #fef2f2; color: #dc2626; }
+        .status-contactado { background: #fef3c7; color: #d97706; }
+        .status-interesado { background: #dbeafe; color: #2563eb; }
+        .status-propuesta { background: #f3e8ff; color: #7c3aed; }
+        .status-cerrado { background: #dcfce7; color: #16a34a; }
+        .status-perdido { background: #f1f5f9; color: #64748b; }
+        
+        .priority-alta { color: #dc2626; font-weight: 700; }
+        .priority-media { color: #d97706; font-weight: 600; }
+        .priority-baja { color: #16a34a; font-weight: 500; }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            animation: fadeIn 0.3s;
+        }
+        
+        .modal.show { display: flex; align-items: center; justify-content: center; }
+        
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            width: 90%;
+            max-width: 700px;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: slideIn 0.3s;
+        }
+        
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideIn { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 600;
+            color: #374151;
+            font-size: 14px;
+        }
+        
+        input, textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+        
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+        
+        .file-upload {
+            border: 2px dashed #e2e8f0;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        
+        .file-upload:hover {
+            border-color: #3b82f6;
+            background: #f8fafc;
+        }
+        
+        .file-upload.dragover {
+            border-color: #3b82f6;
+            background: #dbeafe;
+        }
+        
+        .file-input {
+            display: none;
+        }
+        
+        .file-list {
+            margin-top: 15px;
+        }
+        
+        .file-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            background: #f8fafc;
+        }
+        
+        .file-name {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+        }
+        
+        .file-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .file-btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .file-btn.download {
+            background: #dbeafe;
+            color: #2563eb;
+        }
+        
+        .file-btn.delete {
+            background: #fef2f2;
+            color: #dc2626;
+        }
+        
+        .file-btn:hover {
+            transform: translateY(-1px);
+        }
+        
+        .actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 30px;
+        }
+        
+        .icon-btn {
+            padding: 8px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: background 0.2s;
+        }
+        
+        .icon-btn:hover { background: #f1f5f9; }
+        .icon-btn.edit:hover { background: #dbeafe; color: #2563eb; }
+        .icon-btn.delete:hover { background: #fef2f2; color: #dc2626; }
+        .icon-btn.add:hover { background: #dcfce7; color: #16a34a; }
+        .icon-btn.files:hover { background: #f3e8ff; color: #7c3aed; }
+        
+        .alert {
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid;
+        }
+        
+        .alert-warning {
+            background: #fef3c7;
+            border-color: #d97706;
+            color: #92400e;
+        }
+        
+        .alert-success {
+            background: #dcfce7;
+            border-color: #16a34a;
+            color: #166534;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #64748b;
+        }
+        
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+        
+        .download-section {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            text-align: center;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            border: 1px solid #e2e8f0;
+        }
+        
+        .download-btn {
+            background: linear-gradient(135deg, #16a34a, #22c55e);
+            color: white;
+            padding: 16px 32px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 12px rgba(34,197,94,0.3);
+        }
+        
+        .download-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(34,197,94,0.4);
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 8px;
+            color: white;
+            font-weight: 600;
+            z-index: 9999;
+            animation: slideInRight 0.3s ease;
+        }
+        
+        .notification.success { background: #16a34a; }
+        .notification.warning { background: #f59e0b; }
+        .notification.error { background: #dc2626; }
+        
+        @keyframes slideInRight {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        @media (max-width: 768px) {
+            .controls-grid {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+            
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .metrics-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .user-buttons {
+                flex-direction: column;
+            }
+            
+            table {
+                font-size: 12px;
+            }
+            
+            th, td {
+                padding: 8px;
+            }
+            
+            .user-info {
+                position: static;
+                margin-bottom: 15px;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="user-info" id="userInfo">
+                👤 Usuario: <span id="currentUser">Dulce (por defecto)</span>
+            </div>
+            <div class="sync-status" id="syncStatus">
+                <span class="sync-indicator sync-online"></span>
+                <span>Conectado</span>
+            </div>
+            <h1>🚀 CRM Envia.com Fulfillment</h1>
+            <p>Sistema multiusuario con guardado automático y gestión de archivos</p>
+        </div>
+
+        <div class="user-selector">
+            <h3>Seleccionar Usuario Activo:</h3>
+            <div class="user-buttons">
+                <button class="user-btn active" onclick="selectUser('Dulce')">👩‍💼 Dulce <span style="font-size: 10px; display: block; color: #64748b;">Comercial</span></button>
+                <button class="user-btn" onclick="selectUser('Pablo')">👨‍💼 Pablo <span style="font-size: 10px; display: block; color: #64748b;">Comercial</span></button>
+                <button class="user-btn" onclick="selectUser('Carlos')">👨‍💼 Carlos <span style="font-size: 10px; display: block; color: #64748b;">Almacén</span></button>
+                <button class="user-btn" onclick="selectUser('Ana')">👩‍💼 Ana <span style="font-size: 10px; display: block; color: #64748b;">Manager</span></button>
+                <button class="user-btn" onclick="selectUser('Javi')">👨‍💼 Javi <span style="font-size: 10px; display: block; color: #64748b;">Manager</span></button>
+            </div>
+        </div>
+
+        <div class="download-section">
+            <h2 style="margin-bottom: 20px; color: #1e293b;">CRM Multiusuario Avanzado</h2>
+            <p style="margin-bottom: 25px; color: #64748b;">
+                ✅ 6 usuarios: Dulce, Pablo, Carlos, Ana y Javi<br>
+                ✅ Guardado automático cada 30 segundos + localStorage<br>
+                ✅ Subida de archivos por lead<br>
+                ✅ Roles diferenciados por usuario<br>
+                ✅ Persistencia de datos al refrescar
+            </p>
+            <button class="download-btn" onclick="downloadCRM()">
+                📥 Descargar CRM Completo
+            </button>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('dashboard')">📊 Dashboard</button>
+            <button class="tab" onclick="showTab('leads')">👥 Gestión de Leads</button>
+            <button class="tab" onclick="showTab('actividades')">📝 Seguimiento</button>
+            <button class="tab" onclick="showTab('reportes')">📈 Reportes</button>
+        </div>
+
+        <!-- DASHBOARD TAB -->
+        <div id="dashboard" class="tab-content active">
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-icon" style="background: #dbeafe; color: #2563eb;">👥</div>
+                    <div class="metric-value" id="totalLeads">0</div>
+                    <div class="metric-label">Total Leads</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-icon" style="background: #dcfce7; color: #16a34a;">🎯</div>
+                    <div class="metric-value" id="conversionRate">0%</div>
+                    <div class="metric-label">Tasa Conversión</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-icon" style="background: #fef3c7; color: #d97706;">💰</div>
+                    <div class="metric-value" id="totalPipeline">€0</div>
+                    <div class="metric-label">Pipeline Total</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-icon" style="background: #f3e8ff; color: #7c3aed;">✅</div>
+                    <div class="metric-value" id="closedValue">€0</div>
+                    <div class="metric-label">Valor Cerrado</div>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <div style="padding: 20px; border-bottom: 1px solid #e2e8f0;">
+                    <h3 style="margin-bottom: 15px;">📊 Estado del Pipeline</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 20px;">
+                        <div style="text-align: center;">
+                            <div style="font-size: 2em; font-weight: bold; color: #dc2626;" id="nuevos">0</div>
+                            <div style="font-size: 12px; color: #64748b;">NUEVOS</div>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="font-size: 2em; font-weight: bold; color: #d97706;" id="contactados">0</div>
+                            <div style="font-size: 12px; color: #64748b;">CONTACTADOS</div>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="font-size: 2em; font-weight: bold; color: #2563eb;" id="interesados">0</div>
+                            <div style="font-size: 12px; color: #64748b;">INTERESADOS</div>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="font-size: 2em; font-weight: bold; color: #7c3aed;" id="propuestas">0</div>
+                            <div style="font-size: 12px; color: #64748b;">PROPUESTAS</div>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="font-size: 2em; font-weight: bold; color: #16a34a;" id="cerrados">0</div>
+                            <div style="font-size: 12px; color: #64748b;">CERRADOS</div>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="font-size: 2em; font-weight: bold; color: #64748b;" id="perdidos">0</div>
+                            <div style="font-size: 12px; color: #64748b;">PERDIDOS</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="alertas" style="margin-top: 30px;"></div>
+        </div>
+
+        <!-- LEADS TAB -->
+        <div id="leads" class="tab-content">
+            <div class="controls">
+                <div class="controls-grid">
+                    <div class="search-box">
+                        <input type="text" id="searchInput" placeholder="Buscar leads..." onkeyup="filterLeads()">
+                        <span class="search-icon">🔍</span>
+                    </div>
+                    <select id="filterEstado" onchange="filterLeads()">
+                        <option value="">Todos los estados</option>
+                        <option value="Nuevo">Nuevo</option>
+                        <option value="Contactado">Contactado</option>
+                        <option value="Interesado">Interesado</option>
+                        <option value="Propuesta Enviada">Propuesta Enviada</option>
+                        <option value="Cliente Cerrado">Cliente Cerrado</option>
+                        <option value="Lead Perdido">Lead Perdido</option>
+                    </select>
+                    <select id="filterComercial" onchange="filterLeads()">
+                        <option value="">Todos los comerciales</option>
+                        <option value="Dulce">Dulce</option>
+                        <option value="Pablo">Pablo</option>
+                        <option value="Carlos">Carlos</option>
+                        <option value="Ana">Ana</option>
+                        <option value="Javi">Javi</option>
+                    </select>
+                    <button class="btn btn-primary" onclick="showModal('leadModal')">
+                        ➕ Nuevo Lead
+                    </button>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Empresa</th>
+                            <th>Contacto</th>
+                            <th>Estado</th>
+                            <th>Prioridad</th>
+                            <th>Valor</th>
+                            <th>Próxima Acción</th>
+                            <th>Comercial</th>
+                            <th>Archivos</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="leadsTable"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ACTIVIDADES TAB -->
+        <div id="actividades" class="tab-content">
+            <div class="table-container">
+                <div style="padding: 20px; border-bottom: 1px solid #e2e8f0;">
+                    <h3>📝 Registro de Actividades</h3>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Lead</th>
+                            <th>Tipo</th>
+                            <th>Descripción</th>
+                            <th>Resultado</th>
+                            <th>Ejecutor</th>
+                            <th>Efectividad</th>
+                        </tr>
+                    </thead>
+                    <tbody id="actividadesTable"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- REPORTES TAB -->
+        <div id="reportes" class="tab-content">
+            <div style="display: grid; gap: 30px;">
+                <div class="table-container">
+                    <div style="padding: 20px; border-bottom: 1px solid #e2e8f0;">
+                        <h3>👥 Rendimiento por Comercial</h3>
+                    </div>
+                    <div id="reporteComerciales" style="padding: 20px;"></div>
+                </div>
+
+                <div class="table-container">
+                    <div style="padding: 20px; border-bottom: 1px solid #e2e8f0;">
+                        <h3>📊 Efectividad por Fuente</h3>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Fuente</th>
+                                <th>Total Leads</th>
+                                <th>Cerrados</th>
+                                <th>Conversión</th>
+                                <th>Valor Total</th>
+                            </tr>
+                        </thead>
+                        <tbody id="reporteFuentes"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL LEAD -->
+    <div id="leadModal" class="modal">
+        <div class="modal-content">
+            <h3 id="modalTitle">Nuevo Lead</h3>
+            <form id="leadForm">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Empresa *</label>
+                        <input type="text" id="empresa" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Contacto *</label>
+                        <input type="text" id="contacto" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Cargo</label>
+                        <input type="text" id="cargo">
+                    </div>
+                    <div class="form-group">
+                        <label>Teléfono</label>
+                        <input type="tel" id="telefono">
+                    </div>
+                    <div class="form-group">
+                        <label>Email *</label>
+                        <input type="email" id="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Fuente</label>
+                        <select id="fuente">
+                            <option value="">Seleccionar fuente</option>
+                            <option value="Web Orgánica">Web Orgánica</option>
+                            <option value="LinkedIn Ads">LinkedIn Ads</option>
+                            <option value="Google Ads">Google Ads</option>
+                            <option value="Referido Cliente">Referido Cliente</option>
+                            <option value="Email Marketing">Email Marketing</option>
+                            <option value="Redes Sociales">Redes Sociales</option>
+                            <option value="Feria Comercial">Feria Comercial</option>
+                            <option value="Llamada Fría">Llamada Fría</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Estado</label>
+                        <select id="estado">
+                            <option value="Nuevo">Nuevo</option>
+                            <option value="Contactado">Contactado</option>
+                            <option value="Interesado">Interesado</option>
+                            <option value="Propuesta Enviada">Propuesta Enviada</option>
+                            <option value="Cliente Cerrado">Cliente Cerrado</option>
+                            <option value="Lead Perdido">Lead Perdido</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Prioridad</label>
+                        <select id="prioridad">
+                            <option value="Alta">Alta</option>
+                            <option value="Media">Media</option>
+                            <option value="Baja">Baja</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Valor Estimado (€)</label>
+                        <input type="number" id="valor" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Servicio</label>
+                        <select id="servicio">
+                            <option value="">Seleccionar servicio</option>
+                            <option value="Fulfillment Completo">Fulfillment Completo</option>
+                            <option value="Solo Almacenamiento">Solo Almacenamiento</option>
+                            <option value="Solo Envíos">Solo Envíos</option>
+                            <option value="Picking & Packing">Picking & Packing</option>
+                            <option value="Fulfillment + Returns">Fulfillment + Returns</option>
+                            <option value="Subscription Box">Subscription Box</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Próxima Acción</label>
+                        <input type="text" id="proximaAccion">
+                    </div>
+                    <div class="form-group">
+                        <label>Fecha Próxima</label>
+                        <input type="date" id="fechaProxima">
+                    </div>
+                    <div class="form-group">
+                        <label>Comercial</label>
+                        <select id="comercial">
+                            <option value="">Seleccionar comercial</option>
+                            <option value="Dulce">Dulce</option>
+                            <option value="Pablo">Pablo</option>
+                            <option value="Carlos">Carlos</option>
+                            <option value="Ana">Ana</option>
+                            <option value="Javi">Javi</option>
+                        </select>
+                    </div>
+                    <div class="form-group full-width">
+                        <label>Notas</label>
+                        <textarea id="notas" rows="3"></textarea>
+                    </div>
+                    <div class="form-group full-width">
+                        <label>Archivos Adjuntos</label>
+                        <div class="file-upload" onclick="document.getElementById('fileInput').click()" 
+                             ondrop="handleFileDrop(event)" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)">
+                            <div style="color: #64748b; margin-bottom: 10px; font-size: 24px;">📎</div>
+                            <div style="font-weight: 600; margin-bottom: 5px;">Arrastra archivos aquí o haz clic para seleccionar</div>
+                            <div style="font-size: 12px; color: #94a3b8;">Documentos, imágenes, PDFs (máx. 10MB por archivo)</div>
+                        </div>
+                        <input type="file" id="fileInput" class="file-input" multiple accept=".doc,.docx,.pdf,.jpg,.jpeg,.png,.txt,.xlsx,.xls,.ppt,.pptx" onchange="handleFileSelect(event)">
+                        <div class="file-list" id="fileList"></div>
+                    </div>
+                </div>
+                <div class="actions">
+                    <button type="button" class="btn btn-secondary" onclick="hideModal('leadModal')">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL ACTIVIDAD -->
+    <div id="actividadModal" class="modal">
+        <div class="modal-content">
+            <h3>Nueva Actividad</h3>
+            <form id="actividadForm">
+                <input type="hidden" id="actividadLeadId">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Tipo de Actividad *</label>
+                        <select id="actividadTipo" required>
+                            <option value="">Seleccionar tipo</option>
+                            <option value="Email">Email</option>
+                            <option value="Llamada">Llamada</option>
+                            <option value="Reunión">Reunión</option>
+                            <option value="Propuesta">Propuesta</option>
+                            <option value="Seguimiento">Seguimiento</option>
+                            <option value="Demostración">Demostración</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Ejecutor *</label>
+                        <select id="actividadEjecutor" required>
+                            <option value="">Seleccionar ejecutor</option>
+                            <option value="Dulce">Dulce</option>
+                            <option value="Pablo">Pablo</option>
+                            <option value="Carlos">Carlos</option>
+                            <option value="Ana">Ana</option>
+                            <option value="Javi">Javi</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Duración (minutos)</label>
+                        <input type="number" id="actividadDuracion" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label>Efectividad (1-5)</label>
+                        <select id="actividadEfectividad">
+                            <option value="1">1 - Muy Baja</option>
+                            <option value="2">2 - Baja</option>
+                            <option value="3" selected>3 - Media</option>
+                            <option value="4">4 - Alta</option>
+                            <option value="5">5 - Muy Alta</option>
+                        </select>
+                    </div>
+                    <div class="form-group full-width">
+                        <label>Descripción *</label>
+                        <textarea id="actividadDescripcion" rows="2" required></textarea>
+                    </div>
+                    <div class="form-group full-width">
+                        <label>Resultado *</label>
+                        <textarea id="actividadResultado" rows="2" required></textarea>
+                    </div>
+                    <div class="form-group full-width">
+                        <label>Próxima Acción</label>
+                        <input type="text" id="actividadProximaAccion">
+                    </div>
+                </div>
+                <div class="actions">
+                    <button type="button" class="btn btn-secondary" onclick="hideModal('actividadModal')">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL ARCHIVOS -->
+    <div id="filesModal" class="modal">
+        <div class="modal-content">
+            <h3 id="filesModalTitle">Archivos del Lead</h3>
+            <div id="filesModalContent"></div>
+            <div class="actions">
+                <button type="button" class="btn btn-secondary" onclick="hideModal('filesModal')">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Variables globales
+        let currentUser = 'Dulce';
+        let leads = [
+            {
+                id: 'ENF-001',
+                fechaIngreso: '2025-07-16',
+                empresa: 'TechStore Madrid',
+                contacto: 'Ana García',
+                cargo: 'Directora Ecommerce',
+                telefono: '+34 600 123 456',
+                email: 'ana.garcia@techstore.es',
+                fuente: 'Web Orgánica',
+                estado: 'Nuevo',
+                prioridad: 'Alta',
+                valor: 15000,
+                servicio: 'Fulfillment Completo',
+                proximaAccion: 'Primera llamada contacto',
+                fechaProxima: '2025-07-18',
+                comercial: 'Dulce',
+                notas: 'Tienda online tecnología, 200-300 pedidos/mes, busca externalizar todo el fulfillment',
+                archivos: [],
+                fechaModificacion: new Date().toISOString(),
+                modificadoPor: 'Sistema'
+            },
+            {
+                id: 'ENF-002',
+                fechaIngreso: '2025-07-15',
+                empresa: 'ModaStyle Barcelona',
+                contacto: 'Luis Rodriguez',
+                cargo: 'CEO',
+                telefono: '+34 610 987 654',
+                email: 'luis@modastyle.com',
+                fuente: 'LinkedIn Ads',
+                estado: 'Contactado',
+                prioridad: 'Media',
+                valor: 8500,
+                servicio: 'Solo Almacenamiento',
+                proximaAccion: 'Enviar propuesta comercial',
+                fechaProxima: '2025-07-19',
+                comercial: 'Pablo',
+                notas: 'Marca de moda emergente, necesita almacén para 500 referencias',
+                archivos: [],
+                fechaModificacion: new Date().toISOString(),
+                modificadoPor: 'Sistema'
+            },
+            {
+                id: 'ENF-003',
+                fechaIngreso: '2025-07-14',
+                empresa: 'HomeDecor Valencia',
+                contacto: 'Carmen López',
+                cargo: 'Responsable Logística',
+                telefono: '+34 620 456 789',
+                email: 'carmen@homedecor.es',
+                fuente: 'Referido Cliente',
+                estado: 'Propuesta Enviada',
+                prioridad: 'Alta',
+                valor: 25000,
+                servicio: 'Fulfillment + Returns',
+                proximaAccion: 'Seguimiento propuesta',
+                fechaProxima: '2025-07-20',
+                comercial: 'Javi',
+                notas: 'Decoración hogar, 500+ pedidos/mes, problemas con devoluciones',
+                archivos: [],
+                fechaModificacion: new Date().toISOString(),
+                modificadoPor: 'Sistema'
+            },
+            {
+                id: 'ENF-004',
+                fechaIngreso: '2025-07-13',
+                empresa: 'FitnessPro Sevilla',
+                contacto: 'David Martín',
+                cargo: 'Director Comercial',
+                telefono: '+34 630 789 012',
+                email: 'david@fitnesspro.es',
+                fuente: 'Google Ads',
+                estado: 'Interesado',
+                prioridad: 'Alta',
+                valor: 12000,
+                servicio: 'Fulfillment Completo',
+                proximaAccion: 'Reunión presencial',
+                fechaProxima: '2025-07-21',
+                comercial: 'Ana',
+                notas: 'Suplementos deportivos, startup en crecimiento',
+                archivos: [],
+                fechaModificacion: new Date().toISOString(),
+                modificadoPor: 'Sistema'
+            },
+            {
+                id: 'ENF-005',
+                fechaIngreso: '2025-07-12',
+                empresa: 'BookWorld Online',
+                contacto: 'Sara Jiménez',
+                cargo: 'Fundadora',
+                telefono: '+34 640 234 567',
+                email: 'sara@bookworld.com',
+                fuente: 'Email Marketing',
+                estado: 'Cliente Cerrado',
+                prioridad: 'Media',
+                valor: 7500,
+                servicio: 'Picking & Packing',
+                proximaAccion: 'Onboarding cliente',
+                fechaProxima: '2025-07-22',
+                comercial: 'Javi',
+                notas: 'Librería online, contrato firmado',
+                archivos: [],
+                fechaModificacion: new Date().toISOString(),
+                modificadoPor: 'Sistema'
+            },
+            {
+                id: 'ENF-006',
+                fechaIngreso: '2025-07-11',
+                empresa: 'GreenTech Solutions',
+                contacto: 'Miguel Torres',
+                cargo: 'CTO',
+                telefono: '+34 650 345 678',
+                email: 'miguel@greentech.es',
+                fuente: 'Referido Cliente',
+                estado: 'Nuevo',
+                prioridad: 'Alta',
+                valor: 18000,
+                servicio: 'Fulfillment Completo',
+                proximaAccion: 'Llamada inicial',
+                fechaProxima: '2025-07-18',
+                comercial: 'Carlos',
+                notas: 'Startup de tecnología verde, productos eco-friendly',
+                archivos: [],
+                fechaModificacion: new Date().toISOString(),
+                modificadoPor: 'Sistema'
+            }
+        ];
+
+        let actividades = [
+            {
+                id: 'ACT-001',
+                leadId: 'ENF-001',
+                fecha: '2025-07-16',
+                tipo: 'Email',
+                descripcion: 'Envío email respuesta formulario web',
+                resultado: 'Email entregado y abierto',
+                proximaAccion: 'Llamada telefónica',
+                ejecutor: 'Dulce',
+                duracion: 5,
+                efectividad: 4
+            },
+            {
+                id: 'ACT-002',
+                leadId: 'ENF-002',
+                fecha: '2025-07-15',
+                tipo: 'Llamada',
+                descripcion: 'Primera llamada contacto',
+                resultado: 'Muy receptivo, solicita propuesta',
+                proximaAccion: 'Preparar propuesta',
+                ejecutor: 'Pablo',
+                duracion: 25,
+                efectividad: 5
+            },
+            {
+                id: 'ACT-003',
+                leadId: 'ENF-006',
+                fecha: '2025-07-16',
+                tipo: 'Email',
+                descripcion: 'Confirmación recepción consulta',
+                resultado: 'Email enviado correctamente',
+                proximaAccion: 'Programar llamada',
+                ejecutor: 'Carlos',
+                duracion: 10,
+                efectividad: 3
+            }
+        ];
+
+        let editingLeadId = null;
+        let currentFiles = [];
+
+        // Funciones de almacenamiento
+        function saveData() {
+            try {
+                const data = {
+                    leads,
+                    actividades,
+                    currentUser,
+                    lastSync: new Date().toISOString(),
+                    version: '4.0'
+                };
+                localStorage.setItem('crm_envia_data', JSON.stringify(data));
+                console.log('Datos guardados automáticamente');
+            } catch (error) {
+                console.error('Error al guardar:', error);
+                showNotification('Error al guardar datos', 'error');
+            }
+        }
+
+        function loadData() {
+            try {
+                const savedData = localStorage.getItem('crm_envia_data');
+                if (savedData) {
+                    const data = JSON.parse(savedData);
+                    leads = data.leads || leads;
+                    actividades = data.actividades || actividades;
+                    if (data.currentUser) {
+                        currentUser = data.currentUser;
+                        document.getElementById('currentUser').textContent = currentUser;
+                        
+                        // Actualizar botones de usuario
+                        document.querySelectorAll('.user-btn').forEach(btn => {
+                            btn.classList.remove('active');
+                            if (btn.textContent.includes(currentUser)) {
+                                btn.classList.add('active');
+                            }
+                        });
+                    }
+                    console.log('Datos cargados desde localStorage');
+                } else {
+                    saveData(); // Guardar datos iniciales
+                }
+            } catch (error) {
+                console.error('Error al cargar datos:', error);
+                showNotification('Error al cargar datos', 'error');
+            }
+        }
+
+        // Auto-guardado cada 30 segundos
+        function startAutoSave() {
+            setInterval(() => {
+                saveData();
+            }, 30000);
+        }
+
+        // Función para seleccionar usuario
+        function selectUser(username) {
+            currentUser = username;
+            document.getElementById('currentUser').textContent = username;
+            
+            // Actualizar botones
+            document.querySelectorAll('.user-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            // Guardar cambio de usuario
+            saveData();
+            
+            // Actualizar datos
+            updateDashboard();
+            renderLeads();
+            renderActividades();
+            renderReportes();
+            
+            showNotification(`Usuario cambiado a ${username}`, 'success');
+        }
+
+        // Función de notificaciones
+        function showNotification(message, type = 'success') {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        // Funciones de navegación
+        function showTab(tabName) {
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById(tabName).classList.add('active');
+            
+            if (tabName === 'dashboard') updateDashboard();
+            if (tabName === 'leads') renderLeads();
+            if (tabName === 'actividades') renderActividades();
+            if (tabName === 'reportes') renderReportes();
+        }
+
+        // Funciones de modal
+        function showModal(modalId) {
+            document.getElementById(modalId).classList.add('show');
+        }
+
+        function hideModal(modalId) {
+            document.getElementById(modalId).classList.remove('show');
+            if (modalId === 'leadModal') {
+                document.getElementById('leadForm').reset();
+                editingLeadId = null;
+                currentFiles = [];
+                renderFileList();
+                document.getElementById('modalTitle').textContent = 'Nuevo Lead';
+            }
+        }
+
+        // Funciones de utilidad
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('es-ES', { 
+                style: 'currency', 
+                currency: 'EUR',
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0
+            }).format(amount);
+        }
+
+        function formatDate(dateString) {
+            if (!dateString) return '';
+            return new Date(dateString).toLocaleDateString('es-ES');
+        }
+
+        function getStatusClass(estado) {
+            const statusMap = {
+                'Nuevo': 'status-nuevo',
+                'Contactado': 'status-contactado',
+                'Interesado': 'status-interesado',
+                'Propuesta Enviada': 'status-propuesta',
+                'Cliente Cerrado': 'status-cerrado',
+                'Lead Perdido': 'status-perdido'
+            };
+            return statusMap[estado] || 'status-nuevo';
+        }
+
+        function getPriorityClass(prioridad) {
+            const priorityMap = {
+                'Alta': 'priority-alta',
+                'Media': 'priority-media',
+                'Baja': 'priority-baja'
+            };
+            return priorityMap[prioridad] || 'priority-media';
+        }
+
+        // Actualizar dashboard
+        function updateDashboard() {
+            const total = leads.length;
+            const cerrados = leads.filter(l => l.estado === 'Cliente Cerrado').length;
+            const nuevos = leads.filter(l => l.estado === 'Nuevo').length;
+            const contactados = leads.filter(l => l.estado === 'Contactado').length;
+            const interesados = leads.filter(l => l.estado === 'Interesado').length;
+            const propuestas = leads.filter(l => l.estado === 'Propuesta Enviada').length;
+            const perdidos = leads.filter(l => l.estado === 'Lead Perdido').length;
+            
+            const valorTotal = leads.reduce((sum, lead) => sum + (lead.valor || 0), 0);
+            const valorCerrado = leads.filter(l => l.estado === 'Cliente Cerrado').reduce((sum, lead) => sum + (lead.valor || 0), 0);
+            const conversionRate = total > 0 ? ((cerrados / total) * 100).toFixed(1) : 0;
+
+            document.getElementById('totalLeads').textContent = total;
+            document.getElementById('conversionRate').textContent = conversionRate + '%';
+            document.getElementById('totalPipeline').textContent = formatCurrency(valorTotal);
+            document.getElementById('closedValue').textContent = formatCurrency(valorCerrado);
+            
+            document.getElementById('nuevos').textContent = nuevos;
+            document.getElementById('contactados').textContent = contactados;
+            document.getElementById('interesados').textContent = interesados;
+            document.getElementById('propuestas').textContent = propuestas;
+            document.getElementById('cerrados').textContent = cerrados;
+            document.getElementById('perdidos').textContent = perdidos;
+
+            // Mostrar alertas
+            const alertasContainer = document.getElementById('alertas');
+            const today = new Date();
+            const alertas = leads.filter(lead => {
+                if (!lead.fechaProxima || lead.estado === 'Cliente Cerrado' || lead.estado === 'Lead Perdido') return false;
+                const fechaProxima = new Date(lead.fechaProxima);
+                return fechaProxima <= today;
+            });
+
+            if (alertas.length > 0) {
+                alertasContainer.innerHTML = `
+                    <div class="alert alert-warning">
+                        <h4 style="margin-bottom: 15px;">⚠️ Tareas Pendientes (${alertas.length})</h4>
+                        ${alertas.map(lead => `
+                            <div style="margin-bottom: 10px;">
+                                <strong>${lead.empresa}</strong> - ${lead.proximaAccion}
+                                <br><small>Fecha límite: ${formatDate(lead.fechaProxima)} • Asignado a: ${lead.comercial}</small>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            } else {
+                alertasContainer.innerHTML = '';
+            }
+        }
+
+        // Renderizar leads
+        function renderLeads() {
+            const tbody = document.getElementById('leadsTable');
+            const filteredLeads = getFilteredLeads();
+            
+            if (filteredLeads.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="9">
+                            <div class="empty-state">
+                                <div class="empty-state-icon">📭</div>
+                                <p>No hay leads que coincidan con los filtros</p>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = filteredLeads.map(lead => `
+                <tr>
+                    <td>
+                        <div style="font-weight: 600;">${lead.empresa}</div>
+                        <div style="font-size: 12px; color: #64748b;">${lead.fuente}</div>
+                    </td>
+                    <td>
+                        <div style="font-weight: 600;">${lead.contacto}</div>
+                        <div style="font-size: 12px; color: #64748b;">${lead.email}</div>
+                    </td>
+                    <td>
+                        <span class="status-badge ${getStatusClass(lead.estado)}">${lead.estado}</span>
+                    </td>
+                    <td>
+                        <span class="${getPriorityClass(lead.prioridad)}">${lead.prioridad}</span>
+                    </td>
+                    <td>${formatCurrency(lead.valor || 0)}</td>
+                    <td>
+                        <div>${lead.proximaAccion || '-'}</div>
+                        <div style="font-size: 12px; color: #64748b;">${formatDate(lead.fechaProxima)}</div>
+                    </td>
+                    <td>${lead.comercial}</td>
+                    <td>
+                        <button class="icon-btn files" onclick="showFiles('${lead.id}')" title="Ver archivos">
+                            📁 ${lead.archivos ? lead.archivos.length : 0}
+                        </button>
+                    </td>
+                    <td>
+                        <button class="icon-btn add" onclick="addActividad('${lead.id}')" title="Añadir actividad">➕</button>
+                        <button class="icon-btn edit" onclick="editLead('${lead.id}')" title="Editar">✏️</button>
+                        <button class="icon-btn delete" onclick="deleteLead('${lead.id}')" title="Eliminar">🗑️</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Filtrar leads
+        function getFilteredLeads() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const estadoFilter = document.getElementById('filterEstado').value;
+            const comercialFilter = document.getElementById('filterComercial').value;
+
+            return leads.filter(lead => {
+                const matchesSearch = !searchTerm || 
+                    lead.empresa.toLowerCase().includes(searchTerm) ||
+                    lead.contacto.toLowerCase().includes(searchTerm) ||
+                    lead.email.toLowerCase().includes(searchTerm);
+                
+                const matchesEstado = !estadoFilter || lead.estado === estadoFilter;
+                const matchesComercial = !comercialFilter || lead.comercial === comercialFilter;
+                
+                return matchesSearch && matchesEstado && matchesComercial;
+            });
+        }
+
+        function filterLeads() {
+            renderLeads();
+        }
+
+        // CRUD de leads
+        function editLead(leadId) {
+            const lead = leads.find(l => l.id === leadId);
+            if (!lead) return;
+
+            editingLeadId = leadId;
+            currentFiles = lead.archivos ? [...lead.archivos] : [];
+            document.getElementById('modalTitle').textContent = 'Editar Lead';
+            
+            // Llenar el formulario
+            Object.keys(lead).forEach(key => {
+                const element = document.getElementById(key);
+                if (element) {
+                    element.value = lead[key] || '';
+                }
+            });
+            
+            renderFileList();
+            showModal('leadModal');
+        }
+
+        function deleteLead(leadId) {
+            if (confirm('¿Estás seguro de eliminar este lead? Esta acción no se puede deshacer.')) {
+                leads = leads.filter(l => l.id !== leadId);
+                actividades = actividades.filter(a => a.leadId !== leadId);
+                
+                // Guardar cambios
+                saveData();
+                renderLeads();
+                updateDashboard();
+                showNotification('Lead eliminado correctamente', 'success');
+            }
+        }
+
+        function addActividad(leadId) {
+            document.getElementById('actividadLeadId').value = leadId;
+            document.getElementById('actividadEjecutor').value = currentUser;
+            showModal('actividadModal');
+        }
+
+        // Renderizar actividades
+        function renderActividades() {
+            const tbody = document.getElementById('actividadesTable');
+            
+            if (actividades.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7">
+                            <div class="empty-state">
+                                <div class="empty-state-icon">📝</div>
+                                <p>No hay actividades registradas</p>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            // Ordenar actividades por fecha (más recientes primero)
+            const sortedActividades = [...actividades].sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+
+            tbody.innerHTML = sortedActividades.map(actividad => {
+                const lead = leads.find(l => l.id === actividad.leadId);
+                return `
+                    <tr>
+                        <td>${formatDate(actividad.fecha)}</td>
+                        <td>
+                            <div style="font-weight: 600;">${lead ? lead.empresa : 'Lead eliminado'}</div>
+                            <div style="font-size: 12px; color: #64748b;">${lead ? lead.contacto : ''}</div>
+                        </td>
+                        <td>
+                            <span class="status-badge" style="background: #dbeafe; color: #2563eb;">${actividad.tipo}</span>
+                        </td>
+                        <td>
+                            <div style="max-width: 200px; overflow: hidden; text-overflow: ellipsis;" title="${actividad.descripcion}">
+                                ${actividad.descripcion}
+                            </div>
+                        </td>
+                        <td>
+                            <div style="max-width: 200px; overflow: hidden; text-overflow: ellipsis;" title="${actividad.resultado}">
+                                ${actividad.resultado}
+                            </div>
+                        </td>
+                        <td>${actividad.ejecutor}</td>
+                        <td>
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <span>${actividad.efectividad}/5</span>
+                                <div style="display: flex; gap: 2px;">
+                                    ${Array.from({length: 5}, (_, i) => `
+                                        <div style="width: 8px; height: 8px; border-radius: 50%; background: ${i < actividad.efectividad ? '#16a34a' : '#e2e8f0'};"></div>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // Renderizar reportes
+        function renderReportes() {
+            const usuarios = [
+                { nombre: 'Dulce', rol: 'Comercial' },
+                { nombre: 'Pablo', rol: 'Comercial' },
+                { nombre: 'Carlos', rol: 'Almacén' },
+                { nombre: 'Ana', rol: 'Manager' },
+                { nombre: 'Javi', rol: 'Manager' }
+            ];
+            
+            // Reporte por usuarios
+            const comercialesContainer = document.getElementById('reporteComerciales');
+            comercialesContainer.innerHTML = `
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;">
+                    ${usuarios.map(usuario => {
+                        const leadsUsuario = leads.filter(l => l.comercial === usuario.nombre);
+                        const cerrados = leadsUsuario.filter(l => l.estado === 'Cliente Cerrado').length;
+                        const valorCerrado = leadsUsuario
+                            .filter(l => l.estado === 'Cliente Cerrado')
+                            .reduce((sum, l) => sum + (l.valor || 0), 0);
+                        const conversion = leadsUsuario.length > 0 ? ((cerrados / leadsUsuario.length) * 100).toFixed(1) : 0;
+                        const actividadesUsuario = actividades.filter(a => a.ejecutor === usuario.nombre).length;
+
+                        return `
+                            <div style="border: 1px solid #e2e8f0; border-radius: 12px; padding: 25px; background: white;">
+                                <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 20px;">
+                                    <div style="width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(135deg, #3b82f6, #8b5cf6); color: white; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: bold;">
+                                        ${usuario.nombre.charAt(0)}
+                                    </div>
+                                    <div>
+                                        <h4 style="font-weight: 600; font-size: 1.2em;">${usuario.nombre}</h4>
+                                        <p style="color: #64748b; font-size: 14px;">${usuario.rol}</p>
+                                    </div>
+                                </div>
+                                <div style="space-y: 12px;">
+                                    <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
+                                        <span style="color: #64748b;">Leads asignados:</span>
+                                        <span style="font-weight: 600;">${leadsUsuario.length}</span>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
+                                        <span style="color: #64748b;">Leads cerrados:</span>
+                                        <span style="font-weight: 600; color: #16a34a;">${cerrados}</span>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
+                                        <span style="color: #64748b;">Conversión:</span>
+                                        <span style="font-weight: 600; color: ${conversion >= 20 ? '#16a34a' : conversion >= 10 ? '#d97706' : '#dc2626'};">${conversion}%</span>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
+                                        <span style="color: #64748b;">Valor cerrado:</span>
+                                        <span style="font-weight: 600;">${formatCurrency(valorCerrado)}</span>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between;">
+                                        <span style="color: #64748b;">Actividades:</span>
+                                        <span style="font-weight: 600;">${actividadesUsuario}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            `;
+
+            // Reporte por fuentes
+            const fuentes = [...new Set(leads.map(l => l.fuente).filter(f => f))];
+            const tbody = document.getElementById('reporteFuentes');
+            tbody.innerHTML = fuentes.map(fuente => {
+                const leadsFuente = leads.filter(l => l.fuente === fuente);
+                const cerrados = leadsFuente.filter(l => l.estado === 'Cliente Cerrado').length;
+                const valorTotal = leadsFuente.reduce((sum, l) => sum + (l.valor || 0), 0);
+                const conversion = leadsFuente.length > 0 ? ((cerrados / leadsFuente.length) * 100).toFixed(1) : 0;
+
+                return `
+                    <tr>
+                        <td style="font-weight: 600;">${fuente}</td>
+                        <td>${leadsFuente.length}</td>
+                        <td style="color: #16a34a; font-weight: 600;">${cerrados}</td>
+                        <td style="color: ${conversion >= 20 ? '#16a34a' : conversion >= 10 ? '#d97706' : '#dc2626'}; font-weight: 600;">${conversion}%</td>
+                        <td>${formatCurrency(valorTotal)}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // Funciones de archivos
+        function handleFileDrop(event) {
+            event.preventDefault();
+            event.target.classList.remove('dragover');
+            const files = Array.from(event.dataTransfer.files);
+            processFiles(files);
+        }
+
+        function handleDragOver(event) {
+            event.preventDefault();
+            event.target.classList.add('dragover');
+        }
+
+        function handleDragLeave(event) {
+            event.target.classList.remove('dragover');
+        }
+
+        function handleFileSelect(event) {
+            const files = Array.from(event.target.files);
+            processFiles(files);
+        }
+
+        function processFiles(files) {
+            files.forEach(file => {
+                if (file.size > 10 * 1024 * 1024) { // 10MB limit
+                    showNotification(`Archivo ${file.name} demasiado grande (máx. 10MB)`, 'warning');
+                    return;
+                }
+                
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const fileData = {
+                        id: Date.now() + Math.random(),
+                        name: file.name,
+                        size: file.size,
+                        type: file.type,
+                        data: e.target.result,
+                        uploadDate: new Date().toISOString(),
+                        uploadedBy: currentUser
+                    };
+                    
+                    currentFiles.push(fileData);
+                    renderFileList();
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        function renderFileList() {
+            const fileList = document.getElementById('fileList');
+            if (currentFiles.length === 0) {
+                fileList.innerHTML = '';
+                return;
+            }
+
+            fileList.innerHTML = currentFiles.map(file => `
+                <div class="file-item">
+                    <div class="file-name">
+                        <span>📎</span>
+                        <div>
+                            <div style="font-weight: 600;">${file.name}</div>
+                            <div style="font-size: 12px; color: #64748b;">
+                                ${formatFileSize(file.size)} • ${formatDate(file.uploadDate)} • ${file.uploadedBy}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="file-actions">
+                        <button type="button" class="file-btn download" onclick="downloadFile('${file.id}')">⬇️</button>
+                        <button type="button" class="file-btn delete" onclick="removeFile('${file.id}')">🗑️</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        function removeFile(fileId) {
+            currentFiles = currentFiles.filter(f => f.id != fileId);
+            renderFileList();
+        }
+
+        function downloadFile(fileId) {
+            const file = currentFiles.find(f => f.id == fileId);
+            if (!file) return;
+
+            const link = document.createElement('a');
+            link.href = file.data;
+            link.download = file.name;
+            link.click();
+        }
+
+        function showFiles(leadId) {
+            const lead = leads.find(l => l.id === leadId);
+            if (!lead) return;
+
+            document.getElementById('filesModalTitle').textContent = `Archivos de ${lead.empresa}`;
+            
+            const filesContent = document.getElementById('filesModalContent');
+            if (!lead.archivos || lead.archivos.length === 0) {
+                filesContent.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📁</div>
+                        <p>No hay archivos adjuntos</p>
+                    </div>
+                `;
+            } else {
+                filesContent.innerHTML = lead.archivos.map(file => `
+                    <div class="file-item">
+                        <div class="file-name">
+                            <span>📎</span>
+                            <div>
+                                <div style="font-weight: 600;">${file.name}</div>
+                                <div style="font-size: 12px; color: #64748b;">
+                                    ${formatFileSize(file.size)} • ${formatDate(file.uploadDate)} • ${file.uploadedBy}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="file-actions">
+                            <button type="button" class="file-btn download" onclick="downloadFileFromLead('${leadId}', '${file.id}')">⬇️</button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+            
+            showModal('filesModal');
+        }
+
+        function downloadFileFromLead(leadId, fileId) {
+            const lead = leads.find(l => l.id === leadId);
+            if (!lead) return;
+            
+            const file = lead.archivos.find(f => f.id == fileId);
+            if (!file) return;
+
+            const link = document.createElement('a');
+            link.href = file.data;
+            link.download = file.name;
+            link.click();
+        }
+
+        // Función para descargar el CRM
+        function downloadCRM() {
+            const htmlContent = document.documentElement.outerHTML;
+            const blob = new Blob([htmlContent], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `CRM_Envia_Multiusuario_${new Date().toISOString().split('T')[0]}.html`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            showNotification('🎉 CRM descargado con todos los datos incluidos!', 'success');
+        }
+
+        // Manejar formularios
+        document.getElementById('leadForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = {
+                empresa: document.getElementById('empresa').value,
+                contacto: document.getElementById('contacto').value,
+                cargo: document.getElementById('cargo').value,
+                telefono: document.getElementById('telefono').value,
+                email: document.getElementById('email').value,
+                fuente: document.getElementById('fuente').value,
+                estado: document.getElementById('estado').value,
+                prioridad: document.getElementById('prioridad').value,
+                valor: parseInt(document.getElementById('valor').value) || 0,
+                servicio: document.getElementById('servicio').value,
+                proximaAccion: document.getElementById('proximaAccion').value,
+                fechaProxima: document.getElementById('fechaProxima').value,
+                comercial: document.getElementById('comercial').value,
+                notas: document.getElementById('notas').value,
+                archivos: currentFiles,
+                fechaModificacion: new Date().toISOString(),
+                modificadoPor: currentUser
+            };
+
+            if (editingLeadId) {
+                const index = leads.findIndex(l => l.id === editingLeadId);
+                if (index !== -1) {
+                    leads[index] = { ...leads[index], ...formData };
+                    showNotification('Lead actualizado correctamente', 'success');
+                }
+            } else {
+                const newId = `ENF-${String(leads.length + 1).padStart(3, '0')}`;
+                const newLead = {
+                    id: newId,
+                    fechaIngreso: new Date().toISOString().split('T')[0],
+                    ...formData
+                };
+                leads.push(newLead);
+                showNotification('Lead creado correctamente', 'success');
+            }
+
+            // Guardar cambios
+            saveData();
+            hideModal('leadModal');
+            renderLeads();
+            updateDashboard();
+        });
+
+        document.getElementById('actividadForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = {
+                id: `ACT-${String(actividades.length + 1).padStart(3, '0')}`,
+                leadId: document.getElementById('actividadLeadId').value,
+                fecha: new Date().toISOString().split('T')[0],
+                tipo: document.getElementById('actividadTipo').value,
+                descripcion: document.getElementById('actividadDescripcion').value,
+                resultado: document.getElementById('actividadResultado').value,
+                proximaAccion: document.getElementById('actividadProximaAccion').value,
+                ejecutor: document.getElementById('actividadEjecutor').value,
+                duracion: parseInt(document.getElementById('actividadDuracion').value) || 0,
+                efectividad: parseInt(document.getElementById('actividadEfectividad').value) || 3
+            };
+
+            actividades.push(formData);
+            
+            // Guardar cambios
+            saveData();
+            hideModal('actividadModal');
+            document.getElementById('actividadForm').reset();
+            renderActividades();
+            showNotification('Actividad registrada correctamente', 'success');
+        });
+
+        // Cerrar modales al hacer click fuera
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    hideModal(modal.id);
+                }
+            });
+        });
+
+        // Inicializar la aplicación
+        document.addEventListener('DOMContentLoaded', function() {
+            // Cargar datos guardados
+            loadData();
+            
+            // Inicializar auto-guardado
+            startAutoSave();
+            
+            // Renderizar interfaz
+            updateDashboard();
+            renderLeads();
+            renderActividades();
+            renderReportes();
+            
+            showNotification('CRM cargado correctamente', 'success');
+        });
+
+        // Guardar cuando se cierra la ventana
+        window.addEventListener('beforeunload', function() {
+            saveData();
+        });
+
+        // Detectar cambios en localStorage de otras pestañas
+        window.addEventListener('storage', function(e) {
+            if (e.key === 'crm_envia_data') {
+                loadData();
+                updateDashboard();
+                renderLeads();
+                renderActividades();
+                renderReportes();
+                showNotification('Datos sincronizados desde otra pestaña', 'success');
+            }
+        });
+    </script>
+</body>
+</html>
