@@ -1,9 +1,1069 @@
-<!DOCTYPE html>
+ <div class="form-group">
+                        <label for="company">Empresa *</label>
+                        <input type="text" id="company" name="company" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="salesman">Vendedor *</label>
+                        <select id="salesman" name="salesman" required>
+                            <option value="">Seleccionar vendedor</option>
+                            <option value="Pablo">Pablo</option>
+                            <option value="Dulce">Dulce</option>
+                            <option value="Javier">Javier</option>
+                            <option value="Ana">Ana</option>
+                            <option value="Carlos">Carlos</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="productType">Tipo de Producto *</label>
+                        <select id="productType" name="productType" required>
+                            <option value="">Seleccionar tipo</option>
+                            <option value="Belleza y Cuidado Personal">🧴 Belleza y Cuidado Personal</option>
+                            <option value="Electrónica y Tecnología">📱 Electrónica y Tecnología</option>
+                            <option value="Hogar y Decoración">🏠 Hogar y Decoración</option>
+                            <option value="Alimentación y Bebidas">🍕 Alimentación y Bebidas</option>
+                            <option value="Ropa y Accesorios">👔 Ropa y Accesorios</option>
+                            <option value="Productos Naturales">🌿 Productos Naturales</option>
+                            <option value="Calzado">👟 Calzado</option>
+                            <option value="Juguetes y Juegos">🧸 Juguetes y Juegos</option>
+                            <option value="Libros y Papelería">📚 Libros y Papelería</option>
+                            <option value="Otros">📦 Otros</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="source">Fuente *</label>
+                        <select id="source" name="source" required>
+                            <option value="">Seleccionar fuente</option>
+                            <option value="Referido Envía">🤝 Referido Envía</option>
+                            <option value="Calendly">📅 Calendly</option>
+                            <option value="Prospección">🎯 Prospección</option>
+                            <option value="LinkedIn">💼 LinkedIn</option>
+                            <option value="Web Orgánica">🌐 Web Orgánica</option>
+                            <option value="Google Ads">📢 Google Ads</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row-three">
+                    <div class="form-group">
+                        <label for="sede">Sede *</label>
+                        <select id="sede" name="sede" required>
+                            <option value="">Seleccionar sede</option>
+                            <option value="CDMX">🏢 CDMX</option>
+                            <option value="Laredo">🏭 Laredo</option>
+                            <option value="MTY">🏪 MTY</option>
+                            <option value="MTY y CDMX">🏢🏪 MTY y CDMX</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="monthlyOrders">Órdenes Mensuales *</label>
+                        <input type="number" id="monthlyOrders" name="monthlyOrders" min="1" placeholder="Ej: 150" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="productsPerOrder">Productos por Orden *</label>
+                        <select id="productsPerOrder" name="productsPerOrder" required>
+                            <option value="">Seleccionar rango</option>
+                            <option value="1-3">1-3 productos</option>
+                            <option value="3-5">3-5 productos</option>
+                            <option value="6-10">6-10 productos</option>
+                            <option value=">10">+10 productos</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="storagePositions">Posiciones de Almacenamiento</label>
+                        <input type="text" id="storagePositions" name="storagePositions" placeholder="Ej: 3 posiciones refrigeradas, 2 secas">
+                    </div>
+                    <div class="form-group">
+                        <label for="tier">Tier</label>
+                        <select id="tier" name="tier">
+                            <option value="">Seleccionar tier</option>
+                            <option value="T1">T1 (0-500 órdenes)</option>
+                            <option value="T2">T2 (501-1000 órdenes)</option>
+                            <option value="T3">T3 (1001-3000 órdenes)</option>
+                            <option value="T4">T4 (+3000 órdenes)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="stage">Etapa *</label>
+                        <select id="stage" name="stage" required>
+                            <option value="">Seleccionar etapa</option>
+                            <option value="primer_contacto">📞 Primer Contacto</option>
+                            <option value="1ra_reunion">🤝 1ra Reunión</option>
+                            <option value="oferta_comercial">📋 Oferta Comercial</option>
+                            <option value="2da_reunion">🤝 2da Reunión</option>
+                            <option value="negociacion">💰 Negociación</option>
+                            <option value="cierre_ganado">✅ Cierre Ganado</option>
+                            <option value="cierre_perdido">❌ Cierre Perdido</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="amount">Monto (€)</label>
+                        <input type="number" id="amount" name="amount" min="0" step="100" placeholder="Ej: 4999">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="estimatedCloseDate">Fecha Estimada de Cierre</label>
+                        <input type="date" id="estimatedCloseDate" name="estimatedCloseDate">
+                    </div>
+                    <div class="form-group">
+                        <label for="actualCloseDate">Fecha de Cierre Real</label>
+                        <input type="date" id="actualCloseDate" name="actualCloseDate">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="firstMeetingDate">Fecha 1ra Reunión</label>
+                        <input type="date" id="firstMeetingDate" name="firstMeetingDate">
+                    </div>
+                    <div class="form-group">
+                        <label for="commercialOfferDate">Fecha Oferta Comercial</label>
+                        <input type="date" id="commercialOfferDate" name="commercialOfferDate">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="secondMeetingDate">Fecha 2da Reunión</label>
+                        <input type="date" id="secondMeetingDate" name="secondMeetingDate">
+                    </div>
+                    <div class="form-group">
+                        <label for="negotiationDate">Fecha Negociación</label>
+                        <input type="date" id="negotiationDate" name="negotiationDate">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="hasEcommerce" name="hasEcommerce">
+                        <label for="hasEcommerce">¿Tiene integración con plataforma E-commerce?</label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="comments">Comentarios</label>
+                    <textarea id="comments" name="comments" placeholder="Información adicional sobre el lead..."></textarea>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="window.closeModal()">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Guardar Lead</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal de detalle del lead -->
+    <div id="leadDetailModal" class="modal">
+        <div class="modal-content" style="max-width: 900px;">
+            <h2 id="leadDetailTitle">Detalle del Lead</h2>
+            <div id="leadDetailContent">
+                <!-- El contenido se cargará dinámicamente -->
+            </div>
+            <div class="form-actions">
+                <button type="button" class="btn btn-primary" onclick="window.editLeadFromDetail()">✏️ Editar</button>
+                <button type="button" class="btn btn-secondary" onclick="window.closeLeadDetailModal()">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para gestión de archivos -->
+    <div id="fileModal" class="modal">
+        <div class="modal-content">
+            <h2 id="fileModalTitle">Gestión de Archivos</h2>
+            <input type="hidden" id="currentLeadId">
+            
+            <div class="file-upload-area">
+                <h3>📎 Agregar Documento</h3>
+                <p style="color: #6b7280; margin-bottom: 15px;">
+                    Agrega enlaces a contratos, propuestas, documentos, etc.
+                </p>
+                
+                <div class="form-group">
+                    <label for="fileUrl">URL del documento *</label>
+                    <input type="url" id="fileUrl" placeholder="https://drive.google.com/file/d/..." required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="fileName">Nombre del documento *</label>
+                    <input type="text" id="fileName" placeholder="Contrato_Empresa_2025.pdf" required>
+                </div>
+                
+                <button type="button" class="btn btn-primary" onclick="window.addFileReference()">
+                    📎 Agregar Documento
+                </button>
+                
+                <div style="margin-top: 15px; padding: 10px; background: #f0f9ff; border: 1px solid #0ea5e9; border-radius: 8px;">
+                    <p style="color: #0369a1; font-size: 0.9rem; margin: 0;">
+                        <strong>💡 Sugerencia:</strong> Sube contratos y documentos a Google Drive, 
+                        obtén el enlace compartible y agrégalo aquí.
+                    </p>
+                </div>
+            </div>
+            
+            <div id="filesList">
+                <!-- Los archivos se mostrarán aquí -->
+            </div>
+            
+            <div class="form-actions">
+                <button type="button" class="btn btn-secondary" onclick="window.closeFileModal()">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Login -->
+    <div id="loginModal" class="modal" style="display: none;">
+        <div class="modal-content" style="max-width: 400px;">
+            <h2 style="text-align: center; margin-bottom: 30px;">🔐 Acceso al Sistema</h2>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="userSelect">Selecciona tu usuario:</label>
+                    <select id="userSelect" name="userSelect" required>
+                        <option value="">Seleccionar usuario</option>
+                        <option value="pablo">Pablo (Comercial)</option>
+                        <option value="dulce">Dulce (Comercial)</option>
+                        <option value="javier">Javier (Manager)</option>
+                        <option value="ana">Ana (Manager)</option>
+                        <option value="carlos">Carlos (Almacén)</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Contraseña:</label>
+                    <input type="password" id="password" name="password" required placeholder="Ingresa tu contraseña">
+                </div>
+                
+                <div class="form-actions" style="justify-content: center;">
+                    <button type="submit" class="btn btn-primary">Acceder</button>
+                </div>
+                
+                <div style="margin-top: 20px; padding: 10px; background: #f0f9ff; border: 1px solid #0ea5e9; border-radius: 8px;">
+                    <p style="color: #0369a1; font-size: 0.9rem; margin: 0; text-align: center;">
+                        <strong>Demo:</strong> Contraseña para todos los usuarios: <code>123456</code>
+                    </p>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Scripts de Firebase -->
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+        import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc, onSnapshot, query, orderBy, arrayUnion, arrayRemove } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
+
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyAo-7joP2C-aD5buwmpulrrP2nkNar2kTs",
+            authDomain: "enviaweeb-crm.firebaseapp.com",
+            projectId: "enviaweeb-crm",
+            storageBucket: "enviaweeb-crm.firebasestorage.app",
+            messagingSenderId: "361625817032",
+            appId: "1:361625817032:web:5af0c621fd9691d7ec7afd"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Global variables
+        let leads = [];
+        let editingLeadId = null;
+        let detailLeadId = null;
+
+        // Firebase functions
+        window.firebaseDB = {
+            // Get all leads
+            async getLeads() {
+                try {
+                    showLoading(true);
+                    const q = query(collection(db, 'leads'), orderBy('createdAt', 'desc'));
+                    const querySnapshot = await getDocs(q);
+                    const leadsData = [];
+                    querySnapshot.forEach((doc) => {
+                        leadsData.push({ id: doc.id, ...doc.data() });
+                    });
+                    return leadsData;
+                } catch (error) {
+                    console.error('Error getting leads:', error);
+                    showError('Error al cargar los datos: ' + error.message);
+                    return [];
+                } finally {
+                    showLoading(false);
+                }
+            },
+
+            // Add new lead
+            async addLead(leadData) {
+                try {
+                    showLoading(true);
+                    const docRef = await addDoc(collection(db, 'leads'), {
+                        ...leadData,
+                        files: [],
+                        createdAt: new Date(),
+                        updatedAt: new Date()
+                    });
+                    showSuccess('Lead agregado exitosamente');
+                    return docRef.id;
+                } catch (error) {
+                    console.error('Error adding lead:', error);
+                    showError('Error al agregar el lead: ' + error.message);
+                    throw error;
+                } finally {
+                    showLoading(false);
+                }
+            },
+
+            // Update lead
+            async updateLead(leadId, leadData) {
+                try {
+                    showLoading(true);
+                    const leadRef = doc(db, 'leads', leadId);
+                    await updateDoc(leadRef, {
+                        ...leadData,
+                        updatedAt: new Date()
+                    });
+                    showSuccess('Lead actualizado exitosamente');
+                } catch (error) {
+                    console.error('Error updating lead:', error);
+                    showError('Error al actualizar el lead: ' + error.message);
+                    throw error;
+                } finally {
+                    showLoading(false);
+                }
+            },
+
+            // Delete lead
+            async deleteLead(leadId) {
+                try {
+                    showLoading(true);
+                    const leadRef = doc(db, 'leads', leadId);
+                    await deleteDoc(leadRef);
+                    showSuccess('Lead eliminado exitosamente');
+                } catch (error) {
+                    console.error('Error deleting lead:', error);
+                    showError('Error al eliminar el lead: ' + error.message);
+                    throw error;
+                } finally {
+                    showLoading(false);
+                }
+            },
+
+            // Real-time listener
+            listenToLeads(callback) {
+                const q = query(collection(db, 'leads'), orderBy('createdAt', 'desc'));
+                return onSnapshot(q, (querySnapshot) => {
+                    const leadsData = [];
+                    querySnapshot.forEach((doc) => {
+                        leadsData.push({ id: doc.id, ...doc.data() });
+                    });
+                    callback(leadsData);
+                });
+            },
+
+            // Add file reference
+            async addFileReference(leadId, fileInfo) {
+                try {
+                    showLoading(true);
+                    const leadRef = doc(db, 'leads', leadId);
+                    await updateDoc(leadRef, {
+                        files: arrayUnion(fileInfo),
+                        updatedAt: new Date()
+                    });
+                    showSuccess('Documento agregado exitosamente');
+                } catch (error) {
+                    console.error('Error adding file reference:', error);
+                    showError('Error al agregar documento: ' + error.message);
+                    throw error;
+                } finally {
+                    showLoading(false);
+                }
+            },
+
+            // Remove file reference
+            async removeFileReference(leadId, fileInfo) {
+                try {
+                    showLoading(true);
+                    const leadRef = doc(db, 'leads', leadId);
+                    await updateDoc(leadRef, {
+                        files: arrayRemove(fileInfo),
+                        updatedAt: new Date()
+                    });
+                    showSuccess('Documento eliminado exitosamente');
+                } catch (error) {
+                    console.error('Error removing file reference:', error);
+                    showError('Error al eliminar documento: ' + error.message);
+                    throw error;
+                } finally {
+                    showLoading(false);
+                }
+            }
+        };
+
+        // Initialize the app
+        window.addEventListener('DOMContentLoaded', initializeCRM);
+
+        async function initializeCRM() {
+            // Set up real-time listener
+            window.firebaseDB.listenToLeads((leadsData) => {
+                leads = leadsData;
+                displayLeads();
+                updateStats();
+                updateFunnel();
+                updateReports();
+            });
+
+            // Set up event listeners
+            setupEventListeners();
+        }
+
+        function setupEventListeners() {
+            // Search functionality
+            document.getElementById('searchInput').addEventListener('input', displayLeads);
+            document.getElementById('stageFilter').addEventListener('change', displayLeads);
+            document.getElementById('productFilter').addEventListener('change', displayLeads);
+            document.getElementById('salesmanFilter').addEventListener('change', displayLeads);
+
+            // Form submission
+            document.getElementById('leadForm').addEventListener('submit', handleFormSubmit);
+
+            // Close modal when clicking outside
+            document.getElementById('leadModal').addEventListener('click', (e) => {
+                if (e.target === document.getElementById('leadModal')) {
+                    window.closeModal();
+                }
+            });
+
+            // Close lead detail modal when clicking outside
+            document.getElementById('leadDetailModal').addEventListener('click', (e) => {
+                if (e.target === document.getElementById('leadDetailModal')) {
+                    window.closeLeadDetailModal();
+                }
+            });
+
+            // Close file modal when clicking outside
+            document.getElementById('fileModal').addEventListener('click', (e) => {
+                if (e.target === document.getElementById('fileModal')) {
+                    window.closeFileModal();
+                }
+            });
+
+            // File form handlers
+            document.getElementById('fileUrl').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    window.addFileReference();
+                }
+            });
+
+            document.getElementById('fileName').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    window.addFileReference();
+                }
+            });
+        }
+
+        async function handleFormSubmit(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(e.target);
+            const leadData = Object.fromEntries(formData.entries());
+            
+            // Convert checkbox to boolean
+            leadData.hasEcommerce = document.getElementById('hasEcommerce').checked;
+            
+            // Convert numbers (remove storagePositions from number conversion)
+            leadData.monthlyOrders = parseInt(leadData.monthlyOrders) || 0;
+            leadData.amount = parseFloat(leadData.amount) || 0;
+            
+            try {
+                if (editingLeadId) {
+                    await window.firebaseDB.updateLead(editingLeadId, leadData);
+                } else {
+                    await window.firebaseDB.addLead(leadData);
+                }
+                window.closeModal();
+            } catch (error) {
+                // Error is already handled in Firebase functions
+            }
+        }
+
+        // Display functions
+        function displayLeads() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const stageFilter = document.getElementById('stageFilter').value;
+            const productFilter = document.getElementById('productFilter').value;
+            const salesmanFilter = document.getElementById('salesmanFilter').value;
+            
+            let filteredLeads = leads.filter(lead => {
+                const matchesSearch = lead.company.toLowerCase().includes(searchTerm);
+                const matchesStage = !stageFilter || lead.stage === stageFilter;
+                const matchesProduct = !productFilter || lead.productType === productFilter;
+                const matchesSalesman = !salesmanFilter || lead.salesman === salesmanFilter;
+                
+                return matchesSearch && matchesStage && matchesProduct && matchesSalesman;
+            });
+            
+            const tbody = document.getElementById('leadsTable');
+            tbody.innerHTML = '';
+            
+            filteredLeads.forEach(lead => {
+                const row = document.createElement('tr');
+                row.className = 'lead-row';
+                row.onclick = () => window.openLeadDetailModal(lead.id);
+                row.innerHTML = `
+                    <td>
+                        <div><strong>${lead.company}</strong></div>
+                        <div style="color: #6b7280; font-size: 0.8rem;">${lead.source || 'N/A'}</div>
+                    </td>
+                    <td><strong>${lead.salesman}</strong></td>
+                    <td>${getProductIcon(lead.productType)} ${lead.productType}</td>
+                    <td>${lead.sede}</td>
+                    <td><strong>${lead.monthlyOrders || 0}</strong></td>
+                    <td>${lead.productsPerOrder || 'N/A'}</td>
+                    <td>${lead.tier ? `<span class="tier tier-${lead.tier.toLowerCase()}">${lead.tier}</span>` : 'N/A'}</td>
+                    <td><span class="status status-${lead.stage}">${getStageText(lead.stage)}</span></td>
+                    <td>${lead.estimatedCloseDate || 'N/A'}</td>
+                    <td><strong>${lead.amount ? '€' + lead.amount.toLocaleString() : 'N/A'}</strong></td>
+                    <td>
+                        <button class="action-btn btn-add" onclick="event.stopPropagation(); window.openFileModal('${lead.id}')" title="Gestionar documentos">
+                            📎
+                        </button>
+                        <span style="color: #6b7280; font-size: 0.8rem;">${lead.files ? lead.files.length : 0}</span>
+                    </td>
+                    <td>
+                        <div class="actions">
+                            <button class="action-btn btn-edit" onclick="event.stopPropagation(); window.editLead('${lead.id}')" title="Editar">✏️</button>
+                            <button class="action-btn btn-delete" onclick="event.stopPropagation(); window.deleteLead('${lead.id}')" title="Eliminar">🗑️</button>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function canEdit(lead) {
+            return true; // Todos pueden editar
+        }
+
+        function canDelete(lead) {
+            return true; // Todos pueden eliminar
+        }
+
+        function getProductIcon(productType) {
+            const icons = {
+                'Belleza y Cuidado Personal': '🧴',
+                'Electrónica y Tecnología': '📱',
+                'Hogar y Decoración': '🏠',
+                'Alimentación y Bebidas': '🍕',
+                'Ropa y Accesorios': '👔',
+                'Productos Naturales': '🌿',
+                'Calzado': '👟',
+                'Juguetes y Juegos': '🧸',
+                'Libros y Papelería': '📚',
+                'Otros': '📦'
+            };
+            return icons[productType] || '📦';
+        }
+
+        function getStageText(stage) {
+            const stageMap = {
+                'primer_contacto': 'Primer Contacto',
+                '1ra_reunion': '1ra Reunión',
+                'oferta_comercial': 'Oferta Comercial',
+                '2da_reunion': '2da Reunión',
+                'negociacion': 'Negociación',
+                'cierre_ganado': 'Cierre Ganado',
+                'cierre_perdido': 'Cierre Perdido'
+            };
+            return stageMap[stage] || stage;
+        }
+
+        function updateStats() {
+            const totalLeads = leads.length;
+            const activeLeads = leads.filter(lead => !['cierre_ganado', 'cierre_perdido'].includes(lead.stage)).length;
+            const wonLeads = leads.filter(lead => lead.stage === 'cierre_ganado').length;
+            const totalValue = leads.reduce((sum, lead) => sum + (lead.amount || 0), 0);
+            const conversionRate = totalLeads > 0 ? ((wonLeads / totalLeads) * 100).toFixed(1) : 0;
+            const totalOrders = leads.reduce((sum, lead) => sum + (lead.monthlyOrders || 0), 0);
+            
+            document.getElementById('totalLeads').textContent = totalLeads;
+            document.getElementById('activeLeads').textContent = activeLeads;
+            document.getElementById('wonLeads').textContent = wonLeads;
+            document.getElementById('totalValue').textContent = '€' + totalValue.toLocaleString();
+            document.getElementById('conversionRate').textContent = conversionRate + '%';
+            document.getElementById('totalOrders').textContent = totalOrders.toLocaleString();
+        }
+
+        function updateFunnel() {
+            const stages = {
+                'primer_contacto': 'funnelPrimerContacto',
+                '1ra_reunion': 'funnel1raReunion',
+                'oferta_comercial': 'funnelOfertaComercial',
+                '2da_reunion': 'funnel2daReunion',
+                'negociacion': 'funnelNegociacion',
+                'cierre_ganado': 'funnelCierreGanado'
+            };
+            
+            Object.keys(stages).forEach(stage => {
+                const count = leads.filter(lead => lead.stage === stage).length;
+                document.getElementById(stages[stage]).textContent = count;
+            });
+        }
+
+        function updateReports() {
+            const totalLeads = leads.length;
+            const wonLeads = leads.filter(lead => lead.stage === 'cierre_ganado');
+            const totalValue = wonLeads.reduce((sum, lead) => sum + (lead.amount || 0), 0);
+            const averageTicket = wonLeads.length > 0 ? (totalValue / wonLeads.length).toFixed(0) : 0;
+            
+            const totalOrders = leads.reduce((sum, lead) => sum + (lead.monthlyOrders || 0), 0);
+            const averageOrders = totalLeads > 0 ? (totalOrders / totalLeads).toFixed(0) : 0;
+            
+            const salesmen = [...new Set(leads.map(lead => lead.salesman))].length;
+            const leadsPerSalesman = salesmen > 0 ? (totalLeads / salesmen).toFixed(1) : 0;
+            
+            document.getElementById('averageTicket').textContent = '€' + averageTicket;
+            document.getElementById('averageOrders').textContent = averageOrders;
+            document.getElementById('averageTime').textContent = '45 días';
+            document.getElementById('leadsPerSalesman').textContent = leadsPerSalesman;
+        }
+
+        // Modal functions
+        window.openModal = function(leadId = null) {
+            editingLeadId = leadId;
+            const modal = document.getElementById('leadModal');
+            const form = document.getElementById('leadForm');
+            const title = document.getElementById('modalTitle');
+            
+            if (leadId) {
+                const lead = leads.find(l => l.id === leadId);
+                if (lead) {
+                    title.textContent = 'Editar Lead';
+                    
+                    // Fill form with existing data
+                    Object.keys(lead).forEach(key => {
+                        const field = document.getElementById(key);
+                        if (field) {
+                            if (field.type === 'checkbox') {
+                                field.checked = lead[key] || false;
+                            } else {
+                                field.value = lead[key] || '';
+                            }
+                        }
+                    });
+                }
+            } else {
+                title.textContent = 'Agregar Nuevo Lead';
+                form.reset();
+                
+                // Set default values
+                const today = new Date().toISOString().split('T')[0];
+                document.getElementById('estimatedCloseDate').value = today;
+            }
+            
+            modal.style.display = 'block';
+        }
+
+        // Lead detail modal functions
+        window.openLeadDetailModal = function(leadId) {
+            detailLeadId = leadId;
+            const modal = document.getElementById('leadDetailModal');
+            const lead = leads.find(l => l.id === leadId);
+            
+            if (lead) {
+                document.getElementById('leadDetailTitle').textContent = `${lead.company} - Detalle del Lead`;
+                
+                const content = document.getElementById('leadDetailContent');
+                content.innerHTML = `
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 30px;">
+                        <div>
+                            <h3 style="color: #667eea; margin-bottom: 20px;">📋 Información General</h3>
+                            <div style="display: grid; gap: 15px;">
+                                <div><strong>Empresa:</strong> ${lead.company}</div>
+                                <div><strong>Vendedor:</strong> ${lead.salesman}</div>
+                                <div><strong>Tipo Producto:</strong> ${getProductIcon(lead.productType)} ${lead.productType}</div>
+                                <div><strong>Fuente:</strong> ${lead.source}</div>
+                                <div><strong>Sede:</strong> ${lead.sede}</div>
+                                <div><strong>E-commerce:</strong> ${lead.hasEcommerce ? '✅ Sí' : '❌ No'}</div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h3 style="color: #667eea; margin-bottom: 20px;">📊 Métricas</h3>
+                            <div style="display: grid; gap: 15px;">
+                                <div><strong>Órdenes Mensuales:</strong> ${lead.monthlyOrders || 0}</div>
+                                <div><strong>Productos/Orden:</strong> ${lead.productsPerOrder || 'N/A'}</div>
+                                <div><strong>Posiciones Almacén:</strong> ${lead.storagePositions || 'N/A'}</div>
+                                <div><strong>Tier:</strong> ${lead.tier ? `<span class="tier tier-${lead.tier.toLowerCase()}">${lead.tier}</span>` : 'N/A'}</div>
+                                <div><strong>Monto:</strong> ${lead.amount ? '€' + lead.amount.toLocaleString() : 'N/A'}</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 30px;">
+                        <div>
+                            <h3 style="color: #667eea; margin-bottom: 20px;">📅 Timeline</h3>
+                            <div style="display: grid; gap: 15px;">
+                                <div><strong>Etapa Actual:</strong> <span class="status status-${lead.stage}">${getStageText(lead.stage)}</span></div>
+                                <div><strong>Fecha Est. Cierre:</strong> ${lead.estimatedCloseDate || 'N/A'}</div>
+                                <div><strong>Fecha Cierre Real:</strong> ${lead.actualCloseDate || 'N/A'}</div>
+                                <div><strong>1ra Reunión:</strong> ${lead.firstMeetingDate || 'N/A'}</div>
+                                <div><strong>Oferta Comercial:</strong> ${lead.commercialOfferDate || 'N/A'}</div>
+                                <div><strong>2da Reunión:</strong> ${lead.secondMeetingDate || 'N/A'}</div>
+                                <div><strong>Negociación:</strong> ${lead.negotiationDate || 'N/A'}</div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h3 style="color: #667eea; margin-bottom: 20px;">📎 Documentos</h3>
+                            <div style="display: grid; gap: 10px;">
+                                ${lead.files && lead.files.length > 0 ? 
+                                    lead.files.map(file => `
+                                        <div style="display: flex; align-items: center; gap: 10px; padding: 10px; background: #f8f9fa; border-radius: 6px;">
+                                            <span>📄</span>
+                                            <a href="${file.url}" target="_blank" style="color: #667eea; text-decoration: none;">${file.name}</a>
+                                        </div>
+                                    `).join('') : 
+                                    '<div style="color: #6b7280; font-style: italic;">No hay documentos adjuntos</div>'
+                                }
+                                <button class="btn btn-primary" onclick="window.openFileModal('${lead.id}')" style="margin-top: 10px;">
+                                    📎 Gestionar Documentos
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    ${lead.comments ? `
+                        <div style="margin-bottom: 20px;">
+                            <h3 style="color: #667eea; margin-bottom: 15px;">💬 Comentarios</h3>
+                            <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; border-left: 4px solid #667eea;">
+                                ${lead.comments}
+                            </div>
+                        </div>
+                    ` : ''}
+                `;
+            }
+            
+            modal.style.display = 'block';
+        }
+
+        window.closeLeadDetailModal = function() {
+            document.getElementById('leadDetailModal').style.display = 'none';
+            detailLeadId = null;
+        }
+
+        window.editLeadFromDetail = function() {
+            window.closeLeadDetailModal();
+            window.openModal(detailLeadId);
+        }
+            
+            modal.style.display = 'block';
+        }
+
+        window.closeModal = function() {
+            document.getElementById('leadModal').style.display = 'none';
+            editingLeadId = null;
+        }
+
+        // File modal functions
+        window.openFileModal = function(leadId) {
+            const modal = document.getElementById('fileModal');
+            document.getElementById('currentLeadId').value = leadId;
+            
+            const lead = leads.find(l => l.id === leadId);
+            if (lead) {
+                document.getElementById('fileModalTitle').textContent = `Documentos de ${lead.company}`;
+                displayFiles(lead.files || []);
+            }
+            
+            modal.style.display = 'block';
+        }
+
+        window.closeFileModal = function() {
+            document.getElementById('fileModal').style.display = 'none';
+            document.getElementById('fileUrl').value = '';
+            document.getElementById('fileName').value = '';
+        }
+
+        window.addFileReference = async function() {
+            const leadId = document.getElementById('currentLeadId').value;
+            const fileUrl = document.getElementById('fileUrl').value.trim();
+            const fileName = document.getElementById('fileName').value.trim();
+            
+            if (!fileUrl || !fileName) {
+                showError('Por favor completa todos los campos');
+                return;
+            }
+            
+            // Validate URL
+            try {
+                new URL(fileUrl);
+            } catch (e) {
+                showError('Por favor ingresa una URL válida');
+                return;
+            }
+            
+            const fileInfo = {
+                name: fileName,
+                url: fileUrl,
+                uploadedAt: new Date(),
+                type: 'external'
+            };
+            
+            try {
+                await window.firebaseDB.addFileReference(leadId, fileInfo);
+                document.getElementById('fileUrl').value = '';
+                document.getElementById('fileName').value = '';
+                
+                // Refresh file list
+                const lead = leads.find(l => l.id === leadId);
+                if (lead) {
+                    displayFiles(lead.files || []);
+                }
+            } catch (error) {
+                // Error already handled in Firebase function
+            }
+        }
+
+        window.deleteFile = async function(leadId, fileIndex) {
+            if (!confirm('¿Estás seguro de que quieres eliminar este documento?')) {
+                return;
+            }
+            
+            const lead = leads.find(l => l.id === leadId);
+            if (lead && lead.files && lead.files[fileIndex]) {
+                try {
+                    await window.firebaseDB.removeFileReference(leadId, lead.files[fileIndex]);
+                    
+                    // Refresh file list
+                    const updatedLead = leads.find(l => l.id === leadId);
+                    if (updatedLead) {
+                        displayFiles(updatedLead.files || []);
+                    }
+                } catch (error) {
+                    // Error already handled in Firebase function
+                }
+            }
+        }
+
+        function displayFiles(files) {
+            const container = document.getElementById('filesList');
+            container.innerHTML = '';
+            
+            if (!files || files.length === 0) {
+                container.innerHTML = '<p style="color: #6b7280; text-align: center; padding: 20px;">No hay documentos registrados</p>';
+                return;
+            }
+            
+            files.forEach((file, index) => {
+                const fileDiv = document.createElement('div');
+                fileDiv.className = 'file-item';
+                fileDiv.innerHTML = `
+                    <div class="file-info">
+                        <div class="file-name">${file.name}</div>
+                        <div class="file-meta">
+                            ${formatDate(file.uploadedAt)}
+                        </div>
+                    </div>
+                    <div class="file-actions">
+                        <a href="${file.url}" target="_blank" class="action-btn" style="background: #10b981; color: white;" title="Abrir documento">
+                            🔗
+                        </a>
+                        <button onclick="window.deleteFile('${document.getElementById('currentLeadId').value}', ${index})" class="action-btn btn-delete" title="Eliminar">
+                            🗑️
+                        </button>
+                    </div>
+                `;
+                container.appendChild(fileDiv);
+            });
+        }
+
+        // CRUD functions
+        window.editLead = function(leadId) {
+            window.openModal(leadId);
+        }
+
+        window.deleteLead = async function(leadId) {
+            if (confirm('¿Estás seguro de que quieres eliminar este lead?')) {
+                try {
+                    await window.firebaseDB.deleteLead(leadId);
+                } catch (error) {
+                    // Error is already handled in Firebase functions
+                }
+            }
+        }
+
+        // Tab functions
+        window.showTab = function(tabName) {
+            // Remove active class from all tabs
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // Show selected tab
+            document.getElementById(tabName).classList.add('active');
+            
+            // Add active class to clicked tab
+            window.event.target.classList.add('active');
+        }
+
+        // Utility functions
+        function showLoading(show) {
+            const loading = document.getElementById('loading');
+            if (show) {
+                loading.style.display = 'block';
+            } else {
+                loading.style.display = 'none';
+            }
+        }
+
+        function showError(message) {
+            const container = document.getElementById('error-container');
+            container.innerHTML = `<div class="error-message">${message}</div>`;
+            setTimeout(() => {
+                container.innerHTML = '';
+            }, 5000);
+        }
+
+        function showSuccess(message) {
+            const container = document.getElementById('error-container');
+            container.innerHTML = `<div class="success-message">${message}</div>`;
+            setTimeout(() => {
+                container.innerHTML = '';
+            }, 3000);
+        }
+
+        function formatDate(date) {
+            if (!date) return '';
+            const d = date.toDate ? date.toDate() : new Date(date);
+            return d.toLocaleDateString('es-ES');
+        }
+
+        // Sample data insertion (only for demo)
+        window.insertSampleData = async function() {
+            const sampleLeads = [
+                {
+                    company: "TechStore Madrid",
+                    salesman: "Pablo",
+                    productType: "Electrónica y Tecnología",
+                    source: "Referido Envía",
+                    sede: "CDMX",
+                    monthlyOrders: 150,
+                    productsPerOrder: "3-5",
+                    storagePositions: "2 posiciones refrigeradas",
+                    tier: "T1",
+                    stage: "oferta_comercial",
+                    amount: 4999,
+                    estimatedCloseDate: "2025-08-15",
+                    hasEcommerce: true,
+                    comments: "Cliente interesado en solución integral"
+                },
+                {
+                    company: "ModaStyle Barcelona",
+                    salesman: "Dulce",
+                    productType: "Ropa y Accesorios",
+                    source: "Calendly",
+                    sede: "Laredo",
+                    monthlyOrders: 300,
+                    productsPerOrder: "6-10",
+                    storagePositions: "4 posiciones secas, 1 refrigerada",
+                    tier: "T2",
+                    stage: "cierre_ganado",
+                    amount: 6600,
+                    estimatedCloseDate: "2025-07-20",
+                    actualCloseDate: "2025-07-18",
+                    hasEcommerce: false,
+                    comments: "Cliente cerrado exitosamente"
+                },
+                {
+                    company: "Beauty Natural",
+                    salesman: "Javier",
+                    productType: "Belleza y Cuidado Personal",
+                    source: "Prospección",
+                    sede: "MTY",
+                    monthlyOrders: 75,
+                    productsPerOrder: "1-3",
+                    storagePositions: "1 posición seca",
+                    tier: "T1",
+                    stage: "1ra_reunion",
+                    amount: 4999,
+                    estimatedCloseDate: "2025-08-30",
+                    hasEcommerce: true,
+                    comments: "Primera reunión programada"
+                },
+                {
+                    company: "Gourmet Delicias",
+                    salesman: "Ana",
+                    productType: "Alimentación y Bebidas",
+                    source: "Referido Envía",
+                    sede: "CDMX",
+                    monthlyOrders: 200,
+                    productsPerOrder: "1-3",
+                    storagePositions: "3 posiciones mixtas",
+                    tier: "T2",
+                    stage: "negociacion",
+                    amount: 5999,
+                    estimatedCloseDate: "2025-08-01",
+                    firstMeetingDate: "2025-07-10",
+                    commercialOfferDate: "2025-07-15",
+                    hasEcommerce: true,
+                    comments: "Negociación avanzada, esperando aprobación final"
+                },
+                {
+                    company: "Juguetes Mágicos",
+                    salesman: "Carlos",
+                    productType: "Juguetes y Juegos",
+                    source: "Calendly",
+                    sede: "MTY",
+                    monthlyOrders: 100,
+                    productsPerOrder: "6-10",
+                    storagePositions: "2 posiciones grandes",
+                    tier: "T1",
+                    stage: "cierre_perdido",
+                    amount: 4999,
+                    estimatedCloseDate: "2025-07-25",
+                    actualCloseDate: "2025-07-25",
+                    hasEcommerce: false,
+                    comments: "Cliente decidió no continuar por presupuesto"
+                }
+            ];
+
+            try {
+                showLoading(true);
+                for (const lead of sampleLeads) {
+                    await window.firebaseDB.addLead(lead);
+                }
+                showSuccess('Datos de ejemplo insertados exitosamente');
+            } catch (error) {
+                showError('Error al insertar datos de ejemplo');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+    </script>
+</body>
+</html><!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CRM Envia.com - Gestión de Leads</title>
+    <title>Pipeline Fulfillment ES - CRM</title>
     <style>
         * {
             margin: 0;
@@ -18,7 +1078,7 @@
         }
 
         .container {
-            max-width: 1400px;
+            max-width: 1600px;
             margin: 0 auto;
             padding: 20px;
         }
@@ -42,6 +1102,17 @@
             text-align: center;
             opacity: 0.9;
             font-size: 1.1rem;
+        }
+
+        .lead-row {
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .lead-row:hover {
+            background: #f0f4ff !important;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
 
         .tabs {
@@ -188,30 +1259,34 @@
             border-radius: 12px;
             overflow: hidden;
             box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            overflow-x: auto;
         }
 
         .table {
             width: 100%;
             border-collapse: collapse;
+            min-width: 1200px;
         }
 
         .table th {
             background: #f8fafc;
-            padding: 18px 15px;
+            padding: 12px 8px;
             text-align: left;
             font-weight: 600;
-            font-size: 0.9rem;
+            font-size: 0.8rem;
             color: #475569;
             border-bottom: 2px solid #e2e8f0;
             position: sticky;
             top: 0;
             z-index: 10;
+            white-space: nowrap;
         }
 
         .table td {
-            padding: 18px 15px;
+            padding: 12px 8px;
             border-bottom: 1px solid #f1f5f9;
             vertical-align: middle;
+            font-size: 0.9rem;
         }
 
         .table tbody tr:hover {
@@ -220,32 +1295,37 @@
         }
 
         .status {
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 0.8rem;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
             font-weight: 500;
             text-transform: uppercase;
             letter-spacing: 0.5px;
+            white-space: nowrap;
         }
 
-        .status-nuevo { background: #fef3c7; color: #92400e; }
-        .status-contactado { background: #fde68a; color: #a16207; }
-        .status-propuesta { background: #ddd6fe; color: #6b46c1; }
-        .status-interesado { background: #bfdbfe; color: #1e40af; }
-        .status-cerrado { background: #bbf7d0; color: #166534; }
+        .status-primer_contacto { background: #fef3c7; color: #92400e; }
+        .status-1ra_reunion { background: #fde68a; color: #a16207; }
+        .status-oferta_comercial { background: #ddd6fe; color: #6b46c1; }
+        .status-2da_reunion { background: #bfdbfe; color: #1e40af; }
+        .status-negociacion { background: #fed7aa; color: #ea580c; }
+        .status-cierre_ganado { background: #bbf7d0; color: #166534; }
+        .status-cierre_perdido { background: #fecaca; color: #dc2626; }
 
-        .priority {
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 0.8rem;
+        .tier {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
             font-weight: 500;
             text-transform: uppercase;
             letter-spacing: 0.5px;
+            white-space: nowrap;
         }
 
-        .priority-alta { background: #fecaca; color: #dc2626; }
-        .priority-media { background: #fed7aa; color: #ea580c; }
-        .priority-baja { background: #d1fae5; color: #059669; }
+        .tier-t1 { background: #e0f2fe; color: #0369a1; }
+        .tier-t2 { background: #f0f9ff; color: #0284c7; }
+        .tier-t3 { background: #fef3c7; color: #a16207; }
+        .tier-t4 { background: #dcfce7; color: #15803d; }
 
         .actions {
             display: flex;
@@ -254,22 +1334,22 @@
         }
 
         .action-btn {
-            padding: 8px;
+            padding: 6px;
             border: none;
-            border-radius: 6px;
+            border-radius: 4px;
             cursor: pointer;
-            font-size: 1rem;
+            font-size: 0.9rem;
             transition: all 0.3s ease;
             display: flex;
             align-items: center;
             justify-content: center;
-            width: 36px;
-            height: 36px;
+            width: 28px;
+            height: 28px;
         }
 
         .action-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
         }
 
         .btn-edit {
@@ -308,7 +1388,7 @@
             padding: 30px;
             border-radius: 15px;
             width: 90%;
-            max-width: 500px;
+            max-width: 800px;
             max-height: 90vh;
             overflow-y: auto;
             box-shadow: 0 25px 50px rgba(0,0,0,0.3);
@@ -318,6 +1398,20 @@
             margin-bottom: 25px;
             color: #1f2937;
             font-size: 1.5rem;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .form-row-three {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
         }
 
         .form-group {
@@ -353,7 +1447,7 @@
 
         .form-group textarea {
             resize: vertical;
-            min-height: 100px;
+            min-height: 80px;
         }
 
         .form-actions {
@@ -372,35 +1466,16 @@
             background: #4b5563;
         }
 
-        .alert {
-            padding: 15px 20px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            display: none;
-        }
-
-        .alert-success {
-            background: #d1fae5;
-            color: #065f46;
-            border: 1px solid #a7f3d0;
-        }
-
-        .alert-error {
-            background: #fee2e2;
-            color: #991b1b;
-            border: 1px solid #fecaca;
-        }
-
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 20px;
             margin-bottom: 30px;
         }
 
         .stat-card {
             background: white;
-            padding: 25px;
+            padding: 20px;
             border-radius: 12px;
             box-shadow: 0 5px 20px rgba(0,0,0,0.1);
             text-align: center;
@@ -412,20 +1487,20 @@
         }
 
         .stat-number {
-            font-size: 2.5rem;
+            font-size: 2rem;
             font-weight: 700;
             color: #667eea;
             margin-bottom: 10px;
         }
 
         .stat-label {
-            font-size: 1rem;
+            font-size: 0.9rem;
             color: #6b7280;
             margin-bottom: 5px;
         }
 
         .stat-value {
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             font-weight: 600;
             color: #1f2937;
         }
@@ -516,9 +1591,20 @@
             background: #f8f9ff;
         }
 
-        .file-upload-area.dragover {
-            border-color: #667eea;
-            background: #f0f4ff;
+        .file-upload-area h3 {
+            color: #1f2937;
+            margin-bottom: 10px;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: auto;
+            margin: 0;
         }
 
         @media (max-width: 768px) {
@@ -544,17 +1630,14 @@
                 flex: 1;
             }
 
-            .table-container {
-                overflow-x: auto;
-            }
-
-            .table {
-                min-width: 800px;
-            }
-
             .modal-content {
                 width: 95%;
                 margin: 20px;
+            }
+
+            .form-row,
+            .form-row-three {
+                grid-template-columns: 1fr;
             }
         }
     </style>
@@ -562,21 +1645,21 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>📈 CRM Envia.com</h1>
-            <p>Sistema de Gestión de Leads - Versión en la Nube</p>
+            <h1>🚀 Pipeline Fulfillment ES</h1>
+            <p>Sistema de Gestión de Leads de Fulfillment - España</p>
         </div>
 
         <div class="tabs">
-            <button class="tab active" onclick="showTab('leads')">
-                👥 Gestión de Leads
+            <button class="tab active" onclick="window.showTab('leads')">
+                👥 Pipeline
             </button>
-            <button class="tab" onclick="showTab('dashboard')">
+            <button class="tab" onclick="window.showTab('dashboard')">
                 📊 Dashboard
             </button>
-            <button class="tab" onclick="showTab('seguimiento')">
-                📋 Seguimiento
+            <button class="tab" onclick="window.showTab('funnel')">
+                🎯 Funnel
             </button>
-            <button class="tab" onclick="showTab('reportes')">
+            <button class="tab" onclick="window.showTab('reportes')">
                 📈 Reportes
             </button>
         </div>
@@ -587,32 +1670,46 @@
 
         <div id="error-container"></div>
 
-        <!-- Tab: Gestión de Leads -->
+        <!-- Tab: Pipeline -->
         <div id="leads" class="tab-content active">
             <div class="controls">
                 <div class="search-container">
                     <span class="search-icon">🔍</span>
-                    <input type="text" class="search-input" placeholder="Buscar leads..." id="searchInput">
+                    <input type="text" class="search-input" placeholder="Buscar empresa..." id="searchInput">
                 </div>
                 <div class="filters">
-                    <select class="filter-select" id="statusFilter">
-                        <option value="">Todos los estados</option>
-                        <option value="nuevo">Nuevo</option>
-                        <option value="contactado">Contactado</option>
-                        <option value="propuesta_enviada">Propuesta Enviada</option>
-                        <option value="interesado">Interesado</option>
-                        <option value="cliente_cerrado">Cliente Cerrado</option>
+                    <select class="filter-select" id="stageFilter">
+                        <option value="">Todas las etapas</option>
+                        <option value="primer_contacto">Primer Contacto</option>
+                        <option value="1ra_reunion">1ra Reunión</option>
+                        <option value="oferta_comercial">Oferta Comercial</option>
+                        <option value="2da_reunion">2da Reunión</option>
+                        <option value="negociacion">Negociación</option>
+                        <option value="cierre_ganado">Cierre Ganado</option>
+                        <option value="cierre_perdido">Cierre Perdido</option>
                     </select>
-                    <select class="filter-select" id="commercialFilter">
-                        <option value="">Todos los comerciales</option>
-                        <option value="Ana">Ana</option>
-                        <option value="Carlos">Carlos</option>
-                        <option value="Dulce">Dulce</option>
-                        <option value="Javi">Javi</option>
-                        <option value="Pablo">Pablo</option>
+                    <select class="filter-select" id="productFilter">
+                        <option value="">Todos los productos</option>
+                        <option value="Belleza y Cuidado Personal">Belleza y Cuidado Personal</option>
+                        <option value="Electrónica y Tecnología">Electrónica y Tecnología</option>
+                        <option value="Hogar y Decoración">Hogar y Decoración</option>
+                        <option value="Alimentación y Bebidas">Alimentación y Bebidas</option>
+                        <option value="Ropa y Accesorios">Ropa y Accesorios</option>
+                        <option value="Productos Naturales">Productos Naturales</option>
+                        <option value="Calzado">Calzado</option>
+                        <option value="Juguetes y Juegos">Juguetes y Juegos</option>
+                        <option value="Libros y Papelería">Libros y Papelería</option>
+                        <option value="Otros">Otros</option>
+                    </select>
+                    <select class="filter-select" id="salesmanFilter">
+                        <option value="">Todos los vendedores</option>
+                        <option value="Jazmín H.">Jazmín H.</option>
+                        <option value="Adrián G.">Adrián G.</option>
+                        <option value="Carlos M.">Carlos M.</option>
+                        <option value="Ana L.">Ana L.</option>
                     </select>
                 </div>
-                <button class="btn btn-primary" onclick="openModal()">
+                <button class="btn btn-primary" onclick="window.openModal()">
                     ➕ Nuevo Lead
                 </button>
             </div>
@@ -622,12 +1719,15 @@
                     <thead>
                         <tr>
                             <th>Empresa</th>
-                            <th>Contacto</th>
-                            <th>Estado</th>
-                            <th>Prioridad</th>
-                            <th>Valor</th>
-                            <th>Próxima Acción</th>
-                            <th>Comercial</th>
+                            <th>Vendedor</th>
+                            <th>Tipo Producto</th>
+                            <th>Sede</th>
+                            <th>Órdenes/Mes</th>
+                            <th>Prod/Orden</th>
+                            <th>Tier</th>
+                            <th>Etapa</th>
+                            <th>Fecha Cierre</th>
+                            <th>Monto</th>
                             <th>Archivos</th>
                             <th>Acciones</th>
                         </tr>
@@ -647,37 +1747,55 @@
                     <div class="stat-label">Total Leads</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-number" id="newLeads">0</div>
-                    <div class="stat-label">Nuevos</div>
+                    <div class="stat-number" id="activeLeads">0</div>
+                    <div class="stat-label">Activos</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-number" id="closedLeads">0</div>
-                    <div class="stat-label">Cerrados</div>
+                    <div class="stat-number" id="wonLeads">0</div>
+                    <div class="stat-label">Ganados</div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-number" id="totalValue">0€</div>
                     <div class="stat-label">Valor Total</div>
                 </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="conversionRate">0%</div>
+                    <div class="stat-label">Conversión</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="totalOrders">0</div>
+                    <div class="stat-label">Órdenes/Mes</div>
+                </div>
             </div>
         </div>
 
-        <!-- Tab: Seguimiento -->
-        <div id="seguimiento" class="tab-content">
-            <div class="table-container">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>Empresa</th>
-                            <th>Próxima Acción</th>
-                            <th>Fecha</th>
-                            <th>Comercial</th>
-                            <th>Prioridad</th>
-                        </tr>
-                    </thead>
-                    <tbody id="followUpTable">
-                        <!-- Los datos se cargarán aquí -->
-                    </tbody>
-                </table>
+        <!-- Tab: Funnel -->
+        <div id="funnel" class="tab-content">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label">Primer Contacto</div>
+                    <div class="stat-value" id="funnelPrimerContacto">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">1ra Reunión</div>
+                    <div class="stat-value" id="funnel1raReunion">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Oferta Comercial</div>
+                    <div class="stat-value" id="funnelOfertaComercial">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">2da Reunión</div>
+                    <div class="stat-value" id="funnel2daReunion">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Negociación</div>
+                    <div class="stat-value" id="funnelNegociacion">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Cierre Ganado</div>
+                    <div class="stat-value" id="funnelCierreGanado">0</div>
+                </div>
             </div>
         </div>
 
@@ -685,51 +1803,21 @@
         <div id="reportes" class="tab-content">
             <div class="stats-grid">
                 <div class="stat-card">
-                    <div class="stat-label">Conversión</div>
-                    <div class="stat-value" id="conversionRate">0%</div>
+                    <div class="stat-label">Ticket Promedio</div>
+                    <div class="stat-value" id="averageTicket">0€</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-label">Valor Promedio</div>
-                    <div class="stat-value" id="averageValue">0€</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-label">Leads por Comercial</div>
-                    <div class="stat-value" id="leadsPerCommercial">0</div>
+                    <div class="stat-label">Órdenes Promedio</div>
+                    <div class="stat-value" id="averageOrders">0</div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-label">Tiempo Promedio</div>
                     <div class="stat-value" id="averageTime">0 días</div>
                 </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal para gestión de archivos -->
-    <div id="fileModal" class="modal">
-        <div class="modal-content">
-            <h2 id="fileModalTitle">Gestión de Archivos</h2>
-            <input type="hidden" id="currentLeadId">
-            
-            <div class="file-upload-area">
-                <p>📁 Arrastra archivos aquí o haz clic para seleccionar</p>
-                <input type="file" id="fileInput" style="display: none;" multiple accept="*/*">
-                <button type="button" class="btn btn-primary" onclick="document.getElementById('fileInput').click()">
-                    Seleccionar Archivo
-                </button>
-                <button type="button" class="btn btn-secondary" onclick="uploadFile()" style="margin-left: 10px;">
-                    Subir Archivo
-                </button>
-                <p style="font-size: 0.875rem; color: #6b7280; margin-top: 10px;">
-                    Tamaño máximo: 5MB por archivo
-                </p>
-            </div>
-            
-            <div id="filesList">
-                <!-- Los archivos se mostrarán aquí -->
-            </div>
-            
-            <div class="form-actions">
-                <button type="button" class="btn btn-secondary" onclick="closeFileModal()">Cerrar</button>
+                <div class="stat-card">
+                    <div class="stat-label">Leads por Vendedor</div>
+                    <div class="stat-value" id="leadsPerSalesman">0</div>
+                </div>
             </div>
         </div>
     </div>
@@ -739,650 +1827,7 @@
         <div class="modal-content">
             <h2 id="modalTitle">Agregar Nuevo Lead</h2>
             <form id="leadForm">
-                <div class="form-group">
-                    <label for="company">Empresa *</label>
-                    <input type="text" id="company" name="company" required>
-                </div>
-                <div class="form-group">
-                    <label for="contact">Contacto *</label>
-                    <input type="text" id="contact" name="contact" required>
-                </div>
-                <div class="form-group">
-                    <label for="email">Email *</label>
-                    <input type="email" id="email" name="email" required>
-                </div>
-                <div class="form-group">
-                    <label for="phone">Teléfono</label>
-                    <input type="tel" id="phone" name="phone">
-                </div>
-                <div class="form-group">
-                    <label for="source">Fuente</label>
-                    <select id="source" name="source">
-                        <option value="Web Orgánica">Web Orgánica</option>
-                        <option value="LinkedIn Ads">LinkedIn Ads</option>
-                        <option value="Google Ads">Google Ads</option>
-                        <option value="Email Marketing">Email Marketing</option>
-                        <option value="Referido Cliente">Referido Cliente</option>
-                        <option value="Llamada Directa">Llamada Directa</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="status">Estado *</label>
-                    <select id="status" name="status" required>
-                        <option value="nuevo">Nuevo</option>
-                        <option value="contactado">Contactado</option>
-                        <option value="propuesta_enviada">Propuesta Enviada</option>
-                        <option value="interesado">Interesado</option>
-                        <option value="cliente_cerrado">Cliente Cerrado</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="priority">Prioridad *</label>
-                    <select id="priority" name="priority" required>
-                        <option value="alta">Alta</option>
-                        <option value="media">Media</option>
-                        <option value="baja">Baja</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="value">Valor Estimado (€)</label>
-                    <input type="number" id="value" name="value" min="0" step="100">
-                </div>
-                <div class="form-group">
-                    <label for="nextAction">Próxima Acción</label>
-                    <input type="text" id="nextAction" name="nextAction" placeholder="Ej: Primera llamada contacto">
-                </div>
-                <div class="form-group">
-                    <label for="nextActionDate">Fecha Próxima Acción</label>
-                    <input type="date" id="nextActionDate" name="nextActionDate">
-                </div>
-                <div class="form-group">
-                    <label for="commercial">Comercial Asignado *</label>
-                    <select id="commercial" name="commercial" required>
-                        <option value="Ana">Ana</option>
-                        <option value="Carlos">Carlos</option>
-                        <option value="Dulce">Dulce</option>
-                        <option value="Javi">Javi</option>
-                        <option value="Pablo">Pablo</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="notes">Notas</label>
-                    <textarea id="notes" name="notes" placeholder="Información adicional sobre el lead..."></textarea>
-                </div>
-                <div class="form-actions">
-                    <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
-                    <button type="submit" class="btn btn-primary">Guardar</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Scripts de Firebase -->
-    <script type="module">
-        // Import the functions you need from the SDKs you need
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
-        import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc, onSnapshot, query, orderBy, arrayUnion, arrayRemove } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
-        import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-storage.js";
-
-        // Your web app's Firebase configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyAo-7joP2C-aD5buwmpulrrP2nkNar2kTs",
-            authDomain: "enviaweeb-crm.firebaseapp.com",
-            projectId: "enviaweeb-crm",
-            storageBucket: "enviaweeb-crm.firebasestorage.app",
-            messagingSenderId: "361625817032",
-            appId: "1:361625817032:web:5af0c621fd9691d7ec7afd"
-        };
-
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-        const storage = getStorage(app);
-
-        // Global variables
-        let leads = [];
-        let editingLeadId = null;
-
-        // Firebase functions
-        window.firebaseDB = {
-            // Get all leads
-            async getLeads() {
-                try {
-                    showLoading(true);
-                    const q = query(collection(db, 'leads'), orderBy('createdAt', 'desc'));
-                    const querySnapshot = await getDocs(q);
-                    const leadsData = [];
-                    querySnapshot.forEach((doc) => {
-                        leadsData.push({ id: doc.id, ...doc.data() });
-                    });
-                    return leadsData;
-                } catch (error) {
-                    console.error('Error getting leads:', error);
-                    showError('Error al cargar los datos: ' + error.message);
-                    return [];
-                } finally {
-                    showLoading(false);
-                }
-            },
-
-            // Add new lead
-            async addLead(leadData) {
-                try {
-                    showLoading(true);
-                    const docRef = await addDoc(collection(db, 'leads'), {
-                        ...leadData,
-                        files: [],
-                        createdAt: new Date(),
-                        updatedAt: new Date()
-                    });
-                    showSuccess('Lead agregado exitosamente');
-                    return docRef.id;
-                } catch (error) {
-                    console.error('Error adding lead:', error);
-                    showError('Error al agregar el lead: ' + error.message);
-                    throw error;
-                } finally {
-                    showLoading(false);
-                }
-            },
-
-            // Update lead
-            async updateLead(leadId, leadData) {
-                try {
-                    showLoading(true);
-                    const leadRef = doc(db, 'leads', leadId);
-                    await updateDoc(leadRef, {
-                        ...leadData,
-                        updatedAt: new Date()
-                    });
-                    showSuccess('Lead actualizado exitosamente');
-                } catch (error) {
-                    console.error('Error updating lead:', error);
-                    showError('Error al actualizar el lead: ' + error.message);
-                    throw error;
-                } finally {
-                    showLoading(false);
-                }
-            },
-
-            // Delete lead
-            async deleteLead(leadId) {
-                try {
-                    showLoading(true);
-                    const leadRef = doc(db, 'leads', leadId);
-                    await deleteDoc(leadRef);
-                    showSuccess('Lead eliminado exitosamente');
-                } catch (error) {
-                    console.error('Error deleting lead:', error);
-                    showError('Error al eliminar el lead: ' + error.message);
-                    throw error;
-                } finally {
-                    showLoading(false);
-                }
-            },
-
-            // Real-time listener
-            listenToLeads(callback) {
-                const q = query(collection(db, 'leads'), orderBy('createdAt', 'desc'));
-                return onSnapshot(q, (querySnapshot) => {
-                    const leadsData = [];
-                    querySnapshot.forEach((doc) => {
-                        leadsData.push({ id: doc.id, ...doc.data() });
-                    });
-                    callback(leadsData);
-                });
-            },
-
-            // Upload file
-            async uploadFile(leadId, file) {
-                try {
-                    showLoading(true);
-                    const fileRef = ref(storage, `leads/${leadId}/${Date.now()}_${file.name}`);
-                    const snapshot = await uploadBytes(fileRef, file);
-                    const downloadURL = await getDownloadURL(snapshot.ref);
-                    
-                    const fileData = {
-                        name: file.name,
-                        url: downloadURL,
-                        path: snapshot.ref.fullPath,
-                        uploadedAt: new Date(),
-                        size: file.size,
-                        type: file.type
-                    };
-                    
-                    const leadRef = doc(db, 'leads', leadId);
-                    await updateDoc(leadRef, {
-                        files: arrayUnion(fileData),
-                        updatedAt: new Date()
-                    });
-                    
-                    showSuccess('Archivo subido exitosamente');
-                    return fileData;
-                } catch (error) {
-                    console.error('Error uploading file:', error);
-                    showError('Error al subir el archivo: ' + error.message);
-                    throw error;
-                } finally {
-                    showLoading(false);
-                }
-            },
-
-            // Delete file
-            async deleteFile(leadId, fileData) {
-                try {
-                    showLoading(true);
-                    const fileRef = ref(storage, fileData.path);
-                    await deleteObject(fileRef);
-                    
-                    const leadRef = doc(db, 'leads', leadId);
-                    await updateDoc(leadRef, {
-                        files: arrayRemove(fileData),
-                        updatedAt: new Date()
-                    });
-                    
-                    showSuccess('Archivo eliminado exitosamente');
-                } catch (error) {
-                    console.error('Error deleting file:', error);
-                    showError('Error al eliminar el archivo: ' + error.message);
-                    throw error;
-                } finally {
-                    showLoading(false);
-                }
-            }
-        };
-
-        // Initialize the app
-        window.addEventListener('DOMContentLoaded', initializeCRM);
-
-        async function initializeCRM() {
-            // Set up real-time listener
-            window.firebaseDB.listenToLeads((leadsData) => {
-                leads = leadsData;
-                displayLeads();
-                updateStats();
-                updateFollowUp();
-                updateReports();
-            });
-
-            // Set up event listeners
-            setupEventListeners();
-        }
-
-        function setupEventListeners() {
-            // Search functionality
-            document.getElementById('searchInput').addEventListener('input', displayLeads);
-            document.getElementById('statusFilter').addEventListener('change', displayLeads);
-            document.getElementById('commercialFilter').addEventListener('change', displayLeads);
-
-            // Form submission
-            document.getElementById('leadForm').addEventListener('submit', handleFormSubmit);
-
-            // Close modal when clicking outside
-            document.getElementById('leadModal').addEventListener('click', (e) => {
-                if (e.target === document.getElementById('leadModal')) {
-                    closeModal();
-                }
-            });
-
-            // Close file modal when clicking outside
-            document.getElementById('fileModal').addEventListener('click', (e) => {
-                if (e.target === document.getElementById('fileModal')) {
-                    closeFileModal();
-                }
-            });
-
-            // Set up drag and drop for file upload
-            setupDragAndDrop();
-
-            // File input change handler
-            document.getElementById('fileInput').addEventListener('change', (e) => {
-                if (e.target.files && e.target.files[0]) {
-                    uploadFile();
-                }
-            });
-        }
-
-        function setupDragAndDrop() {
-            const uploadArea = document.querySelector('.file-upload-area');
-            
-            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-                uploadArea.addEventListener(eventName, preventDefaults, false);
-            });
-            
-            function preventDefaults(e) {
-                e.preventDefault();
-                e.stopPropagation();
-            }
-            
-            ['dragenter', 'dragover'].forEach(eventName => {
-                uploadArea.addEventListener(eventName, highlight, false);
-            });
-            
-            ['dragleave', 'drop'].forEach(eventName => {
-                uploadArea.addEventListener(eventName, unhighlight, false);
-            });
-            
-            function highlight(e) {
-                uploadArea.classList.add('dragover');
-            }
-            
-            function unhighlight(e) {
-                uploadArea.classList.remove('dragover');
-            }
-            
-            uploadArea.addEventListener('drop', handleDrop, false);
-            
-            function handleDrop(e) {
-                const files = e.dataTransfer.files;
-                if (files.length > 0) {
-                    const fileInput = document.getElementById('fileInput');
-                    fileInput.files = files;
-                    uploadFile();
-                }
-            }
-        }
-
-        async function handleFormSubmit(e) {
-            e.preventDefault();
-            
-            const formData = new FormData(e.target);
-            const leadData = Object.fromEntries(formData.entries());
-            
-            // Convert value to number
-            leadData.value = parseFloat(leadData.value) || 0;
-            
-            try {
-                if (editingLeadId) {
-                    await window.firebaseDB.updateLead(editingLeadId, leadData);
-                } else {
-                    await window.firebaseDB.addLead(leadData);
-                }
-                closeModal();
-            } catch (error) {
-                // Error is already handled in Firebase functions
-            }
-        }
-
-        // Display functions
-        function displayLeads() {
-            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-            const statusFilter = document.getElementById('statusFilter').value;
-            const commercialFilter = document.getElementById('commercialFilter').value;
-            
-            let filteredLeads = leads.filter(lead => {
-                const matchesSearch = lead.company.toLowerCase().includes(searchTerm) ||
-                                    lead.contact.toLowerCase().includes(searchTerm) ||
-                                    lead.email.toLowerCase().includes(searchTerm);
-                const matchesStatus = !statusFilter || lead.status === statusFilter;
-                const matchesCommercial = !commercialFilter || lead.commercial === commercialFilter;
-                
-                return matchesSearch && matchesStatus && matchesCommercial;
-            });
-            
-            const tbody = document.getElementById('leadsTable');
-            tbody.innerHTML = '';
-            
-            filteredLeads.forEach(lead => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>
-                        <div><strong>${lead.company}</strong></div>
-                        <div style="color: #6b7280; font-size: 0.9rem;">${lead.source || 'N/A'}</div>
-                    </td>
-                    <td>
-                        <div><strong>${lead.contact}</strong></div>
-                        <div style="color: #6b7280; font-size: 0.9rem;">${lead.email}</div>
-                        <div style="color: #6b7280; font-size: 0.9rem;">${lead.phone || 'N/A'}</div>
-                    </td>
-                    <td><span class="status status-${lead.status}">${getStatusText(lead.status)}</span></td>
-                    <td><span class="priority priority-${lead.priority}">${lead.priority}</span></td>
-                    <td><strong>${lead.value ? lead.value.toLocaleString() + ' €' : 'N/A'}</strong></td>
-                    <td>
-                        <div>${lead.nextAction || 'N/A'}</div>
-                        <div style="color: #6b7280; font-size: 0.9rem;">${lead.nextActionDate || ''}</div>
-                    </td>
-                    <td><strong>${lead.commercial}</strong></td>
-                    <td>
-                        <button class="action-btn btn-add" onclick="openFileModal('${lead.id}')" title="Agregar archivo">
-                            📎
-                        </button>
-                        <span style="color: #6b7280; font-size: 0.9rem;">${lead.files ? lead.files.length : 0}</span>
-                        ${lead.files && lead.files.length > 0 ? `
-                            <button class="action-btn" onclick="showFiles('${lead.id}')" title="Ver archivos" style="background: #8b5cf6; color: white; margin-left: 5px;">
-                                📁
-                            </button>
-                        ` : ''}
-                    </td>
-                    <td>
-                        <div class="actions">
-                            <button class="action-btn btn-edit" onclick="editLead('${lead.id}')" title="Editar">
-                                ✏️
-                            </button>
-                            <button class="action-btn btn-delete" onclick="deleteLead('${lead.id}')" title="Eliminar">
-                                🗑️
-                            </button>
-                        </div>
-                    </td>
-                `;
-                tbody.appendChild(row);
-            });
-        }
-
-        function updateStats() {
-            const totalLeads = leads.length;
-            const newLeads = leads.filter(lead => lead.status === 'nuevo').length;
-            const closedLeads = leads.filter(lead => lead.status === 'cliente_cerrado').length;
-            const totalValue = leads.reduce((sum, lead) => sum + (lead.value || 0), 0);
-            
-            document.getElementById('totalLeads').textContent = totalLeads;
-            document.getElementById('newLeads').textContent = newLeads;
-            document.getElementById('closedLeads').textContent = closedLeads;
-            document.getElementById('totalValue').textContent = totalValue.toLocaleString() + '€';
-        }
-
-        function updateFollowUp() {
-            const followUpLeads = leads.filter(lead => lead.nextAction && lead.nextActionDate);
-            const tbody = document.getElementById('followUpTable');
-            tbody.innerHTML = '';
-            
-            followUpLeads.forEach(lead => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td><strong>${lead.company}</strong></td>
-                    <td>${lead.nextAction}</td>
-                    <td>${lead.nextActionDate}</td>
-                    <td><strong>${lead.commercial}</strong></td>
-                    <td><span class="priority priority-${lead.priority}">${lead.priority}</span></td>
-                `;
-                tbody.appendChild(row);
-            });
-        }
-
-        function updateReports() {
-            const totalLeads = leads.length;
-            const closedLeads = leads.filter(lead => lead.status === 'cliente_cerrado').length;
-            const conversionRate = totalLeads > 0 ? ((closedLeads / totalLeads) * 100).toFixed(1) : 0;
-            
-            const totalValue = leads.reduce((sum, lead) => sum + (lead.value || 0), 0);
-            const averageValue = totalLeads > 0 ? (totalValue / totalLeads).toFixed(0) : 0;
-            
-            const leadsPerCommercial = totalLeads > 0 ? (totalLeads / 5).toFixed(1) : 0;
-            
-            document.getElementById('conversionRate').textContent = conversionRate + '%';
-            document.getElementById('averageValue').textContent = averageValue + '€';
-            document.getElementById('leadsPerCommercial').textContent = leadsPerCommercial;
-            document.getElementById('averageTime').textContent = '15 días';
-        }
-
-        // Modal functions
-        window.openModal = function(leadId = null) {
-            editingLeadId = leadId;
-            const modal = document.getElementById('leadModal');
-            const form = document.getElementById('leadForm');
-            const title = document.getElementById('modalTitle');
-            
-            if (leadId) {
-                const lead = leads.find(l => l.id === leadId);
-                if (lead) {
-                    title.textContent = 'Editar Lead';
-                    
-                    // Fill form with existing data
-                    Object.keys(lead).forEach(key => {
-                        const field = document.getElementById(key);
-                        if (field) {
-                            field.value = lead[key] || '';
-                        }
-                    });
-                }
-            } else {
-                title.textContent = 'Agregar Nuevo Lead';
-                form.reset();
-                
-                // Set default date to today
-                const today = new Date().toISOString().split('T')[0];
-                document.getElementById('nextActionDate').value = today;
-            }
-            
-            modal.style.display = 'block';
-        }
-
-        window.closeModal = function() {
-            document.getElementById('leadModal').style.display = 'none';
-            editingLeadId = null;
-        }
-
-        // CRUD functions
-        window.editLead = function(leadId) {
-            openModal(leadId);
-        }
-
-        window.deleteLead = async function(leadId) {
-            if (confirm('¿Estás seguro de que quieres eliminar este lead?')) {
-                try {
-                    await window.firebaseDB.deleteLead(leadId);
-                } catch (error) {
-                    // Error is already handled in Firebase functions
-                }
-            }
-        }
-
-        window.addFile = function(leadId) {
-            alert('Funcionalidad de archivos pendiente de implementar');
-        }
-
-        // Tab functions
-        window.showTab = function(tabName) {
-            // Remove active class from all tabs
-            document.querySelectorAll('.tab').forEach(tab => {
-                tab.classList.remove('active');
-            });
-            
-            // Hide all tab contents
-            document.querySelectorAll('.tab-content').forEach(content => {
-                content.classList.remove('active');
-            });
-            
-            // Show selected tab
-            document.getElementById(tabName).classList.add('active');
-            
-            // Add active class to clicked tab
-            event.target.classList.add('active');
-        }
-
-        // Utility functions
-        function getStatusText(status) {
-            const statusMap = {
-                'nuevo': 'Nuevo',
-                'contactado': 'Contactado',
-                'propuesta_enviada': 'Propuesta Enviada',
-                'interesado': 'Interesado',
-                'cliente_cerrado': 'Cliente Cerrado'
-            };
-            return statusMap[status] || status;
-        }
-
-        function showLoading(show) {
-            const loading = document.getElementById('loading');
-            if (show) {
-                loading.style.display = 'block';
-            } else {
-                loading.style.display = 'none';
-            }
-        }
-
-        function showError(message) {
-            const container = document.getElementById('error-container');
-            container.innerHTML = `<div class="error-message">${message}</div>`;
-            setTimeout(() => {
-                container.innerHTML = '';
-            }, 5000);
-        }
-
-        function showSuccess(message) {
-            const container = document.getElementById('error-container');
-            container.innerHTML = `<div class="success-message">${message}</div>`;
-            setTimeout(() => {
-                container.innerHTML = '';
-            }, 3000);
-        }
-
-        // Sample data insertion (only for demo)
-        window.insertSampleData = async function() {
-            const sampleLeads = [
-                {
-                    company: "TechStore Madrid",
-                    contact: "Ana García",
-                    email: "ana.garcia@techstore.es",
-                    phone: "+34 910 123 456",
-                    source: "Web Orgánica",
-                    status: "nuevo",
-                    priority: "alta",
-                    value: 15000,
-                    nextAction: "Primera llamada contacto",
-                    nextActionDate: "2025-07-18",
-                    commercial: "Dulce",
-                    notes: "Interesada en solución completa de e-commerce"
-                },
-                {
-                    company: "ModaStyle Barcelona",
-                    contact: "Luis Rodríguez",
-                    email: "luis@modastyle.com",
-                    phone: "+34 932 456 789",
-                    source: "LinkedIn Ads",
-                    status: "contactado",
-                    priority: "media",
-                    value: 8500,
-                    nextAction: "Enviar propuesta comercial",
-                    nextActionDate: "2025-07-19",
-                    commercial: "Pablo",
-                    notes: "Quiere migrar su tienda actual"
-                },
-                {
-                    company: "HomeDecor Valencia",
-                    contact: "Carmen López",
-                    email: "carmen@homedecor.es",
-                    phone: "+34 963 789 012",
-                    source: "Referido Cliente",
-                    status: "propuesta_enviada",
-                    priority: "alta",
-                    value: 25000,
-                    nextAction: "Seguimiento propuesta",
-                    nextActionDate: "2025-07-20",
-                    commercial: "Javi",
-                    notes: "Cliente referido por TechStore Madrid"
-                }
-            ];
-
-            try {
-                showLoading(true);
-                for (const lead of sampleLeads) {
-                    await window.firebaseDB.addLead(lead);
-                }
-                showSuccess('Datos de ejemplo insertados exitosamente');
-            } catch (error) {
-                showError('Error al insertar datos de ejemplo');
-            } finally {
-                showLoading(false);
-            }
-        }
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="company">Empresa *</label>
+                        <input type="text" id="company"
