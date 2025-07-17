@@ -471,6 +471,56 @@
             border: 1px solid #a7f3d0;
         }
 
+        .file-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            background: #f9fafb;
+        }
+
+        .file-info {
+            flex: 1;
+        }
+
+        .file-name {
+            font-weight: 500;
+            color: #1f2937;
+            margin-bottom: 5px;
+        }
+
+        .file-meta {
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+
+        .file-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .file-upload-area {
+            border: 2px dashed #d1d5db;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .file-upload-area:hover {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+
+        .file-upload-area.dragover {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+
         @media (max-width: 768px) {
             .container {
                 padding: 10px;
@@ -654,6 +704,36 @@
         </div>
     </div>
 
+    <!-- Modal para gestión de archivos -->
+    <div id="fileModal" class="modal">
+        <div class="modal-content">
+            <h2 id="fileModalTitle">Gestión de Archivos</h2>
+            <input type="hidden" id="currentLeadId">
+            
+            <div class="file-upload-area">
+                <p>📁 Arrastra archivos aquí o haz clic para seleccionar</p>
+                <input type="file" id="fileInput" style="display: none;" multiple accept="*/*">
+                <button type="button" class="btn btn-primary" onclick="document.getElementById('fileInput').click()">
+                    Seleccionar Archivo
+                </button>
+                <button type="button" class="btn btn-secondary" onclick="uploadFile()" style="margin-left: 10px;">
+                    Subir Archivo
+                </button>
+                <p style="font-size: 0.875rem; color: #6b7280; margin-top: 10px;">
+                    Tamaño máximo: 5MB por archivo
+                </p>
+            </div>
+            
+            <div id="filesList">
+                <!-- Los archivos se mostrarán aquí -->
+            </div>
+            
+            <div class="form-actions">
+                <button type="button" class="btn btn-secondary" onclick="closeFileModal()">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Modal para agregar/editar leads -->
     <div id="leadModal" class="modal">
         <div class="modal-content">
@@ -742,7 +822,8 @@
     <script type="module">
         // Import the functions you need from the SDKs you need
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
-        import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc, onSnapshot, query, orderBy, arrayUnion, arrayRemove } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
+        import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-storage.js";
 
         // Your web app's Firebase configuration
         const firebaseConfig = {
@@ -757,6 +838,7 @@
         // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
+        const storage = getStorage(app);
 
         // Global variables
         let leads = [];
@@ -790,6 +872,7 @@
                     showLoading(true);
                     const docRef = await addDoc(collection(db, 'leads'), {
                         ...leadData,
+                        files: [],
                         createdAt: new Date(),
                         updatedAt: new Date()
                     });
@@ -849,6 +932,63 @@
                     });
                     callback(leadsData);
                 });
+            },
+
+            // Upload file
+            async uploadFile(leadId, file) {
+                try {
+                    showLoading(true);
+                    const fileRef = ref(storage, `leads/${leadId}/${Date.now()}_${file.name}`);
+                    const snapshot = await uploadBytes(fileRef, file);
+                    const downloadURL = await getDownloadURL(snapshot.ref);
+                    
+                    const fileData = {
+                        name: file.name,
+                        url: downloadURL,
+                        path: snapshot.ref.fullPath,
+                        uploadedAt: new Date(),
+                        size: file.size,
+                        type: file.type
+                    };
+                    
+                    const leadRef = doc(db, 'leads', leadId);
+                    await updateDoc(leadRef, {
+                        files: arrayUnion(fileData),
+                        updatedAt: new Date()
+                    });
+                    
+                    showSuccess('Archivo subido exitosamente');
+                    return fileData;
+                } catch (error) {
+                    console.error('Error uploading file:', error);
+                    showError('Error al subir el archivo: ' + error.message);
+                    throw error;
+                } finally {
+                    showLoading(false);
+                }
+            },
+
+            // Delete file
+            async deleteFile(leadId, fileData) {
+                try {
+                    showLoading(true);
+                    const fileRef = ref(storage, fileData.path);
+                    await deleteObject(fileRef);
+                    
+                    const leadRef = doc(db, 'leads', leadId);
+                    await updateDoc(leadRef, {
+                        files: arrayRemove(fileData),
+                        updatedAt: new Date()
+                    });
+                    
+                    showSuccess('Archivo eliminado exitosamente');
+                } catch (error) {
+                    console.error('Error deleting file:', error);
+                    showError('Error al eliminar el archivo: ' + error.message);
+                    throw error;
+                } finally {
+                    showLoading(false);
+                }
             }
         };
 
@@ -884,6 +1024,63 @@
                     closeModal();
                 }
             });
+
+            // Close file modal when clicking outside
+            document.getElementById('fileModal').addEventListener('click', (e) => {
+                if (e.target === document.getElementById('fileModal')) {
+                    closeFileModal();
+                }
+            });
+
+            // Set up drag and drop for file upload
+            setupDragAndDrop();
+
+            // File input change handler
+            document.getElementById('fileInput').addEventListener('change', (e) => {
+                if (e.target.files && e.target.files[0]) {
+                    uploadFile();
+                }
+            });
+        }
+
+        function setupDragAndDrop() {
+            const uploadArea = document.querySelector('.file-upload-area');
+            
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                uploadArea.addEventListener(eventName, preventDefaults, false);
+            });
+            
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            
+            ['dragenter', 'dragover'].forEach(eventName => {
+                uploadArea.addEventListener(eventName, highlight, false);
+            });
+            
+            ['dragleave', 'drop'].forEach(eventName => {
+                uploadArea.addEventListener(eventName, unhighlight, false);
+            });
+            
+            function highlight(e) {
+                uploadArea.classList.add('dragover');
+            }
+            
+            function unhighlight(e) {
+                uploadArea.classList.remove('dragover');
+            }
+            
+            uploadArea.addEventListener('drop', handleDrop, false);
+            
+            function handleDrop(e) {
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    const fileInput = document.getElementById('fileInput');
+                    fileInput.files = files;
+                    uploadFile();
+                }
+            }
         }
 
         async function handleFormSubmit(e) {
@@ -947,10 +1144,15 @@
                     </td>
                     <td><strong>${lead.commercial}</strong></td>
                     <td>
-                        <button class="action-btn btn-add" onclick="addFile('${lead.id}')" title="Agregar archivo">
+                        <button class="action-btn btn-add" onclick="openFileModal('${lead.id}')" title="Agregar archivo">
                             📎
                         </button>
-                        <span style="color: #6b7280; font-size: 0.9rem;">0</span>
+                        <span style="color: #6b7280; font-size: 0.9rem;">${lead.files ? lead.files.length : 0}</span>
+                        ${lead.files && lead.files.length > 0 ? `
+                            <button class="action-btn" onclick="showFiles('${lead.id}')" title="Ver archivos" style="background: #8b5cf6; color: white; margin-left: 5px;">
+                                📁
+                            </button>
+                        ` : ''}
                     </td>
                     <td>
                         <div class="actions">
