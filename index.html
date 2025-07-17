@@ -906,6 +906,222 @@
                 // Error is already handled in Firebase functions
             }
         }
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CRM Envia.com - Gestión de Leads</title>
+    <style>
+        /* ... (mantén el CSS del original) ... */
+    </style>
+</head>
+<body>
+    <!-- ... (mantén el header y tabs originales) ... -->
+
+    <!-- Modal para agregar/editar leads -->
+    <div id="leadModal" class="modal">
+        <div class="modal-content" style="max-width:900px;">
+            <h2 id="modalTitle">Agregar/Editar Lead</h2>
+            <form id="leadForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="diasUCPC">Días U.C.Primer Contacto</label>
+                        <input type="number" id="diasUCPC" name="diasUCPC" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label for="salesman">Salesman</label>
+                        <input type="text" id="salesman" name="salesman">
+                    </div>
+                    <div class="form-group">
+                        <label for="company">Nombre Empresa *</label>
+                        <input type="text" id="company" name="company" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="productType">Tipo Producto</label>
+                        <input type="text" id="productType" name="productType">
+                    </div>
+                    <div class="form-group">
+                        <label for="source">Fuente</label>
+                        <input type="text" id="source" name="source">
+                    </div>
+                    <div class="form-group">
+                        <label for="sede">Sede</label>
+                        <input type="text" id="sede" name="sede">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="monthlyOrders"># órdenes</label>
+                        <input type="number" id="monthlyOrders" name="monthlyOrders" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label for="productsPerOrder">Productos/orden</label>
+                        <input type="number" id="productsPerOrder" name="productsPerOrder" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label for="storagePositions"># Posiciones Almacenamiento</label>
+                        <input type="number" id="storagePositions" name="storagePositions" min="0">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="estimatedCloseDate">Fecha estimada de cierre</label>
+                        <input type="date" id="estimatedCloseDate" name="estimatedCloseDate">
+                    </div>
+                    <div class="form-group">
+                        <label for="estimatedMonth">Mes Estimado</label>
+                        <input type="month" id="estimatedMonth" name="estimatedMonth">
+                    </div>
+                    <div class="form-group">
+                        <label for="firstMeetingDate">Fecha 1ra Reunión</label>
+                        <input type="date" id="firstMeetingDate" name="firstMeetingDate">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="commercialOfferDate">Fecha Oferta Comercial</label>
+                        <input type="date" id="commercialOfferDate" name="commercialOfferDate">
+                    </div>
+                    <div class="form-group">
+                        <label for="secondMeetingDate">Fecha 2da Reunión</label>
+                        <input type="date" id="secondMeetingDate" name="secondMeetingDate">
+                    </div>
+                    <div class="form-group">
+                        <label for="negotiationDate">Fecha Negociación</label>
+                        <input type="date" id="negotiationDate" name="negotiationDate">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="actualCloseDate">Fecha de cierre</label>
+                        <input type="date" id="actualCloseDate" name="actualCloseDate">
+                    </div>
+                    <div class="form-group">
+                        <label for="ganadoPerdido">G/P</label>
+                        <select id="ganadoPerdido" name="ganadoPerdido">
+                            <option value="">--</option>
+                            <option value="G">Ganado</option>
+                            <option value="P">Perdido</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="stage">Etapa</label>
+                        <input type="text" id="stage" name="stage">
+                    </div>
+                    <div class="form-group">
+                        <label for="estado">Estado</label>
+                        <input type="text" id="estado" name="estado">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="amount">Monto</label>
+                        <input type="number" id="amount" name="amount" min="0" step="0.01">
+                    </div>
+                    <div class="form-group">
+                        <label for="comments">Comentarios</label>
+                        <textarea id="comments" name="comments"></textarea>
+                    </div>
+                </div>
+
+                <!-- Sección de fechas y métricas adicionales -->
+                <h3>Fechas y Métricas Adicionales</h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="dia">Día</label>
+                        <input type="number" id="dia" name="dia" min="1" max="31">
+                    </div>
+                    <div class="form-group">
+                        <label for="mes">Mes</label>
+                        <input type="number" id="mes" name="mes" min="1" max="12">
+                    </div>
+                    <div class="form-group">
+                        <label for="semana">Semana</label>
+                        <input type="number" id="semana" name="semana" min="1" max="53">
+                    </div>
+                    <div class="form-group">
+                        <label for="fechaUCPC">Fecha U.C.P.C.</label>
+                        <input type="date" id="fechaUCPC" name="fechaUCPC">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="numFirstMeeting"># 1ra Reunión</label>
+                        <input type="number" id="numFirstMeeting" name="numFirstMeeting" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label for="numOffer"># Oferta Comercial</label>
+                        <input type="number" id="numOffer" name="numOffer" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label for="numSecondMeeting"># 2da Reunión</label>
+                        <input type="number" id="numSecondMeeting" name="numSecondMeeting" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label for="numNegotiation"># Negociación</label>
+                        <input type="number" id="numNegotiation" name="numNegotiation" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label for="numCierreGanado"># Cierre Ganado</label>
+                        <input type="number" id="numCierreGanado" name="numCierreGanado" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label for="numCierrePerdido"># Cierre Perdido</label>
+                        <input type="number" id="numCierrePerdido" name="numCierrePerdido" min="0">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="pcToFirstMeeting">P.C. a 1er Reunión (días)</label>
+                        <input type="number" id="pcToFirstMeeting" name="pcToFirstMeeting" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label for="firstMeetingToOC">1er Reunión a O.C. (días)</label>
+                        <input type="number" id="firstMeetingToOC" name="firstMeetingToOC" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label for="OCtoSecondMeeting">O.C. a 2da Reunión (días)</label>
+                        <input type="number" id="OCtoSecondMeeting" name="OCtoSecondMeeting" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label for="secondMeetingToNeg">2da Reunión a Neg (días)</label>
+                        <input type="number" id="secondMeetingToNeg" name="secondMeetingToNeg" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label for="negToClose">Neg a Cierre (días)</label>
+                        <input type="number" id="negToClose" name="negToClose" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label for="diasPCtoCierre">Días de P.C. a Cierre</label>
+                        <input type="number" id="diasPCtoCierre" name="diasPCtoCierre" min="0">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="prodPorOrden">#prod/orden</label>
+                        <input type="number" id="prodPorOrden" name="prodPorOrden" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label for="tier">Tier</label>
+                        <input type="text" id="tier" name="tier">
+                    </div>
+                </div>
+
+                <!-- Botones -->
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ... (el resto de tu HTML y scripts) ... -->
+</body>
+</html>
 
         // Display functions
         function displayLeads() {
@@ -1187,4 +1403,6 @@
 
     </script>
 </body>
+</html>
+
 </html>
