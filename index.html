@@ -1856,26 +1856,40 @@
                     </div>
                 `;
             } else {
-                filteredPersonalTasks.forEach(task => {
-                    const taskItem = document.createElement('div');
-                    taskItem.className = 'task-card';
-                    taskItem.innerHTML = `
-                        <div class="task-card-content">
-                            <div class="task-card-title">
-                                <span class="task-badge task-badge-personal">Personal</span>
-                                ${task.title}
-                            </div>
-                            <div class="task-card-description">${task.description || 'Sin descripción'}</div>
-                            <div class="task-card-date">Fecha límite: ${formatDate(task.dueDate)}</div>
-                        </div>
-                        <div class="task-card-actions">
-                            <button onclick="completePersonalTask('${task.id}')" style="padding: 8px 12px; border: none; border-radius: 6px; cursor: pointer; font-size: 0.9rem; transition: all 0.2s ease; background: #22c55e; color: white;">Completar</button>
-                            <button onclick="postponePersonalTask('${task.id}')" style="padding: 8px 12px; border: none; border-radius: 6px; cursor: pointer; font-size: 0.9rem; transition: all 0.2s ease; background: #f59e0b; color: white;">Posponer</button>
-                        </div>
-                    `;
-                    personalTasksList.appendChild(taskItem);
-                });
-            }
+filteredPersonalTasks.forEach(task => {
+    const taskItem = document.createElement('div');
+    taskItem.className = 'task-card';
+    taskItem.innerHTML = `
+        <div class="task-card-content">
+            <div class="task-card-title">
+                <span class="task-badge task-badge-personal">Personal</span>
+                ${task.title}
+            </div>
+            <div class="task-card-description">${task.description || 'Sin descripción'}</div>
+            <div class="task-card-date">Fecha límite: ${formatDate(task.dueDate)}</div>
+        </div>
+        <div class="task-card-actions">
+            <button class="complete-task-btn" data-task-id="${task.id}" style="padding: 8px 12px; border: none; border-radius: 6px; cursor: pointer; font-size: 0.9rem; transition: all 0.2s ease; background: #22c55e; color: white;">Completar</button>
+            <button class="postpone-task-btn" data-task-id="${task.id}" style="padding: 8px 12px; border: none; border-radius: 6px; cursor: pointer; font-size: 0.9rem; transition: all 0.2s ease; background: #f59e0b; color: white;">Posponer</button>
+        </div>
+    `;
+    personalTasksList.appendChild(taskItem);
+});
+
+// Agregar event listeners a los botones después de crearlos
+document.querySelectorAll('.complete-task-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        const taskId = this.getAttribute('data-task-id');
+        completePersonalTask(taskId);
+    });
+});
+
+document.querySelectorAll('.postpone-task-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        const taskId = this.getAttribute('data-task-id');
+        postponePersonalTask(taskId);
+    });
+});
             
             // Filter lead tasks based on date filter
             let filteredLeadTasks = leads.filter(lead => {
