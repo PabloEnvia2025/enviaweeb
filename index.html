@@ -2601,7 +2601,7 @@ Fecha: ${new Date().toLocaleString('es-ES')}
         }
 
         function formatCurrency(amount) {
-            return new Intl.NumberFormat('es-ES',
+            return new Intl.NumberFormat('es-ES', {
                 style: 'currency',
                 currency: 'EUR'
             }).format(amount || 0);
@@ -2733,10 +2733,37 @@ Fecha: ${new Date().toLocaleString('es-ES')}
                 }
             ];
 
+            const samplePersonalTasks = [
+                {
+                    title: 'Revisar informe mensual fulfillment',
+                    description: 'Revisar y aprobar el informe de operaciones del mes',
+                    dueDate: new Date().toISOString().split('T')[0],
+                    priority: 'alta',
+                    completed: false
+                },
+                {
+                    title: 'Reunión con equipo logística',
+                    description: 'Planificar las mejoras en el proceso de picking',
+                    dueDate: new Date().toISOString().split('T')[0],
+                    priority: 'media',
+                    completed: false
+                },
+                {
+                    title: 'Actualizar precios servicios',
+                    description: 'Revisar y actualizar la tarifa de servicios 2025',
+                    dueDate: new Date(new Date().setDate(new Date().getDate() + 2)).toISOString().split('T')[0],
+                    priority: 'baja',
+                    completed: false
+                }
+            ];
+
             try {
                 showLoading(true);
                 for (const lead of sampleLeads) {
                     await window.firebaseDB.addLead(lead);
+                }
+                for (const task of samplePersonalTasks) {
+                    await window.firebaseDB.addPersonalTask(task);
                 }
                 showSuccess('Datos de ejemplo insertados exitosamente');
             } catch (error) {
