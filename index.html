@@ -2153,43 +2153,50 @@ Fecha: ${new Date().toLocaleString('es-ES')}
         }
 
         // Personal task modal functions
-        window.openPersonalTaskModal = function(taskId = null) {
-            editingTaskId = taskId;
-            const modal = document.getElementById('personalTaskModal');
-            const form = document.getElementById('personalTaskForm');
-            const title = document.getElementById('personalTaskModalTitle');
+window.openPersonalTaskModal = function(taskId = null) {
+    editingTaskId = taskId;
+    const modal = document.getElementById('personalTaskModal');
+    const form = document.getElementById('personalTaskForm');
+    const title = document.getElementById('personalTaskModalTitle');
+    
+    if (taskId) {
+        const task = personalTasks.find(t => t.id === taskId);
+        if (task) {
+            title.textContent = 'Editar Tarea Personal';
             
-            if (taskId) {
-                const task = personalTasks.find(t => t.id === taskId);
-                if (task) {
-                    title.textContent = 'Editar Tarea Personal';
-                    
-                    document.getElementById('taskTitle').value = task.title || '';
-                    document.getElementById('taskDescription').value = task.description || '';
-                    document.getElementById('taskDueDate').value = task.dueDate || '';
-                    document.getElementById('taskPriority').value = task.priority || 'media';
-                }
-            } else {
-                title.textContent = 'Nueva Tarea Personal';
-                form.reset();
-                
-                // Clear notes editor
-                if (notesEditor) {
-                    notesEditor.setText('');
-                }
-                
-                // Set default date to today
-                document.getElementById('taskDueDate').value = new Date().toISOString().split('T')[0];
-                document.getElementById('taskPriority').value = 'media';
+            document.getElementById('taskTitle').value = task.title || '';
+            document.getElementById('taskDescription').value = task.description || '';
+            document.getElementById('taskDueDate').value = task.dueDate || '';
+            document.getElementById('taskPriority').value = task.priority || 'media';
+        }
+    } else {
+        title.textContent = 'Nueva Tarea Personal';
+        form.reset();
+        
+        // Limpiar todos los campos manualmente
+        const allInputs = form.querySelectorAll('input, select, textarea');
+        allInputs.forEach(input => {
+            if (input.type !== 'submit' && input.type !== 'button') {
+                input.value = '';
             }
-            
-            modal.style.display = 'block';
-        }
+        });
+        
+        // Establecer valores por defecto
+        document.getElementById('taskPriority').value = 'media';
+        
+        // Establecer fecha de hoy por defecto
+        document.getElementById('taskDueDate').value = new Date().toISOString().split('T')[0];
+    }
+    
+    modal.style.display = 'block';
+};
 
-        window.closePersonalTaskModal = function() {
-            document.getElementById('personalTaskModal').style.display = 'none';
-            editingTaskId = null;
-        }
+window.closePersonalTaskModal = function() {
+    const form = document.getElementById('personalTaskForm');
+    form.reset();
+    document.getElementById('personalTaskModal').style.display = 'none';
+    editingTaskId = null;
+};
 
         window.editPersonalTask = function(taskId) {
             openPersonalTaskModal(taskId);
@@ -2493,51 +2500,71 @@ Fecha: ${new Date().toLocaleString('es-ES')}
         }
 
         // Modal functions
-        window.openModal = function(leadId = null) {
-            editingLeadId = leadId;
-            const modal = document.getElementById('leadModal');
-            const form = document.getElementById('leadForm');
-            const title = document.getElementById('modalTitle');
+window.openModal = function(leadId = null) {
+    editingLeadId = leadId;
+    const modal = document.getElementById('leadModal');
+    const form = document.getElementById('leadForm');
+    const title = document.getElementById('modalTitle');
+    
+    if (leadId) {
+        const lead = leads.find(l => l.id === leadId);
+        if (lead) {
+            title.textContent = 'Editar Lead';
             
-            if (leadId) {
-                const lead = leads.find(l => l.id === leadId);
-                if (lead) {
-                    title.textContent = 'Editar Lead';
-                    
-                    // Fill form with existing data
-                    Object.keys(lead).forEach(key => {
-                        const field = document.getElementById(key);
-                        if (field && key !== 'comentarios') {
-                            field.value = lead[key] || '';
-                        }
-                    });
-                    
-                    // Set notes in editor
-                    if (notesEditor && lead.comentarios) {
-                        notesEditor.root.innerHTML = lead.comentarios;
-                    }
+            // Fill form with existing data
+            Object.keys(lead).forEach(key => {
+                const field = document.getElementById(key);
+                if (field && key !== 'comentarios') {
+                    field.value = lead[key] || '';
                 }
-            } else {
-                title.textContent = 'Agregar Nuevo Lead';
-                form.reset();
-                
-                // Set default values
-                document.getElementById('estado').value = 'nuevo';
-                document.getElementById('etapaNegociacion').value = 'primer_contacto';
-                document.getElementById('diasUC').value = '0';
-                
-                // Set default date to today
-                const today = new Date().toISOString().split('T')[0];
-                document.getElementById('fechaPrimerContacto').value = today;
-            }
+            });
             
-            modal.style.display = 'block';
+            // Set notes in editor
+            if (notesEditor && lead.comentarios) {
+                notesEditor.root.innerHTML = lead.comentarios;
+            }
         }
-
-        window.closeModal = function() {
-            document.getElementById('leadModal').style.display = 'none';
-            editingLeadId = null;
+    } else {
+        title.textContent = 'Agregar Nuevo Lead';
+        form.reset();
+        
+        // Limpiar todos los campos manualmente
+        const allInputs = form.querySelectorAll('input, select, textarea');
+        allInputs.forEach(input => {
+            if (input.type !== 'submit' && input.type !== 'button') {
+                input.value = '';
+            }
+        });
+        
+        // Limpiar el editor de notas
+        if (notesEditor) {
+            notesEditor.setText('');
         }
+        
+        // Establecer valores por defecto
+        document.getElementById('estado').value = 'nuevo';
+        document.getElementById('etapaNegociacion').value = 'primer_contacto';
+        document.getElementById('diasUC').value = '0';
+        
+        // Establecer fecha de hoy para el primer contacto
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('fechaPrimerContacto').value = today;
+    }
+    
+    modal.style.display = 'block';
+};
+window.closeModal = function() {
+    const form = document.getElementById('leadForm');
+    form.reset();
+    
+    // Limpiar el editor de notas
+    if (notesEditor) {
+        notesEditor.setText('');
+    }
+    
+    document.getElementById('leadModal').style.display = 'none';
+    editingLeadId = null;
+};
 
         // CRUD functions
         window.editLead = function(leadId) {
