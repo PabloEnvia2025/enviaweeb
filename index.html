@@ -697,7 +697,7 @@
             .table {
                 font-size: 0.8rem;
             }
-            
+
             .table th, .table td {
                 padding: 12px 8px;
             }
@@ -1399,7 +1399,7 @@
         function checkPassword() {
             const password = document.getElementById('passwordInput').value;
             const correctPassword = 'EnviaEspana2025';
-            
+
             if (password === correctPassword) {
                 document.getElementById('loginScreen').style.display = 'none';
                 document.querySelector('.container').style.display = 'block';
@@ -1618,7 +1618,7 @@
 
             // Set up event listeners
             setupEventListeners();
-            
+
             // Initialize notes editor
             initializeNotesEditor();
         }
@@ -1758,15 +1758,15 @@
 
         async function handleFormSubmit(e) {
             e.preventDefault();
-            
+
             const formData = new FormData(e.target);
             const leadData = Object.fromEntries(formData.entries());
-            
+
             // Get notes from editor
             if (notesEditor) {
                 leadData.comentarios = notesEditor.root.innerHTML;
             }
-            
+
             // Convert numeric values
             const numericFields = [
                 'monto', 'ordenes', 'posicionesAlmacenamiento',
@@ -1782,7 +1782,7 @@
                     leadData[field] = parseFloat(leadData[field]) || 0;
                 }
             });
-            
+
             try {
                 if (editingLeadId) {
                     await window.firebaseDB.updateLead(editingLeadId, leadData);
@@ -1797,10 +1797,10 @@
 
         async function handlePersonalTaskFormSubmit(e) {
             e.preventDefault();
-            
+
             const formData = new FormData(e.target);
             const taskData = Object.fromEntries(formData.entries());
-            
+
             try {
                 if (editingTaskId) {
                     await window.firebaseDB.updatePersonalTask(editingTaskId, taskData);
@@ -1817,11 +1817,11 @@
             const taskTypeFilter = document.getElementById('taskTypeFilter').value;
             const taskDateFilter = document.getElementById('taskDateFilter').value;
             const today = new Date().toISOString().split('T')[0];
-            
+
             // Filter personal tasks based on date filter
             let filteredPersonalTasks = personalTasks.filter(task => {
                 if (task.completed) return false;
-                
+
                 if (taskDateFilter === 'today') {
                     return task.dueDate === today;
                 } else if (taskDateFilter === 'week') {
@@ -1843,11 +1843,11 @@
 
             // Update personal tasks count
             document.getElementById('personalTasksCount').textContent = filteredPersonalTasks.length;
-            
+
             // Update personal tasks list
             const personalTasksList = document.getElementById('personalTasksList');
             personalTasksList.innerHTML = '';
-            
+
             if (filteredPersonalTasks.length === 0) {
                 personalTasksList.innerHTML = `
                     <div class="empty-state">
@@ -1856,47 +1856,33 @@
                     </div>
                 `;
             } else {
-filteredPersonalTasks.forEach(task => {
-    const taskItem = document.createElement('div');
-    taskItem.className = 'task-card';
-    taskItem.innerHTML = `
-        <div class="task-card-content">
-            <div class="task-card-title">
-                <span class="task-badge task-badge-personal">Personal</span>
-                ${task.title}
-            </div>
-            <div class="task-card-description">${task.description || 'Sin descripción'}</div>
-            <div class="task-card-date">Fecha límite: ${formatDate(task.dueDate)}</div>
-        </div>
-        <div class="task-card-actions">
-            <button class="complete-task-btn" data-task-id="${task.id}" style="padding: 8px 12px; border: none; border-radius: 6px; cursor: pointer; font-size: 0.9rem; transition: all 0.2s ease; background: #22c55e; color: white;">Completar</button>
-            <button class="postpone-task-btn" data-task-id="${task.id}" style="padding: 8px 12px; border: none; border-radius: 6px; cursor: pointer; font-size: 0.9rem; transition: all 0.2s ease; background: #f59e0b; color: white;">Posponer</button>
-        </div>
-    `;
-    personalTasksList.appendChild(taskItem);
-});
+                filteredPersonalTasks.forEach(task => {
+                    const taskItem = document.createElement('div');
+                    taskItem.className = 'task-card';
+                    taskItem.innerHTML = `
+                        <div class="task-card-content">
+                            <div class="task-card-title">
+                                <span class="task-badge task-badge-personal">Personal</span>
+                                ${task.title}
+                            </div>
+                            <div class="task-card-description">${task.description || 'Sin descripción'}</div>
+                            <div class="task-card-date">Fecha límite: ${formatDate(task.dueDate)}</div>
+                        </div>
+                        <div class="task-card-actions">
+                            <button onclick="completePersonalTask('${task.id}')" style="padding: 8px 12px; border: none; border-radius: 6px; cursor: pointer; font-size: 0.9rem; transition: all 0.2s ease; background: #22c55e; color: white;">Completar</button>
+                            <button onclick="postponePersonalTask('${task.id}')" style="padding: 8px 12px; border: none; border-radius: 6px; cursor: pointer; font-size: 0.9rem; transition: all 0.2s ease; background: #f59e0b; color: white;">Posponer</button>
+                        </div>
+                    `;
+                    personalTasksList.appendChild(taskItem);
+                });
+            }
 
-// Agregar event listeners a los botones después de crearlos
-document.querySelectorAll('.complete-task-btn').forEach(btn => {
-    btn.addEventListener('click', function() {
-        const taskId = this.getAttribute('data-task-id');
-        completePersonalTask(taskId);
-    });
-});
-
-document.querySelectorAll('.postpone-task-btn').forEach(btn => {
-    btn.addEventListener('click', function() {
-        const taskId = this.getAttribute('data-task-id');
-        postponePersonalTask(taskId);
-    });
-});
-            
             // Filter lead tasks based on date filter
             let filteredLeadTasks = leads.filter(lead => {
                 if (lead.estado === 'cliente_cerrado' || lead.estado === 'perdido') return false;
-                
+
                 if (!lead.fechaEstimadaCierre) return false;
-                
+
                 if (taskDateFilter === 'today') {
                     return lead.fechaEstimadaCierre === today;
                 } else if (taskDateFilter === 'week') {
@@ -1918,11 +1904,11 @@ document.querySelectorAll('.postpone-task-btn').forEach(btn => {
 
             // Update lead tasks count
             document.getElementById('leadTasksCount').textContent = filteredLeadTasks.length;
-            
+
             // Update lead tasks list
             const leadTasksList = document.getElementById('leadTasksList');
             leadTasksList.innerHTML = '';
-            
+
             if (filteredLeadTasks.length === 0) {
                 leadTasksList.innerHTML = `
                     <div class="empty-state">
@@ -1951,11 +1937,11 @@ document.querySelectorAll('.postpone-task-btn').forEach(btn => {
                     leadTasksList.appendChild(taskItem);
                 });
             }
-            
+
             // Update all tasks table
             const allTasksTable = document.getElementById('allTasksTable');
             allTasksTable.innerHTML = '';
-            
+
             // Combine all tasks
             const allTasks = [
                 ...personalTasks.map(task => ({ 
@@ -1973,16 +1959,16 @@ document.querySelectorAll('.postpone-task-btn').forEach(btn => {
                     status: new Date(lead.fechaEstimadaCierre) < new Date() ? 'pendiente (vencida)' : 'pendiente'
                 }))
             ].sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate));
-            
+
             // Apply filters to all tasks table
             let filteredAllTasks = allTasks;
-            
+
             if (taskTypeFilter !== 'all') {
                 filteredAllTasks = filteredAllTasks.filter(task => 
                     taskTypeFilter === 'personal' ? task.type === 'Personal' : task.type === 'Lead'
                 );
             }
-            
+
             if (taskDateFilter === 'today') {
                 filteredAllTasks = filteredAllTasks.filter(task => task.dueDate === today);
             } else if (taskDateFilter === 'week') {
@@ -2003,7 +1989,7 @@ document.querySelectorAll('.postpone-task-btn').forEach(btn => {
             } else if (taskDateFilter === 'overdue') {
                 filteredAllTasks = filteredAllTasks.filter(task => new Date(task.dueDate) < new Date(today));
             }
-            
+
             if (filteredAllTasks.length === 0) {
                 allTasksTable.innerHTML = `
                     <tr>
@@ -2015,7 +2001,7 @@ document.querySelectorAll('.postpone-task-btn').forEach(btn => {
                 `;
                 return;
             }
-            
+
             filteredAllTasks.forEach(task => {
                 const isOverdue = new Date(task.dueDate) < new Date();
                 const row = document.createElement('tr');
@@ -2060,14 +2046,14 @@ document.querySelectorAll('.postpone-task-btn').forEach(btn => {
             const tomorrow = new Date();
             tomorrow.setDate(tomorrow.getDate() + 1);
             const tomorrowStr = tomorrow.toISOString().split('T')[0];
-            
+
             window.firebaseDB.updatePersonalTask(taskId, { dueDate: tomorrowStr });
         }
 
         function completeLeadTask(leadId) {
             const lead = leads.find(l => l.id === leadId);
             if (!lead) return;
-            
+
             // Move to next stage or mark as closed
             let nextEtapa = lead.etapaNegociacion;
             if (lead.etapaNegociacion === 'primer_contacto') nextEtapa = 'primera_reunion';
@@ -2075,7 +2061,7 @@ document.querySelectorAll('.postpone-task-btn').forEach(btn => {
             else if (lead.etapaNegociacion === 'oferta_comercial') nextEtapa = 'segunda_reunion';
             else if (lead.etapaNegociacion === 'segunda_reunion') nextEtapa = 'negociacion';
             else if (lead.etapaNegociacion === 'negociacion') nextEtapa = 'cierre';
-            
+
             window.firebaseDB.updateLead(leadId, {
                 etapaNegociacion: nextEtapa,
                 estado: nextEtapa === 'cierre' ? 'cliente_cerrado' : lead.estado
@@ -2085,7 +2071,7 @@ document.querySelectorAll('.postpone-task-btn').forEach(btn => {
         // Notes editor functions
         window.downloadNotes = function() {
             const textContent = notesEditor ? notesEditor.getText() : (document.getElementById('comentarios')?.value || '');
-            
+
             if (!textContent.trim()) {
                 showError('No hay contenido para descargar');
                 return;
@@ -2096,7 +2082,7 @@ document.querySelectorAll('.postpone-task-btn').forEach(btn => {
                 let filename = 'notas-lead';
                 let company = 'Sin especificar';
                 let salesman = 'Sin especificar';
-                
+
                 if (editingLeadId) {
                     const lead = leads.find(l => l.id === editingLeadId);
                     if (lead) {
@@ -2115,7 +2101,7 @@ document.querySelectorAll('.postpone-task-btn').forEach(btn => {
                         salesman = salesmanField.value;
                     }
                 }
-                
+
                 // Create document content
                 const documentContent = `
 NOTAS DEL LEAD - ENVIA.COM FULFILLMENT
@@ -2136,7 +2122,7 @@ ${textContent}
 Generado por Envia.com CRM - Fulfillment España
 Fecha: ${new Date().toLocaleString('es-ES')}
 `;
-                
+
                 // Create and download file
                 const blob = new Blob([documentContent], { type: 'text/plain;charset=utf-8' });
                 const url = URL.createObjectURL(blob);
@@ -2147,9 +2133,9 @@ Fecha: ${new Date().toLocaleString('es-ES')}
                 a.click();
                 document.body.removeChild(a);
                 URL.revokeObjectURL(url);
-                
+
                 showSuccess('Notas descargadas exitosamente');
-                
+
             } catch (error) {
                 console.error('Error downloading notes:', error);
                 showError('Error al descargar las notas');
@@ -2167,6 +2153,11 @@ Fecha: ${new Date().toLocaleString('es-ES')}
         }
 
         // Personal task modal functions
+        window.openPersonalTaskModal = function(taskId = null) {
+            editingTaskId = taskId;
+            const modal = document.getElementById('personalTaskModal');
+            const form = document.getElementById('personalTaskForm');
+            const title = document.getElementById('personalTaskModalTitle');
 window.openPersonalTaskModal = function(taskId = null) {
     editingTaskId = taskId;
     const modal = document.getElementById('personalTaskModal');
@@ -2177,7 +2168,29 @@ window.openPersonalTaskModal = function(taskId = null) {
         const task = personalTasks.find(t => t.id === taskId);
         if (task) {
             title.textContent = 'Editar Tarea Personal';
-            
+
+            if (taskId) {
+                const task = personalTasks.find(t => t.id === taskId);
+                if (task) {
+                    title.textContent = 'Editar Tarea Personal';
+                    
+                    document.getElementById('taskTitle').value = task.title || '';
+                    document.getElementById('taskDescription').value = task.description || '';
+                    document.getElementById('taskDueDate').value = task.dueDate || '';
+                    document.getElementById('taskPriority').value = task.priority || 'media';
+                }
+            } else {
+                title.textContent = 'Nueva Tarea Personal';
+                form.reset();
+                
+                // Clear notes editor
+                if (notesEditor) {
+                    notesEditor.setText('');
+                }
+                
+                // Set default date to today
+                document.getElementById('taskDueDate').value = new Date().toISOString().split('T')[0];
+                document.getElementById('taskPriority').value = 'media';
             document.getElementById('taskTitle').value = task.title || '';
             document.getElementById('taskDescription').value = task.description || '';
             document.getElementById('taskDueDate').value = task.dueDate || '';
@@ -2193,6 +2206,14 @@ window.openPersonalTaskModal = function(taskId = null) {
             if (input.type !== 'submit' && input.type !== 'button') {
                 input.value = '';
             }
+            
+            modal.style.display = 'block';
+        }
+
+        window.closePersonalTaskModal = function() {
+            document.getElementById('personalTaskModal').style.display = 'none';
+            editingTaskId = null;
+        }
         });
         
         // Establecer valores por defecto
@@ -2232,7 +2253,7 @@ window.closePersonalTaskModal = function() {
             const statusFilter = document.getElementById('statusFilter').value;
             const salesmanFilter = document.getElementById('salesmanFilter').value;
             const etapaFilter = document.getElementById('etapaFilter').value;
-            
+
             let filteredLeads = leads.filter(lead => {
                 const matchesSearch = (lead.nombreEmpresa || '').toLowerCase().includes(searchTerm) ||
                                     (lead.salesman || '').toLowerCase().includes(searchTerm) ||
@@ -2240,13 +2261,13 @@ window.closePersonalTaskModal = function() {
                 const matchesStatus = !statusFilter || lead.estado === statusFilter;
                 const matchesSalesman = !salesmanFilter || lead.salesman === salesmanFilter;
                 const matchesEtapa = !etapaFilter || lead.etapaNegociacion === etapaFilter;
-                
+
                 return matchesSearch && matchesStatus && matchesSalesman && matchesEtapa;
             });
-            
+
             const tbody = document.getElementById('leadsTable');
             tbody.innerHTML = '';
-            
+
             filteredLeads.forEach(lead => {
                 const row = document.createElement('tr');
                 row.onclick = () => toggleLeadDetails(lead.id, row);
@@ -2351,7 +2372,7 @@ window.closePersonalTaskModal = function() {
         function toggleLeadDetails(leadId, row) {
             const detailsRow = document.getElementById(`details-${leadId}`);
             const detailsContent = document.getElementById(`lead-details-${leadId}`);
-            
+
             // Close all other details
             document.querySelectorAll('[id^="details-"]').forEach(dr => {
                 if (dr.id !== `details-${leadId}`) {
@@ -2361,7 +2382,7 @@ window.closePersonalTaskModal = function() {
                     if (otherContent) otherContent.classList.remove('active');
                 }
             });
-            
+
             if (detailsRow.style.display === 'none') {
                 detailsRow.style.display = 'table-row';
                 row.classList.add('expanded');
@@ -2383,17 +2404,17 @@ window.closePersonalTaskModal = function() {
             const closedLeads = leads.filter(lead => lead.estado === 'cliente_cerrado').length;
             const totalValue = leads.reduce((sum, lead) => sum + (lead.monto || 0), 0);
             const conversionRate = totalLeads > 0 ? ((closedLeads / totalLeads) * 100).toFixed(1) : 0;
-            
+
             // Calculate average orders
             const leadsWithOrders = leads.filter(lead => lead.ordenes && lead.ordenes > 0);
             const averageOrders = leadsWithOrders.length > 0 ? 
                 Math.round(leadsWithOrders.reduce((sum, lead) => sum + lead.ordenes, 0) / leadsWithOrders.length) : 0;
-            
+
             // Calculate average days to close
             const closedLeadsWithDays = leads.filter(lead => lead.diasPCCierre && lead.diasPCCierre > 0);
             const averageDays = closedLeadsWithDays.length > 0 ? 
                 Math.round(closedLeadsWithDays.reduce((sum, lead) => sum + lead.diasPCCierre, 0) / closedLeadsWithDays.length) : 0;
-            
+
             // Find top tier
             const tierCounts = {};
             leads.forEach(lead => {
@@ -2403,7 +2424,7 @@ window.closePersonalTaskModal = function() {
             });
             const topTier = Object.keys(tierCounts).reduce((a, b) => 
                 tierCounts[a] > tierCounts[b] ? a : b, '-');
-            
+
             document.getElementById('totalLeads').textContent = totalLeads;
             document.getElementById('newLeads').textContent = newLeads;
             document.getElementById('closedLeads').textContent = closedLeads;
@@ -2418,18 +2439,18 @@ window.closePersonalTaskModal = function() {
             const followUpLeads = leads.filter(lead => lead.fechaEstimadaCierre);
             const tbody = document.getElementById('followUpTable');
             tbody.innerHTML = '';
-            
+
             // Sort by estimated close date
             followUpLeads.sort((a, b) => new Date(a.fechaEstimadaCierre) - new Date(b.fechaEstimadaCierre));
-            
+
             followUpLeads.forEach(lead => {
                 const today = new Date();
                 const closeDate = new Date(lead.fechaEstimadaCierre);
                 const daysRemaining = Math.ceil((closeDate - today) / (1000 * 60 * 60 * 24));
-                
+
                 const row = document.createElement('tr');
                 const isOverdue = daysRemaining < 0;
-                
+
                 row.innerHTML = `
                     <td><strong>${lead.nombreEmpresa || 'Sin nombre'}</strong></td>
                     <td>${formatDate(lead.fechaEstimadaCierre)}</td>
@@ -2514,6 +2535,11 @@ window.closePersonalTaskModal = function() {
         }
 
         // Modal functions
+        window.openModal = function(leadId = null) {
+            editingLeadId = leadId;
+            const modal = document.getElementById('leadModal');
+            const form = document.getElementById('leadForm');
+            const title = document.getElementById('modalTitle');
 window.openModal = function(leadId = null) {
     editingLeadId = leadId;
     const modal = document.getElementById('leadModal');
@@ -2524,15 +2550,51 @@ window.openModal = function(leadId = null) {
         const lead = leads.find(l => l.id === leadId);
         if (lead) {
             title.textContent = 'Editar Lead';
-            
+
+            if (leadId) {
+                const lead = leads.find(l => l.id === leadId);
+                if (lead) {
+                    title.textContent = 'Editar Lead';
+                    
+                    // Fill form with existing data
+                    Object.keys(lead).forEach(key => {
+                        const field = document.getElementById(key);
+                        if (field && key !== 'comentarios') {
+                            field.value = lead[key] || '';
+                        }
+                    });
+                    
+                    // Set notes in editor
+                    if (notesEditor && lead.comentarios) {
+                        notesEditor.root.innerHTML = lead.comentarios;
+                    }
             // Fill form with existing data
             Object.keys(lead).forEach(key => {
                 const field = document.getElementById(key);
                 if (field && key !== 'comentarios') {
                     field.value = lead[key] || '';
                 }
+            } else {
+                title.textContent = 'Agregar Nuevo Lead';
+                form.reset();
+                
+                // Set default values
+                document.getElementById('estado').value = 'nuevo';
+                document.getElementById('etapaNegociacion').value = 'primer_contacto';
+                document.getElementById('diasUC').value = '0';
+                
+                // Set default date to today
+                const today = new Date().toISOString().split('T')[0];
+                document.getElementById('fechaPrimerContacto').value = today;
+            }
             });
-            
+
+            modal.style.display = 'block';
+        }
+
+        window.closeModal = function() {
+            document.getElementById('leadModal').style.display = 'none';
+            editingLeadId = null;
             // Set notes in editor
             if (notesEditor && lead.comentarios) {
                 notesEditor.root.innerHTML = lead.comentarios;
@@ -2601,18 +2663,18 @@ window.closeModal = function() {
             document.querySelectorAll('.tab').forEach(tab => {
                 tab.classList.remove('active');
             });
-            
+
             // Hide all tab contents
             document.querySelectorAll('.tab-content').forEach(content => {
                 content.classList.remove('active');
             });
-            
+
             // Show selected tab
             document.getElementById(tabName).classList.add('active');
-            
+
             // Add active class to clicked tab
             event.target.classList.add('active');
-            
+
             // Update tasks when switching to tasks tab
             if (tabName === 'tareas') {
                 updateTasks();
