@@ -1128,71 +1128,70 @@ Fecha: ${new Date().toLocaleString('es-ES')}
             </div>
         </div>
 
-        <!-- Tab: Tareas -->
-        <!-- Modifica la sección de tareas en el HTML -->
-<div id="tareas" class="tab-content">
-    <div class="controls">
-        <div style="display: flex; gap: 15px; width: 100%;">
-            <select class="filter-select" id="taskTypeFilter">
-                <option value="all">Todas las tareas</option>
-                <option value="personal">Personales</option>
-                <option value="lead">De leads</option>
-            </select>
-            <select class="filter-select" id="taskDateFilter">
-                <option value="today">Hoy</option>
-                <option value="week">Esta semana</option>
-                <option value="month">Este mes</option>
-                <option value="overdue">Vencidas</option>
-                <option value="all">Todas</option>
-            </select>
-            <button class="btn btn-primary" onclick="openPersonalTaskModal()" style="margin-left: auto;">
-                ➕ Nueva Tarea Personal
-            </button>
-        </div>
-    </div>
+                <!-- Tab: Tareas -->
+        <div id="tareas" class="tab-content">
+            <div class="controls">
+                <div style="display: flex; gap: 15px; width: 100%;">
+                    <select class="filter-select" id="taskTypeFilter">
+                        <option value="all">Todas las tareas</option>
+                        <option value="personal">Personales</option>
+                        <option value="lead">De leads</option>
+                    </select>
+                    <select class="filter-select" id="taskDateFilter">
+                        <option value="today">Hoy</option>
+                        <option value="week">Esta semana</option>
+                        <option value="month">Este mes</option>
+                        <option value="overdue">Vencidas</option>
+                        <option value="all">Todas</option>
+                    </select>
+                    <button class="btn btn-primary" onclick="openPersonalTaskModal()" style="margin-left: auto;">
+                        ➕ Nueva Tarea Personal
+                    </button>
+                </div>
+            </div>
 
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 25px;">
-        <div style="background: white; padding: 25px; border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.1);">
-            <h2 style="margin-bottom: 20px; color: #1f2937; font-size: 1.5rem; display: flex; align-items: center; gap: 10px;">
-                📝 Tareas Personales
-                <span style="font-size: 0.9rem; background: #3b82f6; color: white; padding: 3px 8px; border-radius: 12px;" id="personalTasksCount">0</span>
-            </h2>
-            <div id="personalTasksList">
-                <!-- Las tareas personales se cargarán aquí -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 25px;">
+                <div style="background: white; padding: 25px; border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.1);">
+                    <h2 style="margin-bottom: 20px; color: #1f2937; font-size: 1.5rem; display: flex; align-items: center; gap: 10px;">
+                        📝 Tareas Personales
+                        <span style="font-size: 0.9rem; background: #3b82f6; color: white; padding: 3px 8px; border-radius: 12px;" id="personalTasksCount">0</span>
+                    </h2>
+                    <div id="personalTasksList">
+                        <!-- Las tareas personales se cargarán aquí -->
+                    </div>
+                </div>
+
+                <div style="background: white; padding: 25px; border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.1);">
+                    <h2 style="margin-bottom: 20px; color: #1f2937; font-size: 1.5rem; display: flex; align-items: center; gap: 10px;">
+                        📅 Tareas de Leads
+                        <span style="font-size: 0.9rem; background: #3b82f6; color: white; padding: 3px 8px; border-radius: 12px;" id="leadTasksCount">0</span>
+                    </h2>
+                    <div id="leadTasksList">
+                        <!-- Las tareas de leads se cargarán aquí -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <h3 style="margin-bottom: 15px; color: #1f2937; font-size: 1.2rem;">Todas las tareas</h3>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Tipo</th>
+                            <th>Descripción</th>
+                            <th>Empresa/Lead</th>
+                            <th>Fecha</th>
+                            <th>Prioridad</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="allTasksTable">
+                        <!-- Todas las tareas se cargarán aquí -->
+                    </tbody>
+                </table>
             </div>
         </div>
-
-        <div style="background: white; padding: 25px; border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.1);">
-            <h2 style="margin-bottom: 20px; color: #1f2937; font-size: 1.5rem; display: flex; align-items: center; gap: 10px;">
-                📅 Tareas de Leads
-                <span style="font-size: 0.9rem; background: #3b82f6; color: white; padding: 3px 8px; border-radius: 12px;" id="leadTasksCount">0</span>
-            </h2>
-            <div id="leadTasksList">
-                <!-- Las tareas de leads se cargarán aquí -->
-            </div>
-        </div>
-    </div>
-
-    <div class="table-container">
-        <h3 style="margin-bottom: 15px; color: #1f2937; font-size: 1.2rem;">Todas las tareas</h3>
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>Tipo</th>
-                    <th>Descripción</th>
-                    <th>Empresa/Lead</th>
-                    <th>Fecha</th>
-                    <th>Prioridad</th>
-                    <th>Estado</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
-            <tbody id="allTasksTable">
-                <!-- Todas las tareas se cargarán aquí -->
-            </tbody>
-        </table>
-    </div>
-</div>
 
         <!-- Tab: Dashboard -->
         <div id="dashboard" class="tab-content">
