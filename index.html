@@ -1,9 +1,361 @@
-<!DOCTYPE html>
+setupCalculationListeners();
+        }
+
+        function initializeNotesEditor() {
+            // Initialize Quill editor for notes
+            if (typeof Quill !== 'undefined' && !notesEditor) {
+                const editorElement = document.getElementById('notesEditor');
+                if (editorElement && !editorElement.classList.contains('ql-container')) {
+                    notesEditor = new Quill('#notesEditor', {
+                        theme: 'snow',
+                        placeholder: 'Escribe aquí las notas del lead...',
+                        modules: {
+                            toolbar: [
+                                [{ 'header': [1, 2, 3, false] }],
+                                ['bold', 'italic', 'underline', 'strike'],
+                                [{ 'color': [] }, { 'background': [] }],
+                                [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                                [{ 'indent': '-1'}, { 'indent': '+1' }],
+                                [{ 'align': [] }],
+                                ['link', 'blockquote', 'code-block'],
+                                ['clean']
+                            ]
+                        }
+                    });
+
+                    // Update hidden textarea when editor content changes
+                    notesEditor.on('text-change', function() {
+                        const htmlContent = notesEditor.root.innerHTML;
+                        document.getElementById('comentarios').value = htmlContent;
+                    });
+                }
+            }
+        }
+
+        async function handlePersonalTaskFormSubmit(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(e.target);
+            const taskData = Object.fromEntries(formData.entries());
+            
+            try {
+                if (editingTaskId) {
+                    await window.firebaseDB.updatePersonalTask(editingTaskId, taskData);
+                } else {
+                    await window.firebaseDB.addPersonalTask(taskData);
+                }
+                closePersonalTaskModal();
+            } catch (error) {
+                // Error is already handled in Firebase functions
+            }
+        }
+
+        function updateTasks() {
+            const today = new Date().toISOString().split('T')[0];
+            
+            // Update personal tasks - showing today's tasks
+            const todayPersonalTasks = personalTasks.filter(task => 
+                task.dueDate === today && !task.completed
+            );
+            
+            const personalTasksList = document.getElementById('personalTasksList');
+            personalTasksList.innerHTML = '';
+            
+            if (todayPersonalTasks.length === 0) {
+                personalTasksList.innerHTML = `
+                    <div style="text-align: center; padding: 30px; color: #6b7280;">
+                        <h3 style="margin-bottom: 10px; color: #374151;">No hay tareas personales para hoy</h3>
+                        <p>¡Buen trabajo! Todo está al día.</p>
+                    </div>
+                `;
+            } else {
+                todayPersonalTasks.forEach(task => {
+                    const taskItem = document.createElement('div');
+                    taskItem.style.cssText = 'padding: 15px; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center;';
+                    taskItem.innerHTML = `
+                        <div style="flex: 1;">
+                            <div style="font-weight: 600; margin-bottom: 5px;">${task.title}</div>
+                            <div style="color: #64748b; font-size: 0.9rem;">${task.description || 'Sin descripción'}</div>
+                        </div>
+                        <div style="display: flex; gap: 10px;">
+                            <button onclick="completePersonalTask('${task.id}')" style="padding: 8px 12px; border: none; border-radius: 6px; cursor: pointer; font-size: 0.9rem; transition: all 0.2s ease; background: #22c55e; color: white;">Completar</button>
+                            <button onclick="postponePersonalTask('${task.id}')" style="padding: 8px 12px; border: none; border-radius: 6px; cursor: pointer; font-size: 0.9rem; transition: all 0.2s ease; background: #f59e0b; color: white;">Posponer</button>
+                        </div>
+                    `;
+                    personalTasksList.appendChild(taskItem);
+                });
+            }
+            
+            // Update lead tasks - showing tasks with fechaEstimadaCierre today
+            const todayLeadTasks = leads.filter(lead => 
+                lead.fechaEstimadaCierre && lead.fechaEstimadaCierre === today && lead.estado !== 'cliente_cerrado' && lead.estado !== 'perdido'
+            );
+            
+            const leadTasksList = document.getElementById('leadTasksList');
+            leadTasksList.innerHTML = '';
+            
+            if (todayLeadTasks.length === 0) {
+                leadTasksList.innerHTML = `
+                    <div style="text-align: center; padding: 30px; color: #6b7280;">
+                        <h3 style="margin-bottom: 10px; color: #374151;">No hay tareas de leads para hoy</h3>
+                        <p>Todas las tareas están al día</p>
+                    </div>
+                `;
+            } else {
+                todayLeadTasks.forEach(lead => {
+                    const taskItem = document.createElement('div');
+                    taskItem.style.cssText = 'padding: 15px; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center;';
+                    taskItem.innerHTML = `
+                        <div style="flex: 1;">
+                            <div style="font-weight: 600; margin-bottom: 5px;">${lead.nombreEmpresa}</div>
+                            <div style="color: #64748b; font-size: 0.9rem;">Seguimiento para cierre estimado</div>
+                        </div>
+                        <div style="display: flex; gap: 10px;">
+                            <button onclick="completeLeadTask('${lead.id}')" style="padding: 8px 12px; border: none; border-radius: 6px; cursor: pointer; font-size: 0.9rem; transition: all 0.2s ease; background: #22c55e; color: white;">Completar</button>
+                            <button onclick="editLead('${lead.id}')" style="padding: 8px 12px; border: none; border-radius: 6px; cursor: pointer; font-size: 0.9rem; transition: all 0.2s ease; background: #3b82f6; color: white;">Editar</button>
+                        </div>
+                    `;
+                    leadTasksList.appendChild(taskItem);
+                });
+            }
+            
+            // Update all tasks table
+            const allTasksTable = document.getElementById('allTasksTable');
+            allTasksTable.innerHTML = '';
+            
+            // Combine all tasks
+            const allTasks = [
+                ...personalTasks.filter(task => !task.completed).map(task => ({ ...task, type: 'Personal' })),
+                ...leads.filter(lead => lead.fechaEstimadaCierre && lead.estado !== 'cliente_cerrado' && lead.estado !== 'perdido').map(lead => ({
+                    id: lead.id,
+                    title: `Seguimiento ${lead.nombreEmpresa}`,
+                    description: lead.nombreEmpresa,
+                    dueDate: lead.fechaEstimadaCierre,
+                    priority: 'media',
+                    type: 'Lead'
+                }))
+            ].sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate));
+            
+            if (allTasks.length === 0) {
+                allTasksTable.innerHTML = `
+                    <tr>
+                        <td colspan="6" style="text-align: center; padding: 50px; color: #6b7280;">
+                            <h3 style="margin-bottom: 10px; color: #374151;">No hay tareas programadas</h3>
+                            <p>Agrega nuevas tareas para comenzar</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            allTasks.forEach(task => {
+                allTasks.forEach(task => {
+                const isOverdue = new Date(task.dueDate) < new Date();
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><span style="padding: 4px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: 500; color: white; background: ${task.type === 'Personal' ? '#6b7280' : '#3b82f6'};">${task.type}</span></td>
+                    <td>
+                        <div><strong>${task.title || task.description}</strong></div>
+                        <div style="color: #6b7280; font-size: 0.9rem;">${task.description || 'Sin descripción'}</div>
+                    </td>
+                    <td>${task.type === 'Lead' ? task.description : 'Tarea personal'}</td>
+                    <td style="color: ${isOverdue ? '#ef4444' : '#6b7280'}">${formatDate(task.dueDate)}</td>
+                    <td><span class="priority priority-${task.priority}">${task.priority.toUpperCase()}</span></td>
+                    <td>
+                        <div class="actions">
+                            ${task.type === 'Personal' ? `
+                                <button class="action-btn btn-edit" onclick="editPersonalTask('${task.id}')" title="Editar">
+                                    ✏️
+                                </button>
+                                <button class="action-btn btn-delete" onclick="deletePersonalTask('${task.id}')" title="Eliminar">
+                                    🗑️
+                                </button>
+                            ` : `
+                                <button class="action-btn btn-edit" onclick="editLead('${task.id}')" title="Editar">
+                                    ✏️
+                                </button>
+                            `}
+                        </div>
+                    </td>
+                `;
+                allTasksTable.appendChild(row);
+            });
+        }
+
+        function completePersonalTask(taskId) {
+            if (confirm('¿Marcar esta tarea como completada?')) {
+                window.firebaseDB.updatePersonalTask(taskId, { completed: true });
+            }
+        }
+
+        function postponePersonalTask(taskId) {
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            const tomorrowStr = tomorrow.toISOString().split('T')[0];
+            
+            window.firebaseDB.updatePersonalTask(taskId, { dueDate: tomorrowStr });
+        }
+
+        function completeLeadTask(leadId) {
+            const lead = leads.find(l => l.id === leadId);
+            if (!lead) return;
+            
+            // Move to next stage or mark as closed
+            let nextEtapa = lead.etapaNegociacion;
+            if (lead.etapaNegociacion === 'primer_contacto') nextEtapa = 'primera_reunion';
+            else if (lead.etapaNegociacion === 'primera_reunion') nextEtapa = 'oferta_comercial';
+            else if (lead.etapaNegociacion === 'oferta_comercial') nextEtapa = 'segunda_reunion';
+            else if (lead.etapaNegociacion === 'segunda_reunion') nextEtapa = 'negociacion';
+            else if (lead.etapaNegociacion === 'negociacion') nextEtapa = 'cierre';
+            
+            window.firebaseDB.updateLead(leadId, {
+                etapaNegociacion: nextEtapa,
+                estado: nextEtapa === 'cierre' ? 'cliente_cerrado' : lead.estado
+            });
+        }
+
+        // Notes editor functions
+        window.downloadNotes = function() {
+            const textContent = notesEditor ? notesEditor.getText() : (document.getElementById('comentarios')?.value || '');
+            
+            if (!textContent.trim()) {
+                showError('No hay contenido para descargar');
+                return;
+            }
+
+            try {
+                // Get lead info for filename
+                let filename = 'notas-lead';
+                let company = 'Sin especificar';
+                let salesman = 'Sin especificar';
+                
+                if (editingLeadId) {
+                    const lead = leads.find(l => l.id === editingLeadId);
+                    if (lead) {
+                        company = lead.nombreEmpresa || 'Sin especificar';
+                        salesman = lead.salesman || 'Sin especificar';
+                        filename = `notas-${lead.nombreEmpresa?.toLowerCase().replace(/\s+/g, '-') || 'lead'}`;
+                    }
+                } else {
+                    const companyField = document.getElementById('nombreEmpresa');
+                    const salesmanField = document.getElementById('salesman');
+                    if (companyField?.value) {
+                        company = companyField.value;
+                        filename = `notas-${companyField.value.toLowerCase().replace(/\s+/g, '-')}`;
+                    }
+                    if (salesmanField?.value) {
+                        salesman = salesmanField.value;
+                    }
+                }
+                
+                // Create document content
+                const documentContent = `
+NOTAS DEL LEAD - ENVIA.COM FULFILLMENT
+===============================================
+
+📋 INFORMACIÓN DEL LEAD:
+Empresa: ${company}
+Salesman: ${salesman}
+Fecha: ${new Date().toLocaleDateString('es-ES')}
+
+===============================================
+
+📝 CONTENIDO DE LAS NOTAS:
+
+${textContent}
+
+===============================================
+Generado por Envia.com CRM - Fulfillment España
+Fecha: ${new Date().toLocaleString('es-ES')}
+`;
+                
+                // Create and download file
+                const blob = new Blob([documentContent], { type: 'text/plain;charset=utf-8' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `${filename}.txt`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                showSuccess('Notas descargadas exitosamente');
+                
+            } catch (error) {
+                console.error('Error downloading notes:', error);
+                showError('Error al descargar las notas');
+            }
+        }
+
+        window.clearNotes = function() {
+            if (notesEditor) {
+                if (confirm('¿Estás seguro de que quieres limpiar todas las notas?')) {
+                    notesEditor.setText('');
+                    document.getElementById('comentarios').value = '';
+                    showSuccess('Notas limpiadas');
+                }
+            }
+        }
+
+        // Personal task modal functions
+        window.openPersonalTaskModal = function(taskId = null) {
+            editingTaskId = taskId;
+            const modal = document.getElementById('personalTaskModal');
+            const form = document.getElementById('personalTaskForm');
+            const title = document.getElementById('personalTaskModalTitle');
+            
+            if (taskId) {
+                const task = personalTasks.find(t => t.id === taskId);
+                if (task) {
+                    title.textContent = 'Editar Tarea Personal';
+                    
+                    document.getElementById('taskTitle').value = task.title || '';
+                    document.getElementById('taskDescription').value = task.description || '';
+                    document.getElementById('taskDueDate').value = task.dueDate || '';
+                    document.getElementById('taskPriority').value = task.priority || 'media';
+                }
+            } else {
+                title.textContent = 'Nueva Tarea Personal';
+                form.reset();
+                
+                // Clear notes editor
+                if (notesEditor) {
+                    notesEditor.setText('');
+                }
+                
+                // Set default date to today
+                document.getElementById('taskDueDate').value = new Date().toISOString().split('T')[0];
+                document.getElementById('taskPriority').value = 'media';
+            }
+            
+            modal.style.display = 'block';
+        }
+
+        window.closePersonalTaskModal = function() {
+            document.getElementById('personalTaskModal').style.display = 'none';
+            editingTaskId = null;
+        }
+
+        window.editPersonalTask = function(taskId) {
+            openPersonalTaskModal(taskId);
+        }
+
+        window.deletePersonalTask = async function(taskId) {
+            if (confirm('¿Estás seguro de que quieres eliminar esta tarea personal?')) {
+                try {
+                    await window.firebaseDB.deletePersonalTask(taskId);
+                } catch (error) {
+                    // Error is already handled in Firebase functions
+                }
+            }
+        }
+                <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CRM Envia.com - Gestión de Leads</title>
+    <title>CRM Envia.com - Fulfillment España</title>
     <style>
         * {
             margin: 0;
@@ -13,29 +365,53 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f5f7fa;
+            background-color: #f8fafc;
             color: #333;
         }
 
         .container {
-            max-width: 1400px;
+            max-width: 1600px;
             margin: 0 auto;
             padding: 20px;
+            display: none;
         }
 
         .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 50%, #60a5fa 100%);
             color: white;
             padding: 2rem;
             border-radius: 15px;
             margin-bottom: 30px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, rgba(251, 191, 36, 0.1) 0%, rgba(59, 130, 246, 0.1) 100%);
+            z-index: 1;
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 2;
         }
 
         .header h1 {
             font-size: 2.5rem;
             margin-bottom: 0.5rem;
             text-align: center;
+            background: linear-gradient(45deg, #fbbf24, #ffffff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 700;
         }
 
         .header p {
@@ -51,10 +427,12 @@
             padding: 5px;
             margin-bottom: 30px;
             box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            overflow-x: auto;
         }
 
         .tab {
             flex: 1;
+            min-width: 150px;
             padding: 15px 20px;
             background: none;
             border: none;
@@ -67,16 +445,17 @@
             align-items: center;
             justify-content: center;
             gap: 8px;
+            white-space: nowrap;
         }
 
         .tab:hover {
-            background: #f8f9ff;
+            background: #f1f5f9;
         }
 
         .tab.active {
-            background: #667eea;
+            background: #3b82f6;
             color: white;
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+            box-shadow: 0 5px 15px rgba(59, 130, 246, 0.3);
         }
 
         .tab-content {
@@ -123,8 +502,8 @@
 
         .search-input:focus {
             outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
         }
 
         .search-icon {
@@ -154,8 +533,8 @@
 
         .filter-select:focus {
             outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
         }
 
         .btn {
@@ -173,14 +552,14 @@
         }
 
         .btn-primary {
-            background: #667eea;
+            background: #3b82f6;
             color: white;
         }
 
         .btn-primary:hover {
-            background: #5a67d8;
+            background: #2563eb;
             transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.3);
         }
 
         .table-container {
@@ -193,82 +572,165 @@
         .table {
             width: 100%;
             border-collapse: collapse;
+            font-size: 0.9rem;
         }
 
         .table th {
             background: #f8fafc;
-            padding: 18px 15px;
+            padding: 16px 10px;
             text-align: left;
             font-weight: 600;
-            font-size: 0.9rem;
+            font-size: 0.8rem;
             color: #475569;
             border-bottom: 2px solid #e2e8f0;
             position: sticky;
             top: 0;
             z-index: 10;
+            white-space: nowrap;
         }
 
         .table td {
-            padding: 18px 15px;
+            padding: 16px 10px;
             border-bottom: 1px solid #f1f5f9;
             vertical-align: middle;
+            font-size: 0.85rem;
+        }
+
+        .table tbody tr {
+            cursor: pointer;
+            transition: background 0.2s ease;
         }
 
         .table tbody tr:hover {
             background: #f8fafc;
-            transition: background 0.2s ease;
+        }
+
+        .table tbody tr.expanded {
+            background: #f1f5f9;
+        }
+
+        .table tbody tr.expanded:hover {
+            background: #e2e8f0;
+        }
+
+        .lead-details {
+            padding: 0;
+            max-height: 0;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .lead-details.active {
+            padding: 25px;
+            max-height: 800px;
+        }
+
+        .details-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .detail-item {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            border: 1px solid #e5e7eb;
+        }
+
+        .detail-item h4 {
+            color: #3b82f6;
+            margin-bottom: 15px;
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 8px;
+        }
+
+        .detail-item p {
+            color: #1e293b;
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+            line-height: 1.4;
+        }
+
+        .detail-item strong {
+            color: #374151;
+            font-weight: 600;
         }
 
         .status {
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 0.8rem;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
             font-weight: 500;
             text-transform: uppercase;
             letter-spacing: 0.5px;
+            white-space: nowrap;
         }
 
         .status-nuevo { background: #fef3c7; color: #92400e; }
         .status-contactado { background: #fde68a; color: #a16207; }
-        .status-propuesta { background: #ddd6fe; color: #6b46c1; }
+        .status-propuesta_enviada { background: #ddd6fe; color: #6b46c1; }
         .status-interesado { background: #bfdbfe; color: #1e40af; }
-        .status-cerrado { background: #bbf7d0; color: #166534; }
+        .status-cliente_cerrado { background: #bbf7d0; color: #166534; }
+        .status-perdido { background: #f3f4f6; color: #6b7280; }
 
         .priority {
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 0.8rem;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
             font-weight: 500;
             text-transform: uppercase;
             letter-spacing: 0.5px;
+            white-space: nowrap;
         }
 
         .priority-alta { background: #fecaca; color: #dc2626; }
         .priority-media { background: #fed7aa; color: #ea580c; }
         .priority-baja { background: #d1fae5; color: #059669; }
 
+        .etapa {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: white;
+            text-transform: capitalize;
+            white-space: nowrap;
+        }
+
+        .etapa-primer_contacto { background: #8b5cf6; }
+        .etapa-primera_reunion { background: #3b82f6; }
+        .etapa-oferta_comercial { background: #f59e0b; }
+        .etapa-segunda_reunion { background: #10b981; }
+        .etapa-negociacion { background: #ef4444; }
+        .etapa-cierre { background: #059669; }
+
         .actions {
             display: flex;
-            gap: 8px;
+            gap: 6px;
             align-items: center;
         }
 
         .action-btn {
-            padding: 8px;
+            padding: 6px;
             border: none;
-            border-radius: 6px;
+            border-radius: 4px;
             cursor: pointer;
-            font-size: 1rem;
+            font-size: 0.9rem;
             transition: all 0.3s ease;
             display: flex;
             align-items: center;
             justify-content: center;
-            width: 36px;
-            height: 36px;
+            width: 30px;
+            height: 30px;
         }
 
         .action-btn:hover {
-            transform: translateY(-2px);
+            transform: translateY(-1px);
             box-shadow: 0 4px 12px rgba(0,0,0,0.15);
         }
 
@@ -279,11 +741,6 @@
 
         .btn-delete {
             background: #ef4444;
-            color: white;
-        }
-
-        .btn-add {
-            background: #10b981;
             color: white;
         }
 
@@ -307,8 +764,8 @@
             background: white;
             padding: 30px;
             border-radius: 15px;
-            width: 90%;
-            max-width: 500px;
+            width: 95%;
+            max-width: 1200px;
             max-height: 90vh;
             overflow-y: auto;
             box-shadow: 0 25px 50px rgba(0,0,0,0.3);
@@ -318,27 +775,50 @@
             margin-bottom: 25px;
             color: #1f2937;
             font-size: 1.5rem;
+            text-align: center;
+            background: #3b82f6;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin: -30px -30px 25px -30px;
+        }
+
+        .form-section {
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid #e5e7eb;
+        }
+
+        .form-section h3 {
+            color: #3b82f6;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 8px;
         }
 
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
 
         .form-group label {
             display: block;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
             font-weight: 500;
             color: #374151;
+            font-size: 0.9rem;
         }
 
         .form-group input,
         .form-group select,
         .form-group textarea {
             width: 100%;
-            padding: 12px 15px;
+            padding: 10px 12px;
             border: 2px solid #e5e7eb;
-            border-radius: 8px;
-            font-size: 1rem;
+            border-radius: 6px;
+            font-size: 0.9rem;
             transition: all 0.3s ease;
             font-family: inherit;
         }
@@ -347,20 +827,40 @@
         .form-group select:focus,
         .form-group textarea:focus {
             outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
         }
 
         .form-group textarea {
             resize: vertical;
-            min-height: 100px;
+            min-height: 80px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .form-row-three {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 15px;
+        }
+
+        .form-row-four {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 1fr;
+            gap: 15px;
         }
 
         .form-actions {
             display: flex;
             gap: 12px;
-            justify-content: flex-end;
+            justify-content: center;
             margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px solid #e5e7eb;
         }
 
         .btn-secondary {
@@ -372,39 +872,21 @@
             background: #4b5563;
         }
 
-        .alert {
-            padding: 15px 20px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            display: none;
-        }
-
-        .alert-success {
-            background: #d1fae5;
-            color: #065f46;
-            border: 1px solid #a7f3d0;
-        }
-
-        .alert-error {
-            background: #fee2e2;
-            color: #991b1b;
-            border: 1px solid #fecaca;
-        }
-
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 20px;
             margin-bottom: 30px;
         }
 
         .stat-card {
             background: white;
-            padding: 25px;
+            padding: 20px;
             border-radius: 12px;
             box-shadow: 0 5px 20px rgba(0,0,0,0.1);
             text-align: center;
             transition: transform 0.3s ease;
+            border-left: 4px solid #3b82f6;
         }
 
         .stat-card:hover {
@@ -412,22 +894,16 @@
         }
 
         .stat-number {
-            font-size: 2.5rem;
+            font-size: 2rem;
             font-weight: 700;
-            color: #667eea;
-            margin-bottom: 10px;
+            color: #3b82f6;
+            margin-bottom: 8px;
         }
 
         .stat-label {
-            font-size: 1rem;
+            font-size: 0.9rem;
             color: #6b7280;
             margin-bottom: 5px;
-        }
-
-        .stat-value {
-            font-size: 1.2rem;
-            font-weight: 600;
-            color: #1f2937;
         }
 
         .loading {
@@ -442,7 +918,7 @@
             width: 20px;
             height: 20px;
             border: 3px solid #f3f4f6;
-            border-top: 3px solid #667eea;
+            border-top: 3px solid #3b82f6;
             border-radius: 50%;
             animation: spin 1s linear infinite;
             margin-left: 10px;
@@ -469,6 +945,31 @@
             border-radius: 8px;
             margin: 20px 0;
             border: 1px solid #a7f3d0;
+        }
+
+        .click-hint {
+            color: #6b7280;
+            font-size: 0.8rem;
+            font-style: italic;
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        .calculated-field {
+            background: #f1f5f9;
+            border: 2px dashed #94a3b8;
+            color: #4b5563;
+            font-style: italic;
+        }
+
+        @media (max-width: 1200px) {
+            .table {
+                font-size: 0.8rem;
+            }
+            
+            .table th, .table td {
+                padding: 12px 8px;
+            }
         }
 
         @media (max-width: 768px) {
@@ -499,26 +1000,52 @@
             }
 
             .table {
-                min-width: 800px;
+                min-width: 1400px;
             }
 
             .modal-content {
-                width: 95%;
-                margin: 20px;
+                width: 98%;
+                margin: 10px;
+            }
+
+            .details-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .form-row, .form-row-three, .form-row-four {
+                grid-template-columns: 1fr;
             }
         }
     </style>
 </head>
 <body>
+    <div id="loginScreen" style="display: flex; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #1e40af 0%, #3b82f6 50%, #60a5fa 100%); z-index: 9999; align-items: center; justify-content: center;">
+        <div style="background: white; padding: 40px; border-radius: 15px; box-shadow: 0 25px 50px rgba(0,0,0,0.3); text-align: center; max-width: 400px; width: 90%;">
+            <h1 style="color: #3b82f6; margin-bottom: 20px; font-size: 2rem;">📦 Envia.com</h1>
+            <p style="color: #6b7280; margin-bottom: 30px;">CRM Fulfillment España</p>
+            <div style="margin-bottom: 20px;">
+                <input type="password" id="passwordInput" placeholder="Contraseña de acceso" style="width: 100%; padding: 15px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 1rem; margin-bottom: 15px;">
+                <div id="loginError" style="color: #ef4444; font-size: 0.9rem; margin-bottom: 15px; display: none;">Contraseña incorrecta</div>
+                <button onclick="checkPassword()" style="width: 100%; background: #3b82f6; color: white; border: none; padding: 15px; border-radius: 8px; font-size: 1rem; font-weight: 500; cursor: pointer;">Acceder al CRM</button>
+            </div>
+            <p style="color: #9ca3af; font-size: 0.8rem;">Sistema seguro de gestión</p>
+        </div>
+    </div>
+
     <div class="container">
         <div class="header">
-            <h1>📈 CRM Envia.com</h1>
-            <p>Sistema de Gestión de Leads - Versión en la Nube</p>
+            <div class="header-content">
+                <h1>📦 Envia.com CRM</h1>
+                <p>Sistema de Gestión de Leads - Fulfillment España</p>
+            </div>
         </div>
 
         <div class="tabs">
             <button class="tab active" onclick="showTab('leads')">
                 👥 Gestión de Leads
+            </button>
+            <button class="tab" onclick="showTab('tareas')">
+                📅 Tareas
             </button>
             <button class="tab" onclick="showTab('dashboard')">
                 📊 Dashboard
@@ -532,7 +1059,7 @@
         </div>
 
         <div id="loading" class="loading" style="display: none;">
-            Cargando datos desde Firebase...
+            Conectando con Firebase...
         </div>
 
         <div id="error-container"></div>
@@ -542,7 +1069,7 @@
             <div class="controls">
                 <div class="search-container">
                     <span class="search-icon">🔍</span>
-                    <input type="text" class="search-input" placeholder="Buscar leads..." id="searchInput">
+                    <input type="text" class="search-input" placeholder="Buscar empresa, contacto o salesman..." id="searchInput">
                 </div>
                 <div class="filters">
                     <select class="filter-select" id="statusFilter">
@@ -552,14 +1079,24 @@
                         <option value="propuesta_enviada">Propuesta Enviada</option>
                         <option value="interesado">Interesado</option>
                         <option value="cliente_cerrado">Cliente Cerrado</option>
+                        <option value="perdido">Perdido</option>
                     </select>
-                    <select class="filter-select" id="commercialFilter">
+                    <select class="filter-select" id="salesmanFilter">
                         <option value="">Todos los comerciales</option>
                         <option value="Ana">Ana</option>
                         <option value="Carlos">Carlos</option>
                         <option value="Dulce">Dulce</option>
                         <option value="Javi">Javi</option>
                         <option value="Pablo">Pablo</option>
+                    </select>
+                    <select class="filter-select" id="etapaFilter">
+                        <option value="">Todas las etapas</option>
+                        <option value="primer_contacto">Primer Contacto</option>
+                        <option value="primera_reunion">Primera Reunión</option>
+                        <option value="oferta_comercial">Oferta Comercial</option>
+                        <option value="segunda_reunion">Segunda Reunión</option>
+                        <option value="negociacion">Negociación</option>
+                        <option value="cierre">Cierre</option>
                     </select>
                 </div>
                 <button class="btn btn-primary" onclick="openModal()">
@@ -572,22 +1109,90 @@
                     <thead>
                         <tr>
                             <th>Empresa</th>
-                            <th>Contacto</th>
+                            <th>Salesman</th>
+                            <th>Etapa</th>
                             <th>Estado</th>
-                            <th>Prioridad</th>
-                            <th>Valor</th>
-                            <th>Próxima Acción</th>
-                            <th>Comercial</th>
-                            <th>Archivos</th>
+                            <th>Tipo Producto</th>
+                            <th>Monto €</th>
+                            <th>Órdens/Mes</th>
+                            <th>Días U.C.</th>
+                            <th>Fecha Cierre</th>
                             <th>Acciones</th>
                         </tr>
                     </thead>
                     <tbody id="leadsTable">
-                        <!-- Los datos se cargarán aquí desde Firebase -->
+                        <!-- Los datos se cargarán aquí -->
                     </tbody>
                 </table>
+                <div class="click-hint">💡 Haz click en cualquier fila para ver los detalles completos del lead</div>
             </div>
         </div>
+
+        <!-- Tab: Tareas -->
+        <!-- Modifica la sección de tareas en el HTML -->
+<div id="tareas" class="tab-content">
+    <div class="controls">
+        <div style="display: flex; gap: 15px; width: 100%;">
+            <select class="filter-select" id="taskTypeFilter">
+                <option value="all">Todas las tareas</option>
+                <option value="personal">Personales</option>
+                <option value="lead">De leads</option>
+            </select>
+            <select class="filter-select" id="taskDateFilter">
+                <option value="today">Hoy</option>
+                <option value="week">Esta semana</option>
+                <option value="month">Este mes</option>
+                <option value="overdue">Vencidas</option>
+                <option value="all">Todas</option>
+            </select>
+            <button class="btn btn-primary" onclick="openPersonalTaskModal()" style="margin-left: auto;">
+                ➕ Nueva Tarea Personal
+            </button>
+        </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 25px;">
+        <div style="background: white; padding: 25px; border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.1);">
+            <h2 style="margin-bottom: 20px; color: #1f2937; font-size: 1.5rem; display: flex; align-items: center; gap: 10px;">
+                📝 Tareas Personales
+                <span style="font-size: 0.9rem; background: #3b82f6; color: white; padding: 3px 8px; border-radius: 12px;" id="personalTasksCount">0</span>
+            </h2>
+            <div id="personalTasksList">
+                <!-- Las tareas personales se cargarán aquí -->
+            </div>
+        </div>
+
+        <div style="background: white; padding: 25px; border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.1);">
+            <h2 style="margin-bottom: 20px; color: #1f2937; font-size: 1.5rem; display: flex; align-items: center; gap: 10px;">
+                📅 Tareas de Leads
+                <span style="font-size: 0.9rem; background: #3b82f6; color: white; padding: 3px 8px; border-radius: 12px;" id="leadTasksCount">0</span>
+            </h2>
+            <div id="leadTasksList">
+                <!-- Las tareas de leads se cargarán aquí -->
+            </div>
+        </div>
+    </div>
+
+    <div class="table-container">
+        <h3 style="margin-bottom: 15px; color: #1f2937; font-size: 1.2rem;">Todas las tareas</h3>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Tipo</th>
+                    <th>Descripción</th>
+                    <th>Empresa/Lead</th>
+                    <th>Fecha</th>
+                    <th>Prioridad</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody id="allTasksTable">
+                <!-- Todas las tareas se cargarán aquí -->
+            </tbody>
+        </table>
+    </div>
+</div>
 
         <!-- Tab: Dashboard -->
         <div id="dashboard" class="tab-content">
@@ -608,6 +1213,22 @@
                     <div class="stat-number" id="totalValue">0€</div>
                     <div class="stat-label">Valor Total</div>
                 </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="conversionRate">0%</div>
+                    <div class="stat-label">Tasa de Conversión</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="averageOrders">0</div>
+                    <div class="stat-label">Promedio Órdenes/Mes</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="averageDays">0</div>
+                    <div class="stat-label">Días Promedio Cierre</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="topTier">-</div>
+                    <div class="stat-label">Tier Dominante</div>
+                </div>
             </div>
         </div>
 
@@ -618,10 +1239,11 @@
                     <thead>
                         <tr>
                             <th>Empresa</th>
-                            <th>Próxima Acción</th>
-                            <th>Fecha</th>
-                            <th>Comercial</th>
-                            <th>Prioridad</th>
+                            <th>Fecha Estimada Cierre</th>
+                            <th>Días Restantes</th>
+                            <th>Salesman</th>
+                            <th>Etapa Actual</th>
+                            <th>Monto</th>
                         </tr>
                     </thead>
                     <tbody id="followUpTable">
@@ -635,20 +1257,20 @@
         <div id="reportes" class="tab-content">
             <div class="stats-grid">
                 <div class="stat-card">
-                    <div class="stat-label">Conversión</div>
-                    <div class="stat-value" id="conversionRate">0%</div>
+                    <div class="stat-label">Mejor Salesman</div>
+                    <div class="stat-number" id="topSalesman">-</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-label">Valor Promedio</div>
-                    <div class="stat-value" id="averageValue">0€</div>
+                    <div class="stat-label">Fuente Más Efectiva</div>
+                    <div class="stat-number" id="bestSource">-</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-label">Leads por Comercial</div>
-                    <div class="stat-value" id="leadsPerCommercial">0</div>
+                    <div class="stat-label">Producto Más Demandado</div>
+                    <div class="stat-number" id="topProduct">-</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-label">Tiempo Promedio</div>
-                    <div class="stat-value" id="averageTime">0 días</div>
+                    <div class="stat-label">Tiempo Promedio P.C. a Cierre</div>
+                    <div class="stat-number" id="avgTimeToClose">0 días</div>
                 </div>
             </div>
         </div>
@@ -659,86 +1281,357 @@
         <div class="modal-content">
             <h2 id="modalTitle">Agregar Nuevo Lead</h2>
             <form id="leadForm">
-                <div class="form-group">
-                    <label for="company">Empresa *</label>
-                    <input type="text" id="company" name="company" required>
+                <!-- Información Básica -->
+                <div class="form-section">
+                    <h3>📋 Información Básica</h3>
+                    <div class="form-row-three">
+                        <div class="form-group">
+                            <label for="nombreEmpresa">Nombre Empresa *</label>
+                            <input type="text" id="nombreEmpresa" name="nombreEmpresa" required placeholder="Ej: TechCorp SL">
+                        </div>
+                        <div class="form-group">
+                            <label for="salesman">Salesman *</label>
+                            <select id="salesman" name="salesman" required>
+                                <option value="">Seleccionar...</option>
+                                <option value="Ana">Ana</option>
+                                <option value="Carlos">Carlos</option>
+                                <option value="Dulce">Dulce</option>
+                                <option value="Javi">Javi</option>
+                                <option value="Pablo">Pablo</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="tipoProducto">Tipo Producto *</label>
+                            <select id="tipoProducto" name="tipoProducto" required>
+                                <option value="">Seleccionar...</option>
+                                <option value="Fulfillment Básico">Fulfillment Básico</option>
+                                <option value="Fulfillment Premium">Fulfillment Premium</option>
+                                <option value="Logística Integral">Logística Integral</option>
+                                <option value="Cross-Docking">Cross-Docking</option>
+                                <option value="Almacenamiento">Almacenamiento</option>
+                                <option value="Pick & Pack">Pick & Pack</option>
+                                <option value="Distribución">Distribución</option>
+                                <option value="Personalizado">Personalizado</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row-three">
+                        <div class="form-group">
+                            <label for="fuente">Fuente *</label>
+                            <select id="fuente" name="fuente" required>
+                                <option value="">Seleccionar...</option>
+                                <option value="Web Orgánica">Web Orgánica</option>
+                                <option value="LinkedIn Ads">LinkedIn Ads</option>
+                                <option value="Google Ads">Google Ads</option>
+                                <option value="Email Marketing">Email Marketing</option>
+                                <option value="Referido Cliente">Referido Cliente</option>
+                                <option value="Llamada Directa">Llamada Directa</option>
+                                <option value="Networking">Networking</option>
+                                <option value="Ferias">Ferias</option>
+                                <option value="Cold Outreach">Cold Outreach</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="tier">Tier</label>
+                            <select id="tier" name="tier">
+                                <option value="">Seleccionar...</option>
+                                <option value="Tier 1">Tier 1 (Premium)</option>
+                                <option value="Tier 2">Tier 2 (Estándar)</option>
+                                <option value="Tier 3">Tier 3 (Básico)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="diasUC">Días U.C. *</label>
+                            <input type="number" id="diasUC" name="diasUC" min="0" step="1" placeholder="Días desde último contacto">
+                        </div>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label for="contact">Contacto *</label>
-                    <input type="text" id="contact" name="contact" required>
+
+                <!-- Información Comercial -->
+                <div class="form-section">
+                    <h3>💰 Información Comercial</h3>
+                    <div class="form-row-four">
+                        <div class="form-group">
+                            <label for="monto">Monto (€)</label>
+                            <input type="number" id="monto" name="monto" min="0" step="0.01" placeholder="5000.00">
+                        </div>
+                        <div class="form-group">
+                            <label for="ordenes"># Órdenes/Mes</label>
+                            <input type="number" id="ordenes" name="ordenes" min="0" step="1" placeholder="100">
+                        </div>
+                        <div class="form-group">
+                            <label for="productosOrden">Productos/Orden</label>
+                            <input type="number" id="productosOrden" name="productosOrden" min="0" step="0.1" placeholder="5.5">
+                        </div>
+                        <div class="form-group">
+                            <label for="posicionesAlmacenamiento"># Posiciones Almacenamiento</label>
+                            <input type="number" id="posicionesAlmacenamiento" name="posicionesAlmacenamiento" min="0" step="1" placeholder="200">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="planPicking">Plan Picking</label>
+                            <select id="planPicking" name="planPicking">
+                                <option value="">Seleccionar...</option>
+                                <option value="Básico">Básico</option>
+                                <option value="Estándar">Estándar</option>
+                                <option value="Premium">Premium</option>
+                                <option value="Personalizado">Personalizado</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="planAlmacenamiento">Plan Almacenamiento</label>
+                            <select id="planAlmacenamiento" name="planAlmacenamiento">
+                                <option value="">Seleccionar...</option>
+                                <option value="Compartido">Compartido</option>
+                                <option value="Dedicado">Dedicado</option>
+                                <option value="Mixto">Mixto</option>
+                                <option value="Temporal">Temporal</option>
+                            </select>
+                        </div>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label for="email">Email *</label>
-                    <input type="email" id="email" name="email" required>
+
+                <!-- Estados y Etapas -->
+                <div class="form-section">
+                    <h3>📊 Estados y Etapas</h3>
+                    <div class="form-row-three">
+                        <div class="form-group">
+                            <label for="estado">Estado *</label>
+                            <select id="estado" name="estado" required>
+                                <option value="nuevo">Nuevo</option>
+                                <option value="contactado">Contactado</option>
+                                <option value="propuesta_enviada">Propuesta Enviada</option>
+                                <option value="interesado">Interesado</option>
+                                <option value="cliente_cerrado">Cliente Cerrado</option>
+                                <option value="perdido">Perdido</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="etapaNegociacion">Etapa de Negociación *</label>
+                            <select id="etapaNegociacion" name="etapaNegociacion" required>
+                                <option value="primer_contacto">Primer Contacto</option>
+                                <option value="primera_reunion">Primera Reunión</option>
+                                <option value="oferta_comercial">Oferta Comercial</option>
+                                <option value="segunda_reunion">Segunda Reunión</option>
+                                <option value="negociacion">Negociación</option>
+                                <option value="cierre">Cierre</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="gp">G/P (Ganado/Perdido)</label>
+                            <select id="gp" name="gp">
+                                <option value="">En proceso...</option>
+                                <option value="Ganado">Ganado</option>
+                                <option value="Perdido">Perdido</option>
+                            </select>
+                        </div>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label for="phone">Teléfono</label>
-                    <input type="tel" id="phone" name="phone">
+
+                <!-- Fechas Importantes -->
+                <div class="form-section">
+                    <h3>📅 Fechas Importantes</h3>
+                    <div class="form-row-three">
+                        <div class="form-group">
+                            <label for="fechaPrimerContacto">Fecha Primer Contacto</label>
+                            <input type="date" id="fechaPrimerContacto" name="fechaPrimerContacto">
+                        </div>
+                        <div class="form-group">
+                            <label for="fechaPrimeraReunion">Fecha 1ra Reunión</label>
+                            <input type="date" id="fechaPrimeraReunion" name="fechaPrimeraReunion">
+                        </div>
+                        <div class="form-group">
+                            <label for="fechaOfertaComercial">Fecha Oferta Comercial</label>
+                            <input type="date" id="fechaOfertaComercial" name="fechaOfertaComercial">
+                        </div>
+                    </div>
+
+                    <div class="form-row-three">
+                        <div class="form-group">
+                            <label for="fechaSegundaReunion">Fecha 2da Reunión</label>
+                            <input type="date" id="fechaSegundaReunion" name="fechaSegundaReunion">
+                        </div>
+                        <div class="form-group">
+                            <label for="fechaNegociacion">Fecha Negociación</label>
+                            <input type="date" id="fechaNegociacion" name="fechaNegociacion">
+                        </div>
+                        <div class="form-group">
+                            <label for="fechaCierre">Fecha de Cierre</label>
+                            <input type="date" id="fechaCierre" name="fechaCierre">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="fechaEstimadaCierre">Fecha Estimada de Cierre</label>
+                            <input type="date" id="fechaEstimadaCierre" name="fechaEstimadaCierre">
+                        </div>
+                        <div class="form-group">
+                            <label for="mesEstimado">Mes Estimado</label>
+                            <input type="month" id="mesEstimado" name="mesEstimado">
+                        </div>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label for="source">Fuente</label>
-                    <select id="source" name="source">
-                        <option value="Web Orgánica">Web Orgánica</option>
-                        <option value="LinkedIn Ads">LinkedIn Ads</option>
-                        <option value="Google Ads">Google Ads</option>
-                        <option value="Email Marketing">Email Marketing</option>
-                        <option value="Referido Cliente">Referido Cliente</option>
-                        <option value="Llamada Directa">Llamada Directa</option>
-                    </select>
+
+                <!-- Métricas Calculadas (Solo Lectura) -->
+                <div class="form-section">
+                    <h3>📈 Métricas Calculadas (Automático)</h3>
+                    <div class="form-row-four">
+                        <div class="form-group">
+                            <label for="pcPrimeraReunion">P.C. a 1er Reunión (días)</label>
+                            <input type="number" id="pcPrimeraReunion" name="pcPrimeraReunion" readonly class="calculated-field" placeholder="Auto-calculado">
+                        </div>
+                        <div class="form-group">
+                            <label for="primeraReunionOC">1er Reunión a O.C. (días)</label>
+                            <input type="number" id="primeraReunionOC" name="primeraReunionOC" readonly class="calculated-field" placeholder="Auto-calculado">
+                        </div>
+                        <div class="form-group">
+                            <label for="ocSegundaReunion">O.C. a 2da Reunión (días)</label>
+                            <input type="number" id="ocSegundaReunion" name="ocSegundaReunion" readonly class="calculated-field" placeholder="Auto-calculado">
+                        </div>
+                        <div class="form-group">
+                            <label for="segundaReunionNeg">2da Reunión a Neg (días)</label>
+                            <input type="number" id="segundaReunionNeg" name="segundaReunionNeg" readonly class="calculated-field" placeholder="Auto-calculado">
+                        </div>
+                    </div>
+
+                    <div class="form-row-three">
+                        <div class="form-group">
+                            <label for="negCierre">Neg a Cierre (días)</label>
+                            <input type="number" id="negCierre" name="negCierre" readonly class="calculated-field" placeholder="Auto-calculado">
+                        </div>
+                        <div class="form-group">
+                            <label for="diasPCCierre">Días de P.C. a Cierre</label>
+                            <input type="number" id="diasPCCierre" name="diasPCCierre" readonly class="calculated-field" placeholder="Auto-calculado">
+                        </div>
+                        <div class="form-group">
+                            <label for="prodOrden">#prod/orden</label>
+                            <input type="number" id="prodOrden" name="prodOrden" readonly class="calculated-field" placeholder="Auto-calculado">
+                        </div>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label for="status">Estado *</label>
-                    <select id="status" name="status" required>
-                        <option value="nuevo">Nuevo</option>
-                        <option value="contactado">Contactado</option>
-                        <option value="propuesta_enviada">Propuesta Enviada</option>
-                        <option value="interesado">Interesado</option>
-                        <option value="cliente_cerrado">Cliente Cerrado</option>
-                    </select>
+
+                <!-- Contadores -->
+                <div class="form-section">
+                    <h3>🔢 Contadores</h3>
+                    <div class="form-row-four">
+                        <div class="form-group">
+                            <label for="contador1raReunion"># 1ra Reunión</label>
+                            <input type="number" id="contador1raReunion" name="contador1raReunion" min="0" step="1" placeholder="1">
+                        </div>
+                        <div class="form-group">
+                            <label for="contadorOfertaComercial"># Oferta Comercial</label>
+                            <input type="number" id="contadorOfertaComercial" name="contadorOfertaComercial" min="0" step="1" placeholder="1">
+                        </div>
+                        <div class="form-group">
+                            <label for="contador2daReunion"># 2da Reunión</label>
+                            <input type="number" id="contador2daReunion" name="contador2daReunion" min="0" step="1" placeholder="1">
+                        </div>
+                        <div class="form-group">
+                            <label for="contadorNegociacion"># Negociación</label>
+                            <input type="number" id="contadorNegociacion" name="contadorNegociacion" min="0" step="1" placeholder="1">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="contadorCierreGanado"># Cierre Ganado</label>
+                            <input type="number" id="contadorCierreGanado" name="contadorCierreGanado" min="0" step="1" placeholder="0">
+                        </div>
+                        <div class="form-group">
+                            <label for="contadorCierrePerdido"># Cierre Perdido</label>
+                            <input type="number" id="contadorCierrePerdido" name="contadorCierrePerdido" min="0" step="1" placeholder="0">
+                        </div>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label for="priority">Prioridad *</label>
-                    <select id="priority" name="priority" required>
-                        <option value="alta">Alta</option>
-                        <option value="media">Media</option>
-                        <option value="baja">Baja</option>
-                    </select>
+
+                <!-- Información Adicional -->
+                <div class="form-section">
+                    <h3>📝 Información Adicional</h3>
+                    <div class="form-row-three">
+                        <div class="form-group">
+                            <label for="diaMes">Día Mes</label>
+                            <input type="number" id="diaMes" name="diaMes" min="1" max="31" placeholder="15">
+                        </div>
+                        <div class="form-group">
+                            <label for="semana">Semana</label>
+                            <input type="week" id="semana" name="semana">
+                        </div>
+                        <div class="form-group">
+                            <label for="fechaUCPC">Fecha U.C.P.C.</label>
+                            <input type="date" id="fechaUCPC" name="fechaUCPC">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="comentarios">Comentarios</label>
+                        <div style="border: 2px solid #e5e7eb; border-radius: 8px; overflow: hidden; transition: all 0.3s ease; background: white;" id="notesEditorContainer">
+                            <div id="notesEditor" style="min-height: 150px;"></div>
+                            <div style="display: flex; gap: 10px; margin-top: 10px; padding: 10px; background: #f8fafc; border-top: 1px solid #e5e7eb;">
+                                <button type="button" onclick="downloadNotes()" style="background: #3b82f6; color: white; padding: 8px 16px; border: none; border-radius: 6px; font-size: 0.9rem; cursor: pointer; transition: all 0.2s ease; display: flex; align-items: center; gap: 6px;">
+                                    📄 Descargar Notas
+                                </button>
+                                <button type="button" onclick="clearNotes()" style="background: #ef4444; color: white; padding: 8px 16px; border: none; border-radius: 6px; font-size: 0.9rem; cursor: pointer; transition: all 0.2s ease;">
+                                    🗑️ Limpiar
+                                </button>
+                                <span style="color: #6b7280; font-size: 0.8rem; margin-left: auto; align-self: center;">
+                                    Usa la barra de herramientas para formatear el texto
+                                </span>
+                            </div>
+                        </div>
+                        <textarea id="comentarios" name="comentarios" style="display: none;" placeholder="Notas adicionales sobre el lead..."></textarea>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label for="value">Valor Estimado (€)</label>
-                    <input type="number" id="value" name="value" min="0" step="100">
-                </div>
-                <div class="form-group">
-                    <label for="nextAction">Próxima Acción</label>
-                    <input type="text" id="nextAction" name="nextAction" placeholder="Ej: Primera llamada contacto">
-                </div>
-                <div class="form-group">
-                    <label for="nextActionDate">Fecha Próxima Acción</label>
-                    <input type="date" id="nextActionDate" name="nextActionDate">
-                </div>
-                <div class="form-group">
-                    <label for="commercial">Comercial Asignado *</label>
-                    <select id="commercial" name="commercial" required>
-                        <option value="Ana">Ana</option>
-                        <option value="Carlos">Carlos</option>
-                        <option value="Dulce">Dulce</option>
-                        <option value="Javi">Javi</option>
-                        <option value="Pablo">Pablo</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="notes">Notas</label>
-                    <textarea id="notes" name="notes" placeholder="Información adicional sobre el lead..."></textarea>
-                </div>
+
                 <div class="form-actions">
                     <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Guardar Lead</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal para tareas personales -->
+    <div id="personalTaskModal" class="modal">
+        <div class="modal-content" style="max-width: 600px;">
+            <h2 id="personalTaskModalTitle">Nueva Tarea Personal</h2>
+            <form id="personalTaskForm">
+                <div class="form-group">
+                    <label for="taskTitle">Título *</label>
+                    <input type="text" id="taskTitle" name="title" required placeholder="Ej: Revisar informe mensual">
+                </div>
+                <div class="form-group">
+                    <label for="taskDescription">Descripción</label>
+                    <textarea id="taskDescription" name="description" rows="3" placeholder="Detalles de la tarea..."></textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="taskDueDate">Fecha Límite *</label>
+                        <input type="date" id="taskDueDate" name="dueDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="taskPriority">Prioridad *</label>
+                        <select id="taskPriority" name="priority" required>
+                            <option value="alta">Alta</option>
+                            <option value="media">Media</option>
+                            <option value="baja">Baja</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closePersonalTaskModal()">Cancelar</button>
                     <button type="submit" class="btn btn-primary">Guardar</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- Scripts de Firebase -->
+    <!-- Scripts de Firebase y Editor -->
+    <script src="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.snow.css" rel="stylesheet">
     <script type="module">
         // Import the functions you need from the SDKs you need
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
@@ -760,7 +1653,39 @@
 
         // Global variables
         let leads = [];
+        let personalTasks = [];
         let editingLeadId = null;
+        let editingTaskId = null;
+        let notesEditor = null;
+
+        // Password protection
+        function checkPassword() {
+            const password = document.getElementById('passwordInput').value;
+            const correctPassword = 'EnviaEspana2025';
+            
+            if (password === correctPassword) {
+                document.getElementById('loginScreen').style.display = 'none';
+                document.querySelector('.container').style.display = 'block';
+                initializeCRM();
+            } else {
+                document.getElementById('loginError').style.display = 'block';
+                document.getElementById('passwordInput').value = '';
+                document.getElementById('passwordInput').focus();
+            }
+        }
+
+        // Allow Enter key to submit password
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('passwordInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    checkPassword();
+                }
+            });
+            document.getElementById('passwordInput').focus();
+        });
+
+        // Make checkPassword globally available
+        window.checkPassword = checkPassword;
 
         // Firebase functions
         window.firebaseDB = {
@@ -784,6 +1709,23 @@
                 }
             },
 
+            // Get all personal tasks
+            async getPersonalTasks() {
+                try {
+                    const q = query(collection(db, 'personalTasks'), orderBy('dueDate', 'asc'));
+                    const querySnapshot = await getDocs(q);
+                    const tasksData = [];
+                    querySnapshot.forEach((doc) => {
+                        tasksData.push({ id: doc.id, ...doc.data() });
+                    });
+                    return tasksData;
+                } catch (error) {
+                    console.error('Error getting personal tasks:', error);
+                    showError('Error al cargar las tareas personales: ' + error.message);
+                    return [];
+                }
+            },
+
             // Add new lead
             async addLead(leadData) {
                 try {
@@ -798,6 +1740,27 @@
                 } catch (error) {
                     console.error('Error adding lead:', error);
                     showError('Error al agregar el lead: ' + error.message);
+                    throw error;
+                } finally {
+                    showLoading(false);
+                }
+            },
+
+            // Add new personal task
+            async addPersonalTask(taskData) {
+                try {
+                    showLoading(true);
+                    const docRef = await addDoc(collection(db, 'personalTasks'), {
+                        ...taskData,
+                        createdAt: new Date(),
+                        updatedAt: new Date(),
+                        completed: false
+                    });
+                    showSuccess('Tarea personal agregada exitosamente');
+                    return docRef.id;
+                } catch (error) {
+                    console.error('Error adding personal task:', error);
+                    showError('Error al agregar la tarea personal: ' + error.message);
                     throw error;
                 } finally {
                     showLoading(false);
@@ -823,6 +1786,25 @@
                 }
             },
 
+            // Update personal task
+            async updatePersonalTask(taskId, taskData) {
+                try {
+                    showLoading(true);
+                    const taskRef = doc(db, 'personalTasks', taskId);
+                    await updateDoc(taskRef, {
+                        ...taskData,
+                        updatedAt: new Date()
+                    });
+                    showSuccess('Tarea personal actualizada exitosamente');
+                } catch (error) {
+                    console.error('Error updating personal task:', error);
+                    showError('Error al actualizar la tarea personal: ' + error.message);
+                    throw error;
+                } finally {
+                    showLoading(false);
+                }
+            },
+
             // Delete lead
             async deleteLead(leadId) {
                 try {
@@ -839,7 +1821,23 @@
                 }
             },
 
-            // Real-time listener
+            // Delete personal task
+            async deletePersonalTask(taskId) {
+                try {
+                    showLoading(true);
+                    const taskRef = doc(db, 'personalTasks', taskId);
+                    await deleteDoc(taskRef);
+                    showSuccess('Tarea personal eliminada exitosamente');
+                } catch (error) {
+                    console.error('Error deleting personal task:', error);
+                    showError('Error al eliminar la tarea personal: ' + error.message);
+                    throw error;
+                } finally {
+                    showLoading(false);
+                }
+            },
+
+            // Real-time listener for leads
             listenToLeads(callback) {
                 const q = query(collection(db, 'leads'), orderBy('createdAt', 'desc'));
                 return onSnapshot(q, (querySnapshot) => {
@@ -849,41 +1847,141 @@
                     });
                     callback(leadsData);
                 });
+            },
+
+            // Real-time listener for personal tasks
+            listenToPersonalTasks(callback) {
+                const q = query(collection(db, 'personalTasks'), orderBy('dueDate', 'asc'));
+                return onSnapshot(q, (querySnapshot) => {
+                    const tasksData = [];
+                    querySnapshot.forEach((doc) => {
+                        tasksData.push({ id: doc.id, ...doc.data() });
+                    });
+                    callback(tasksData);
+                });
             }
         };
 
         // Initialize the app
-        window.addEventListener('DOMContentLoaded', initializeCRM);
-
         async function initializeCRM() {
-            // Set up real-time listener
+            // Set up real-time listeners
             window.firebaseDB.listenToLeads((leadsData) => {
                 leads = leadsData;
                 displayLeads();
                 updateStats();
                 updateFollowUp();
                 updateReports();
+                updateTasks();
+            });
+
+            window.firebaseDB.listenToPersonalTasks((tasksData) => {
+                personalTasks = tasksData;
+                updateTasks();
             });
 
             // Set up event listeners
             setupEventListeners();
+            
+            // Initialize notes editor
+            initializeNotesEditor();
         }
 
         function setupEventListeners() {
             // Search functionality
             document.getElementById('searchInput').addEventListener('input', displayLeads);
             document.getElementById('statusFilter').addEventListener('change', displayLeads);
-            document.getElementById('commercialFilter').addEventListener('change', displayLeads);
+            document.getElementById('salesmanFilter').addEventListener('change', displayLeads);
+            document.getElementById('etapaFilter').addEventListener('change', displayLeads);
 
-            // Form submission
+            // Form submissions
             document.getElementById('leadForm').addEventListener('submit', handleFormSubmit);
+            document.getElementById('personalTaskForm').addEventListener('submit', handlePersonalTaskFormSubmit);
 
-            // Close modal when clicking outside
+            // Close modals when clicking outside
             document.getElementById('leadModal').addEventListener('click', (e) => {
                 if (e.target === document.getElementById('leadModal')) {
                     closeModal();
                 }
             });
+
+            document.getElementById('personalTaskModal').addEventListener('click', (e) => {
+                if (e.target === document.getElementById('personalTaskModal')) {
+                    closePersonalTaskModal();
+                }
+            });
+
+            // Add event listeners for automatic calculations
+            setupCalculationListeners();
+        }
+
+        function setupCalculationListeners() {
+            // Date fields that trigger calculations
+            const dateFields = [
+                'fechaPrimerContacto', 'fechaPrimeraReunion', 'fechaOfertaComercial',
+                'fechaSegundaReunion', 'fechaNegociacion', 'fechaCierre'
+            ];
+
+            dateFields.forEach(fieldId => {
+                const field = document.getElementById(fieldId);
+                if (field) {
+                    field.addEventListener('change', calculateMetrics);
+                }
+            });
+
+            // Product/order calculation
+            const productOrderField = document.getElementById('productosOrden');
+            if (productOrderField) {
+                productOrderField.addEventListener('input', () => {
+                    document.getElementById('prodOrden').value = productOrderField.value;
+                });
+            }
+        }
+
+        function calculateMetrics() {
+            const fechaPc = document.getElementById('fechaPrimerContacto').value;
+            const fecha1ra = document.getElementById('fechaPrimeraReunion').value;
+            const fechaOc = document.getElementById('fechaOfertaComercial').value;
+            const fecha2da = document.getElementById('fechaSegundaReunion').value;
+            const fechaNeg = document.getElementById('fechaNegociacion').value;
+            const fechaCierre = document.getElementById('fechaCierre').value;
+
+            // Calculate days between dates
+            if (fechaPc && fecha1ra) {
+                const days = calculateDaysBetween(fechaPc, fecha1ra);
+                document.getElementById('pcPrimeraReunion').value = days;
+            }
+
+            if (fecha1ra && fechaOc) {
+                const days = calculateDaysBetween(fecha1ra, fechaOc);
+                document.getElementById('primeraReunionOC').value = days;
+            }
+
+            if (fechaOc && fecha2da) {
+                const days = calculateDaysBetween(fechaOc, fecha2da);
+                document.getElementById('ocSegundaReunion').value = days;
+            }
+
+            if (fecha2da && fechaNeg) {
+                const days = calculateDaysBetween(fecha2da, fechaNeg);
+                document.getElementById('segundaReunionNeg').value = days;
+            }
+
+            if (fechaNeg && fechaCierre) {
+                const days = calculateDaysBetween(fechaNeg, fechaCierre);
+                document.getElementById('negCierre').value = days;
+            }
+
+            if (fechaPc && fechaCierre) {
+                const days = calculateDaysBetween(fechaPc, fechaCierre);
+                document.getElementById('diasPCCierre').value = days;
+            }
+        }
+
+        function calculateDaysBetween(date1, date2) {
+            const d1 = new Date(date1);
+            const d2 = new Date(date2);
+            const timeDiff = d2.getTime() - d1.getTime();
+            return Math.ceil(timeDiff / (1000 * 3600 * 24));
         }
 
         async function handleFormSubmit(e) {
@@ -892,8 +1990,26 @@
             const formData = new FormData(e.target);
             const leadData = Object.fromEntries(formData.entries());
             
-            // Convert value to number
-            leadData.value = parseFloat(leadData.value) || 0;
+            // Get notes from editor
+            if (notesEditor) {
+                leadData.comentarios = notesEditor.root.innerHTML;
+            }
+            
+            // Convert numeric values
+            const numericFields = [
+                'monto', 'ordenes', 'productosOrden', 'posicionesAlmacenamiento',
+                'diasUC', 'pcPrimeraReunion', 'primeraReunionOC', 'ocSegundaReunion',
+                'segundaReunionNeg', 'negCierre', 'diasPCCierre', 'prodOrden',
+                'contador1raReunion', 'contadorOfertaComercial', 'contador2daReunion',
+                'contadorNegociacion', 'contadorCierreGanado', 'contadorCierrePerdido',
+                'diaMes'
+            ];
+
+            numericFields.forEach(field => {
+                if (leadData[field]) {
+                    leadData[field] = parseFloat(leadData[field]) || 0;
+                }
+            });
             
             try {
                 if (editingLeadId) {
@@ -911,16 +2027,18 @@
         function displayLeads() {
             const searchTerm = document.getElementById('searchInput').value.toLowerCase();
             const statusFilter = document.getElementById('statusFilter').value;
-            const commercialFilter = document.getElementById('commercialFilter').value;
+            const salesmanFilter = document.getElementById('salesmanFilter').value;
+            const etapaFilter = document.getElementById('etapaFilter').value;
             
             let filteredLeads = leads.filter(lead => {
-                const matchesSearch = lead.company.toLowerCase().includes(searchTerm) ||
-                                    lead.contact.toLowerCase().includes(searchTerm) ||
-                                    lead.email.toLowerCase().includes(searchTerm);
-                const matchesStatus = !statusFilter || lead.status === statusFilter;
-                const matchesCommercial = !commercialFilter || lead.commercial === commercialFilter;
+                const matchesSearch = (lead.nombreEmpresa || '').toLowerCase().includes(searchTerm) ||
+                                    (lead.salesman || '').toLowerCase().includes(searchTerm) ||
+                                    (lead.tipoProducto || '').toLowerCase().includes(searchTerm);
+                const matchesStatus = !statusFilter || lead.estado === statusFilter;
+                const matchesSalesman = !salesmanFilter || lead.salesman === salesmanFilter;
+                const matchesEtapa = !etapaFilter || lead.etapaNegociacion === etapaFilter;
                 
-                return matchesSearch && matchesStatus && matchesCommercial;
+                return matchesSearch && matchesStatus && matchesSalesman && matchesEtapa;
             });
             
             const tbody = document.getElementById('leadsTable');
@@ -928,89 +2046,268 @@
             
             filteredLeads.forEach(lead => {
                 const row = document.createElement('tr');
+                row.onclick = () => toggleLeadDetails(lead.id, row);
                 row.innerHTML = `
                     <td>
-                        <div><strong>${lead.company}</strong></div>
-                        <div style="color: #6b7280; font-size: 0.9rem;">${lead.source || 'N/A'}</div>
+                        <div><strong>${lead.nombreEmpresa || 'Sin nombre'}</strong></div>
+                        <div style="color: #6b7280; font-size: 0.8rem;">${lead.fuente || 'N/A'}</div>
                     </td>
-                    <td>
-                        <div><strong>${lead.contact}</strong></div>
-                        <div style="color: #6b7280; font-size: 0.9rem;">${lead.email}</div>
-                        <div style="color: #6b7280; font-size: 0.9rem;">${lead.phone || 'N/A'}</div>
-                    </td>
-                    <td><span class="status status-${lead.status}">${getStatusText(lead.status)}</span></td>
-                    <td><span class="priority priority-${lead.priority}">${lead.priority}</span></td>
-                    <td><strong>${lead.value ? lead.value.toLocaleString() + ' €' : 'N/A'}</strong></td>
-                    <td>
-                        <div>${lead.nextAction || 'N/A'}</div>
-                        <div style="color: #6b7280; font-size: 0.9rem;">${lead.nextActionDate || ''}</div>
-                    </td>
-                    <td><strong>${lead.commercial}</strong></td>
-                    <td>
-                        <button class="action-btn btn-add" onclick="addFile('${lead.id}')" title="Agregar archivo">
-                            📎
-                        </button>
-                        <span style="color: #6b7280; font-size: 0.9rem;">0</span>
-                    </td>
+                    <td><strong>${lead.salesman || 'N/A'}</strong></td>
+                    <td><span class="etapa etapa-${lead.etapaNegociacion || 'primer_contacto'}">${getEtapaText(lead.etapaNegociacion)}</span></td>
+                    <td><span class="status status-${lead.estado || 'nuevo'}">${getStatusText(lead.estado)}</span></td>
+                    <td>${lead.tipoProducto || 'N/A'}</td>
+                    <td><strong>${lead.monto ? formatCurrency(lead.monto) : 'N/A'}</strong></td>
+                    <td>${lead.ordenes || 'N/A'}</td>
+                    <td>${lead.diasUC || '0'}</td>
+                    <td>${lead.fechaEstimadaCierre ? formatDate(lead.fechaEstimadaCierre) : 'N/A'}</td>
                     <td>
                         <div class="actions">
-                            <button class="action-btn btn-edit" onclick="editLead('${lead.id}')" title="Editar">
+                            <button class="action-btn btn-edit" onclick="event.stopPropagation(); editLead('${lead.id}')" title="Editar">
                                 ✏️
                             </button>
-                            <button class="action-btn btn-delete" onclick="deleteLead('${lead.id}')" title="Eliminar">
+                            <button class="action-btn btn-delete" onclick="event.stopPropagation(); deleteLead('${lead.id}')" title="Eliminar">
                                 🗑️
                             </button>
                         </div>
                     </td>
                 `;
                 tbody.appendChild(row);
+
+                // Add details row (initially hidden)
+                const detailsRow = document.createElement('tr');
+                detailsRow.id = `details-${lead.id}`;
+                detailsRow.style.display = 'none';
+                detailsRow.innerHTML = `
+                    <td colspan="10">
+                        <div class="lead-details" id="lead-details-${lead.id}">
+                            <div class="details-grid">
+                                <div class="detail-item">
+                                    <h4>Información Básica</h4>
+                                    <p><strong>Empresa:</strong> ${lead.nombreEmpresa || 'N/A'}</p>
+                                    <p><strong>Salesman:</strong> ${lead.salesman || 'N/A'}</p>
+                                    <p><strong>Tipo Producto:</strong> ${lead.tipoProducto || 'N/A'}</p>
+                                    <p><strong>Fuente:</strong> ${lead.fuente || 'N/A'}</p>
+                                    <p><strong>Tier:</strong> ${lead.tier || 'N/A'}</p>
+                                    <p><strong>Días U.C.:</strong> ${lead.diasUC || '0'}</p>
+                                </div>
+                                <div class="detail-item">
+                                    <h4>Información Comercial</h4>
+                                    <p><strong>Monto:</strong> ${lead.monto ? formatCurrency(lead.monto) : 'N/A'}</p>
+                                    <p><strong>Órdenes/Mes:</strong> ${lead.ordenes || 'N/A'}</p>
+                                    <p><strong>Productos/Orden:</strong> ${lead.productosOrden || 'N/A'}</p>
+                                    <p><strong>Posiciones Almacenamiento:</strong> ${lead.posicionesAlmacenamiento || 'N/A'}</p>
+                                    <p><strong>Plan Picking:</strong> ${lead.planPicking || 'N/A'}</p>
+                                    <p><strong>Plan Almacenamiento:</strong> ${lead.planAlmacenamiento || 'N/A'}</p>
+                                </div>
+                                <div class="detail-item">
+                                    <h4>Estados y Etapas</h4>
+                                    <p><strong>Estado:</strong> ${getStatusText(lead.estado)}</p>
+                                    <p><strong>Etapa Negociación:</strong> ${getEtapaText(lead.etapaNegociacion)}</p>
+                                    <p><strong>G/P:</strong> ${lead.gp || 'En proceso'}</p>
+                                </div>
+                                <div class="detail-item">
+                                    <h4>Fechas Importantes</h4>
+                                    <p><strong>Primer Contacto:</strong> ${lead.fechaPrimerContacto ? formatDate(lead.fechaPrimerContacto) : 'N/A'}</p>
+                                    <p><strong>1ra Reunión:</strong> ${lead.fechaPrimeraReunion ? formatDate(lead.fechaPrimeraReunion) : 'N/A'}</p>
+                                    <p><strong>Oferta Comercial:</strong> ${lead.fechaOfertaComercial ? formatDate(lead.fechaOfertaComercial) : 'N/A'}</p>
+                                    <p><strong>2da Reunión:</strong> ${lead.fechaSegundaReunion ? formatDate(lead.fechaSegundaReunion) : 'N/A'}</p>
+                                    <p><strong>Negociación:</strong> ${lead.fechaNegociacion ? formatDate(lead.fechaNegociacion) : 'N/A'}</p>
+                                    <p><strong>Cierre:</strong> ${lead.fechaCierre ? formatDate(lead.fechaCierre) : 'N/A'}</p>
+                                    <p><strong>Estimada Cierre:</strong> ${lead.fechaEstimadaCierre ? formatDate(lead.fechaEstimadaCierre) : 'N/A'}</p>
+                                </div>
+                                <div class="detail-item">
+                                    <h4>Métricas Calculadas</h4>
+                                    <p><strong>P.C. a 1er Reunión:</strong> ${lead.pcPrimeraReunion || '0'} días</p>
+                                    <p><strong>1er Reunión a O.C.:</strong> ${lead.primeraReunionOC || '0'} días</p>
+                                    <p><strong>O.C. a 2da Reunión:</strong> ${lead.ocSegundaReunion || '0'} días</p>
+                                    <p><strong>2da Reunión a Neg:</strong> ${lead.segundaReunionNeg || '0'} días</p>
+                                    <p><strong>Neg a Cierre:</strong> ${lead.negCierre || '0'} días</p>
+                                    <p><strong>P.C. a Cierre Total:</strong> ${lead.diasPCCierre || '0'} días</p>
+                                </div>
+                                <div class="detail-item">
+                                    <h4>Contadores</h4>
+                                    <p><strong># 1ra Reunión:</strong> ${lead.contador1raReunion || '0'}</p>
+                                    <p><strong># Oferta Comercial:</strong> ${lead.contadorOfertaComercial || '0'}</p>
+                                    <p><strong># 2da Reunión:</strong> ${lead.contador2daReunion || '0'}</p>
+                                    <p><strong># Negociación:</strong> ${lead.contadorNegociacion || '0'}</p>
+                                    <p><strong># Cierre Ganado:</strong> ${lead.contadorCierreGanado || '0'}</p>
+                                    <p><strong># Cierre Perdido:</strong> ${lead.contadorCierrePerdido || '0'}</p>
+                                </div>
+                                <div class="detail-item" style="grid-column: 1 / -1;">
+                                    <h4>Comentarios</h4>
+                                    <p>${lead.comentarios || 'Sin comentarios adicionales'}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(detailsRow);
             });
+        }
+
+        function toggleLeadDetails(leadId, row) {
+            const detailsRow = document.getElementById(`details-${leadId}`);
+            const detailsContent = document.getElementById(`lead-details-${leadId}`);
+            
+            // Close all other details
+            document.querySelectorAll('[id^="details-"]').forEach(dr => {
+                if (dr.id !== `details-${leadId}`) {
+                    dr.style.display = 'none';
+                    dr.previousElementSibling.classList.remove('expanded');
+                    const otherContent = document.querySelector(`#lead-details-${dr.id.split('-')[1]}`);
+                    if (otherContent) otherContent.classList.remove('active');
+                }
+            });
+            
+            if (detailsRow.style.display === 'none') {
+                detailsRow.style.display = 'table-row';
+                row.classList.add('expanded');
+                setTimeout(() => {
+                    detailsContent.classList.add('active');
+                }, 10);
+            } else {
+                detailsContent.classList.remove('active');
+                row.classList.remove('expanded');
+                setTimeout(() => {
+                    detailsRow.style.display = 'none';
+                }, 300);
+            }
         }
 
         function updateStats() {
             const totalLeads = leads.length;
-            const newLeads = leads.filter(lead => lead.status === 'nuevo').length;
-            const closedLeads = leads.filter(lead => lead.status === 'cliente_cerrado').length;
-            const totalValue = leads.reduce((sum, lead) => sum + (lead.value || 0), 0);
+            const newLeads = leads.filter(lead => lead.estado === 'nuevo').length;
+            const closedLeads = leads.filter(lead => lead.estado === 'cliente_cerrado').length;
+            const totalValue = leads.reduce((sum, lead) => sum + (lead.monto || 0), 0);
+            const conversionRate = totalLeads > 0 ? ((closedLeads / totalLeads) * 100).toFixed(1) : 0;
+            
+            // Calculate average orders
+            const leadsWithOrders = leads.filter(lead => lead.ordenes && lead.ordenes > 0);
+            const averageOrders = leadsWithOrders.length > 0 ? 
+                Math.round(leadsWithOrders.reduce((sum, lead) => sum + lead.ordenes, 0) / leadsWithOrders.length) : 0;
+            
+            // Calculate average days to close
+            const closedLeadsWithDays = leads.filter(lead => lead.diasPCCierre && lead.diasPCCierre > 0);
+            const averageDays = closedLeadsWithDays.length > 0 ? 
+                Math.round(closedLeadsWithDays.reduce((sum, lead) => sum + lead.diasPCCierre, 0) / closedLeadsWithDays.length) : 0;
+            
+            // Find top tier
+            const tierCounts = {};
+            leads.forEach(lead => {
+                if (lead.tier) {
+                    tierCounts[lead.tier] = (tierCounts[lead.tier] || 0) + 1;
+                }
+            });
+            const topTier = Object.keys(tierCounts).reduce((a, b) => 
+                tierCounts[a] > tierCounts[b] ? a : b, '-');
             
             document.getElementById('totalLeads').textContent = totalLeads;
             document.getElementById('newLeads').textContent = newLeads;
             document.getElementById('closedLeads').textContent = closedLeads;
-            document.getElementById('totalValue').textContent = totalValue.toLocaleString() + '€';
+            document.getElementById('totalValue').textContent = formatCurrency(totalValue);
+            document.getElementById('conversionRate').textContent = conversionRate + '%';
+            document.getElementById('averageOrders').textContent = averageOrders;
+            document.getElementById('averageDays').textContent = averageDays;
+            document.getElementById('topTier').textContent = topTier;
         }
 
         function updateFollowUp() {
-            const followUpLeads = leads.filter(lead => lead.nextAction && lead.nextActionDate);
+            const followUpLeads = leads.filter(lead => lead.fechaEstimadaCierre);
             const tbody = document.getElementById('followUpTable');
             tbody.innerHTML = '';
             
+            // Sort by estimated close date
+            followUpLeads.sort((a, b) => new Date(a.fechaEstimadaCierre) - new Date(b.fechaEstimadaCierre));
+            
             followUpLeads.forEach(lead => {
+                const today = new Date();
+                const closeDate = new Date(lead.fechaEstimadaCierre);
+                const daysRemaining = Math.ceil((closeDate - today) / (1000 * 60 * 60 * 24));
+                
                 const row = document.createElement('tr');
+                const isOverdue = daysRemaining < 0;
+                
                 row.innerHTML = `
-                    <td><strong>${lead.company}</strong></td>
-                    <td>${lead.nextAction}</td>
-                    <td>${lead.nextActionDate}</td>
-                    <td><strong>${lead.commercial}</strong></td>
-                    <td><span class="priority priority-${lead.priority}">${lead.priority}</span></td>
+                    <td><strong>${lead.nombreEmpresa || 'Sin nombre'}</strong></td>
+                    <td>${formatDate(lead.fechaEstimadaCierre)}</td>
+                    <td style="color: ${isOverdue ? '#ef4444' : daysRemaining <= 7 ? '#f59e0b' : '#10b981'}">${daysRemaining} días</td>
+                    <td><strong>${lead.salesman || 'N/A'}</strong></td>
+                    <td><span class="etapa etapa-${lead.etapaNegociacion || 'primer_contacto'}">${getEtapaText(lead.etapaNegociacion)}</span></td>
+                    <td><strong>${lead.monto ? formatCurrency(lead.monto) : 'N/A'}</strong></td>
                 `;
                 tbody.appendChild(row);
             });
         }
 
         function updateReports() {
-            const totalLeads = leads.length;
-            const closedLeads = leads.filter(lead => lead.status === 'cliente_cerrado').length;
-            const conversionRate = totalLeads > 0 ? ((closedLeads / totalLeads) * 100).toFixed(1) : 0;
-            
-            const totalValue = leads.reduce((sum, lead) => sum + (lead.value || 0), 0);
-            const averageValue = totalLeads > 0 ? (totalValue / totalLeads).toFixed(0) : 0;
-            
-            const leadsPerCommercial = totalLeads > 0 ? (totalLeads / 5).toFixed(1) : 0;
-            
-            document.getElementById('conversionRate').textContent = conversionRate + '%';
-            document.getElementById('averageValue').textContent = averageValue + '€';
-            document.getElementById('leadsPerCommercial').textContent = leadsPerCommercial;
-            document.getElementById('averageTime').textContent = '15 días';
+            // Calculate top salesman
+            const salesmanStats = {};
+            leads.forEach(lead => {
+                if (lead.salesman) {
+                    if (!salesmanStats[lead.salesman]) {
+                        salesmanStats[lead.salesman] = { total: 0, closed: 0, value: 0 };
+                    }
+                    salesmanStats[lead.salesman].total++;
+                    if (lead.estado === 'cliente_cerrado') {
+                        salesmanStats[lead.salesman].closed++;
+                        salesmanStats[lead.salesman].value += (lead.monto || 0);
+                    }
+                }
+            });
+
+            let topSalesman = '-';
+            let maxValue = 0;
+            for (const salesman in salesmanStats) {
+                if (salesmanStats[salesman].value > maxValue) {
+                    maxValue = salesmanStats[salesman].value;
+                    topSalesman = salesman;
+                }
+            }
+
+            // Calculate best source
+            const sourceStats = {};
+            leads.forEach(lead => {
+                if (lead.fuente) {
+                    if (!sourceStats[lead.fuente]) {
+                        sourceStats[lead.fuente] = { total: 0, closed: 0 };
+                    }
+                    sourceStats[lead.fuente].total++;
+                    if (lead.estado === 'cliente_cerrado') {
+                        sourceStats[lead.fuente].closed++;
+                    }
+                }
+            });
+
+            let bestSource = '-';
+            let bestConversion = 0;
+            for (const source in sourceStats) {
+                const conversion = sourceStats[source].total > 0 ? 
+                    (sourceStats[source].closed / sourceStats[source].total) : 0;
+                if (conversion > bestConversion) {
+                    bestConversion = conversion;
+                    bestSource = source;
+                }
+            }
+
+            // Calculate top product
+            const productStats = {};
+            leads.forEach(lead => {
+                if (lead.tipoProducto) {
+                    productStats[lead.tipoProducto] = (productStats[lead.tipoProducto] || 0) + 1;
+                }
+            });
+            const topProduct = Object.keys(productStats).reduce((a, b) => 
+                productStats[a] > productStats[b] ? a : b, '-');
+
+            // Calculate average time to close
+            const closedLeadsWithDays = leads.filter(lead => lead.diasPCCierre && lead.diasPCCierre > 0);
+            const avgTimeToClose = closedLeadsWithDays.length > 0 ? 
+                Math.round(closedLeadsWithDays.reduce((sum, lead) => sum + lead.diasPCCierre, 0) / closedLeadsWithDays.length) : 0;
+
+            document.getElementById('topSalesman').textContent = topSalesman;
+            document.getElementById('bestSource').textContent = bestSource;
+            document.getElementById('topProduct').textContent = topProduct;
+            document.getElementById('avgTimeToClose').textContent = avgTimeToClose + ' días';
         }
 
         // Modal functions
@@ -1028,18 +2325,28 @@
                     // Fill form with existing data
                     Object.keys(lead).forEach(key => {
                         const field = document.getElementById(key);
-                        if (field) {
+                        if (field && key !== 'comentarios') {
                             field.value = lead[key] || '';
                         }
                     });
+                    
+                    // Set notes in editor
+                    if (notesEditor && lead.comentarios) {
+                        notesEditor.root.innerHTML = lead.comentarios;
+                    }
                 }
             } else {
                 title.textContent = 'Agregar Nuevo Lead';
                 form.reset();
                 
+                // Set default values
+                document.getElementById('estado').value = 'nuevo';
+                document.getElementById('etapaNegociacion').value = 'primer_contacto';
+                document.getElementById('diasUC').value = '0';
+                
                 // Set default date to today
                 const today = new Date().toISOString().split('T')[0];
-                document.getElementById('nextActionDate').value = today;
+                document.getElementById('fechaPrimerContacto').value = today;
             }
             
             modal.style.display = 'block';
@@ -1065,10 +2372,6 @@
             }
         }
 
-        window.addFile = function(leadId) {
-            alert('Funcionalidad de archivos pendiente de implementar');
-        }
-
         // Tab functions
         window.showTab = function(tabName) {
             // Remove active class from all tabs
@@ -1086,6 +2389,11 @@
             
             // Add active class to clicked tab
             event.target.classList.add('active');
+            
+            // Update tasks when switching to tasks tab
+            if (tabName === 'tareas') {
+                updateTasks();
+            }
         }
 
         // Utility functions
@@ -1095,9 +2403,34 @@
                 'contactado': 'Contactado',
                 'propuesta_enviada': 'Propuesta Enviada',
                 'interesado': 'Interesado',
-                'cliente_cerrado': 'Cliente Cerrado'
+                'cliente_cerrado': 'Cliente Cerrado',
+                'perdido': 'Perdido'
             };
             return statusMap[status] || status;
+        }
+
+        function getEtapaText(etapa) {
+            const etapaMap = {
+                'primer_contacto': 'Primer Contacto',
+                'primera_reunion': 'Primera Reunión',
+                'oferta_comercial': 'Oferta Comercial',
+                'segunda_reunion': 'Segunda Reunión',
+                'negociacion': 'Negociación',
+                'cierre': 'Cierre'
+            };
+            return etapaMap[etapa] || etapa;
+        }
+
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('es-ES', {
+                style: 'currency',
+                currency: 'EUR'
+            }).format(amount || 0);
+        }
+
+        function formatDate(dateString) {
+            if (!dateString) return '';
+            return new Date(dateString).toLocaleDateString('es-ES');
         }
 
         function showLoading(show) {
@@ -1129,46 +2462,116 @@
         window.insertSampleData = async function() {
             const sampleLeads = [
                 {
-                    company: "TechStore Madrid",
-                    contact: "Ana García",
-                    email: "ana.garcia@techstore.es",
-                    phone: "+34 910 123 456",
-                    source: "Web Orgánica",
-                    status: "nuevo",
-                    priority: "alta",
-                    value: 15000,
-                    nextAction: "Primera llamada contacto",
-                    nextActionDate: "2025-07-18",
-                    commercial: "Dulce",
-                    notes: "Interesada en solución completa de e-commerce"
+                    nombreEmpresa: "TechStore Madrid",
+                    salesman: "Dulce",
+                    tipoProducto: "Fulfillment Premium",
+                    fuente: "Web Orgánica",
+                    tier: "Tier 1",
+                    diasUC: 5,
+                    monto: 15000,
+                    ordenes: 150,
+                    productosOrden: 3.2,
+                    posicionesAlmacenamiento: 500,
+                    planPicking: "Premium",
+                    planAlmacenamiento: "Dedicado",
+                    estado: "interesado",
+                    etapaNegociacion: "oferta_comercial",
+                    gp: "",
+                    fechaPrimerContacto: "2025-07-01",
+                    fechaPrimeraReunion: "2025-07-05",
+                    fechaOfertaComercial: "2025-07-10",
+                    fechaEstimadaCierre: "2025-07-30",
+                    mesEstimado: "2025-07",
+                    pcPrimeraReunion: 4,
+                    primeraReunionOC: 5,
+                    contador1raReunion: 1,
+                    contadorOfertaComercial: 1,
+                    comentarios: "Cliente muy interesado en solución premium",
+                    diaMes: 15
                 },
                 {
-                    company: "ModaStyle Barcelona",
-                    contact: "Luis Rodríguez",
-                    email: "luis@modastyle.com",
-                    phone: "+34 932 456 789",
-                    source: "LinkedIn Ads",
-                    status: "contactado",
-                    priority: "media",
-                    value: 8500,
-                    nextAction: "Enviar propuesta comercial",
-                    nextActionDate: "2025-07-19",
-                    commercial: "Pablo",
-                    notes: "Quiere migrar su tienda actual"
+                    nombreEmpresa: "ModaStyle Barcelona",
+                    salesman: "Pablo",
+                    tipoProducto: "Fulfillment Básico",
+                    fuente: "LinkedIn Ads",
+                    tier: "Tier 2",
+                    diasUC: 3,
+                    monto: 8500,
+                    ordenes: 80,
+                    productosOrden: 2.1,
+                    posicionesAlmacenamiento: 200,
+                    planPicking: "Estándar",
+                    planAlmacenamiento: "Compartido",
+                    estado: "contactado",
+                    etapaNegociacion: "primera_reunion",
+                    gp: "",
+                    fechaPrimerContacto: "2025-07-10",
+                    fechaPrimeraReunion: "2025-07-15",
+                    fechaEstimadaCierre: "2025-08-15",
+                    mesEstimado: "2025-08",
+                    pcPrimeraReunion: 5,
+                    contador1raReunion: 1,
+                    comentarios: "Necesitan solución para su nueva línea de productos",
+                    diaMes: 15
                 },
                 {
-                    company: "HomeDecor Valencia",
-                    contact: "Carmen López",
-                    email: "carmen@homedecor.es",
-                    phone: "+34 963 789 012",
-                    source: "Referido Cliente",
-                    status: "propuesta_enviada",
-                    priority: "alta",
-                    value: 25000,
-                    nextAction: "Seguimiento propuesta",
-                    nextActionDate: "2025-07-20",
-                    commercial: "Javi",
-                    notes: "Cliente referido por TechStore Madrid"
+                    nombreEmpresa: "SportGear Valencia",
+                    salesman: "Javi",
+                    tipoProducto: "Logística Integral",
+                    fuente: "Referido Cliente",
+                    tier: "Tier 1",
+                    diasUC: 1,
+                    monto: 25000,
+                    ordenes: 300,
+                    productosOrden: 4.5,
+                    posicionesAlmacenamiento: 800,
+                    planPicking: "Premium",
+                    planAlmacenamiento: "Dedicado",
+                    estado: "cliente_cerrado",
+                    etapaNegociacion: "cierre",
+                    gp: "Ganado",
+                    fechaPrimerContacto: "2025-06-01",
+                    fechaPrimeraReunion: "2025-06-05",
+                    fechaOfertaComercial: "2025-06-12",
+                    fechaSegundaReunion: "2025-06-18",
+                    fechaNegociacion: "2025-06-25",
+                    fechaCierre: "2025-07-01",
+                    fechaEstimadaCierre: "2025-07-01",
+                    mesEstimado: "2025-07",
+                    pcPrimeraReunion: 4,
+                    primeraReunionOC: 7,
+                    ocSegundaReunion: 6,
+                    segundaReunionNeg: 7,
+                    negCierre: 6,
+                    diasPCCierre: 30,
+                    contador1raReunion: 1,
+                    contadorOfertaComercial: 1,
+                    contador2daReunion: 1,
+                    contadorNegociacion: 1,
+                    contadorCierreGanado: 1,
+                    comentarios: "Cliente referido muy satisfecho con el servicio",
+                    diaMes: 1
+                }
+            ];
+
+            const samplePersonalTasks = [
+                {
+                    title: 'Revisar informe mensual fulfillment',
+                    description: 'Revisar y aprobar el informe de operaciones del mes',
+                    dueDate: new Date().toISOString().split('T')[0],
+                    priority: 'alta'
+                },
+                {
+                    title: 'Reunión con equipo logística',
+                    description: 'Planificar las mejoras en el proceso de picking',
+                    dueDate: new Date().toISOString().split('T')[0],
+                    priority: 'media'
+                },
+                {
+                    title: 'Actualizar precios servicios',
+                    description: 'Revisar y actualizar la tarifa de servicios 2025',
+                    dueDate: new Date(new Date().setDate(new Date().getDate() + 2)).toISOString().split('T')[0],
+                    priority: 'baja'
                 }
             ];
 
@@ -1176,6 +2579,9 @@
                 showLoading(true);
                 for (const lead of sampleLeads) {
                     await window.firebaseDB.addLead(lead);
+                }
+                for (const task of samplePersonalTasks) {
+                    await window.firebaseDB.addPersonalTask(task);
                 }
                 showSuccess('Datos de ejemplo insertados exitosamente');
             } catch (error) {
