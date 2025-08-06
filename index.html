@@ -1064,6 +1064,40 @@ Conectando con Firebase...
 </div>
 </div>
 
+<!-- Información de Contacto -->
+<div class="form-section">
+<h3>📞 Información de Contacto</h3>
+<div class="form-row-three">
+<div class="form-group">
+<label for="nombreContacto">Nombre Contacto</label>
+<input type="text" id="nombreContacto" name="nombreContacto" placeholder="Ej: Juan Pérez">
+</div>
+<div class="form-group">
+<label for="cargoContacto">Cargo</label>
+<input type="text" id="cargoContacto" name="cargoContacto" placeholder="Ej: Director Comercial">
+</div>
+<div class="form-group">
+<label for="departamentoContacto">Departamento</label>
+<input type="text" id="departamentoContacto" name="departamentoContacto" placeholder="Ej: Ventas">
+</div>
+</div>
+
+<div class="form-row-three">
+<div class="form-group">
+<label for="telefonoContacto">Teléfono</label>
+<input type="tel" id="telefonoContacto" name="telefonoContacto" placeholder="Ej: +34 600 123 456">
+</div>
+<div class="form-group">
+<label for="emailContacto">Email</label>
+<input type="email" id="emailContacto" name="emailContacto" placeholder="Ej: contacto@empresa.com">
+</div>
+<div class="form-group">
+<label for="linkedinContacto">LinkedIn</label>
+<input type="url" id="linkedinContacto" name="linkedinContacto" placeholder="Ej: https://linkedin.com/in/usuario">
+</div>
+</div>
+</div>
+
 <!-- Información Comercial -->
 <div class="form-section">
 <h3>💰 Información Comercial</h3>
@@ -2228,6 +2262,15 @@ function displayLeads() {
                             <p><strong>Días U.C.:</strong> ${lead.diasUC || '0'}</p>
                         </div>
                         <div class="detail-item">
+                            <h4>Información de Contacto</h4>
+                            <p><strong>Nombre:</strong> ${lead.nombreContacto || 'N/A'}</p>
+                            <p><strong>Cargo:</strong> ${lead.cargoContacto || 'N/A'}</p>
+                            <p><strong>Departamento:</strong> ${lead.departamentoContacto || 'N/A'}</p>
+                            <p><strong>Teléfono:</strong> ${lead.telefonoContacto || 'N/A'}</p>
+                            <p><strong>Email:</strong> ${lead.emailContacto || 'N/A'}</p>
+                            <p><strong>LinkedIn:</strong> ${lead.linkedinContacto || 'N/A'}</p>
+                        </div>
+                        <div class="detail-item">
                             <h4>Información Comercial</h4>
                             <p><strong>Monto:</strong> ${lead.monto ? formatCurrency(lead.monto) : 'N/A'}</p>
                             <p><strong>Órdenes/Mes:</strong> ${lead.ordenes || 'N/A'}</p>
@@ -2631,6 +2674,12 @@ window.insertSampleData = async function() {
             primeraReunionOC: 5,
             contador1raReunion: 1,
             contadorOfertaComercial: 1,
+            nombreContacto: "Juan Pérez",
+            cargoContacto: "Director Comercial",
+            departamentoContacto: "Ventas",
+            telefonoContacto: "+34 600 123 456",
+            emailContacto: "juan.perez@techstore.com",
+            linkedinContacto: "https://linkedin.com/in/juanperez",
             comentarios: "Cliente muy interesado en solución premium",
             diaMes: 15
         },
@@ -2656,6 +2705,12 @@ window.insertSampleData = async function() {
             mesEstimado: "2025-08",
             pcPrimeraReunion: 5,
             contador1raReunion: 1,
+            nombreContacto: "María García",
+            cargoContacto: "Responsable de Logística",
+            departamentoContacto: "Operaciones",
+            telefonoContacto: "+34 699 987 654",
+            emailContacto: "maria.garcia@modastyle.com",
+            linkedinContacto: "https://linkedin.com/in/mariagarcia",
             comentarios: "Necesitan solución para su nueva línea de productos",
             diaMes: 15
         },
@@ -2694,6 +2749,12 @@ window.insertSampleData = async function() {
             contador2daReunion: 1,
             contadorNegociacion: 1,
             contadorCierreGanado: 1,
+            nombreContacto: "Carlos Martínez",
+            cargoContacto: "CEO",
+            departamentoContacto: "Dirección",
+            telefonoContacto: "+34 677 555 123",
+            emailContacto: "carlos.martinez@sportgear.com",
+            linkedinContacto: "https://linkedin.com/in/carlosmartinez",
             comentarios: "Cliente referido muy satisfecho con el servicio",
             diaMes: 1
         }
