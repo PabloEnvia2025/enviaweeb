@@ -21,7 +21,7 @@ color: #333;
 max-width: 1600px;
 margin: 0 auto;
 padding: 20px;
-display: none;
+display: block;
 }
 
 .header {
@@ -754,19 +754,6 @@ grid-template-columns: 1fr;
 </style>
 </head>
 <body>
-<div id="loginScreen" style="display: flex; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #1e40af 0%, #3b82f6 50%, #60a5fa 100%); z-index: 9999; align-items: center; justify-content: center;">
-<div style="background: white; padding: 40px; border-radius: 15px; box-shadow: 0 25px 50px rgba(0,0,0,0.3); text-align: center; max-width: 400px; width: 90%;">
-<h1 style="color: #3b82f6; margin-bottom: 20px; font-size: 2rem;">📦 Envia.com</h1>
-<p style="color: #6b7280; margin-bottom: 30px;">CRM Fulfillment España</p>
-<div style="margin-bottom: 20px;">
-<input type="password" id="passwordInput" placeholder="Contraseña de acceso" style="width: 100%; padding: 15px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 1rem; margin-bottom: 15px;">
-<div id="loginError" style="color: #ef4444; font-size: 0.9rem; margin-bottom: 15px; display: none;">Contraseña incorrecta</div>
-<button onclick="checkPassword()" style="width: 100%; background: #3b82f6; color: white; border: none; padding: 15px; border-radius: 8px; font-size: 1rem; font-weight: 500; cursor: pointer;">Acceder al CRM</button>
-</div>
-<p style="color: #9ca3af; font-size: 0.8rem;">Sistema seguro de gestión</p>
-</div>
-</div>
-
 <div class="container">
 <div class="header">
 <div class="header-content">
@@ -1379,7 +1366,7 @@ const firebaseConfig = {
 apiKey: "AIzaSyAo-7joP2C-aD5buwmpulrrP2nkNar2kTs",
 authDomain: "enviaweeb-crm.firebaseapp.com",
 projectId: "enviaweeb-crm",
-storageBucket: "enviaweeb-crm.firebasestorage.app",
+storageBucket: "enviaweeb-crm.appspot.com",
 messagingSenderId: "361625817032",
 appId: "1:361625817032:web:5af0c621fd9691d7ec7afd"
 };
@@ -1395,700 +1382,691 @@ let editingLeadId = null;
 let editingTaskId = null;
 let notesEditor = null;
 
-<body>
-  <!-- Elimina todo este div de loginScreen -->
-  <!-- <div id="loginScreen" style="display: flex; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #1e40af 0%, #3b82f6 50%, #60a5fa 100%); z-index: 9999; align-items: center; justify-content: center;">
-    <div style="background: white; padding: 40px; border-radius: 15px; box-shadow: 0 25px 50px rgba(0,0,0,0.3); text-align: center; max-width: 400px; width: 90%;">
-      <h1 style="color: #3b82f6; margin-bottom: 20px; font-size: 2rem;">📦 Envia.com</h1>
-      <p style="color: #6b7280; margin-bottom: 30px;">CRM Fulfillment España</p>
-      <div style="margin-bottom: 20px;">
-        <input type="password" id="passwordInput" placeholder="Contraseña de acceso" style="width: 100%; padding: 15px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 1rem; margin-bottom: 15px;">
-        <div id="loginError" style="color: #ef4444; font-size: 0.9rem; margin-bottom: 15px; display: none;">Contraseña incorrecta</div>
-        <button onclick="checkPassword()" style="width: 100%; background: #3b82f6; color: white; border: none; padding: 15px; border-radius: 8px; font-size: 1rem; font-weight: 500; cursor: pointer;">Acceder al CRM</button>
-      </div>
-      <p style="color: #9ca3af; font-size: 0.8rem;">Sistema seguro de gestión</p>
-    </div>
-  </div> -->
-
-  <!-- Cambia display: none a display: block -->
-  <div class="container" style="display: block;">
-    <!-- Resto del contenido del CRM -->
-    ...
-  </div>
-</body>
+// Initialize the app
+document.addEventListener('DOMContentLoaded', function() {
+    initializeCRM();
+});
 
 // Firebase functions
 window.firebaseDB = {
-// Get all leads
-async getLeads() {
-try {
-showLoading(true);
-const q = query(collection(db, 'leads'), orderBy('createdAt', 'desc'));
-const querySnapshot = await getDocs(q);
-const leadsData = [];
-querySnapshot.forEach((doc) => {
-leadsData.push({ id: doc.id, ...doc.data() });
-});
-return leadsData;
-} catch (error) {
-console.error('Error getting leads:', error);
-showError('Error al cargar los datos: ' + error.message);
-return [];
-} finally {
-showLoading(false);
-}
-},
+    // Get all leads
+    async getLeads() {
+        try {
+            showLoading(true);
+            const q = query(collection(db, 'leads'), orderBy('createdAt', 'desc'));
+            const querySnapshot = await getDocs(q);
+            const leadsData = [];
+            querySnapshot.forEach((doc) => {
+                leadsData.push({ id: doc.id, ...doc.data() });
+            });
+            return leadsData;
+        } catch (error) {
+            console.error('Error getting leads:', error);
+            showError('Error al cargar los datos: ' + error.message);
+            return [];
+        } finally {
+            showLoading(false);
+        }
+    },
 
-// Get all personal tasks
-async getPersonalTasks() {
-try {
-const q = query(collection(db, 'personalTasks'), orderBy('dueDate', 'asc'));
-const querySnapshot = await getDocs(q);
-const tasksData = [];
-querySnapshot.forEach((doc) => {
-tasksData.push({ id: doc.id, ...doc.data() });
-});
-return tasksData;
-} catch (error) {
-console.error('Error getting personal tasks:', error);
-showError('Error al cargar las tareas personales: ' + error.message);
-return [];
-}
-},
+    // Get all personal tasks
+    async getPersonalTasks() {
+        try {
+            const q = query(collection(db, 'personalTasks'), orderBy('dueDate', 'asc'));
+            const querySnapshot = await getDocs(q);
+            const tasksData = [];
+            querySnapshot.forEach((doc) => {
+                tasksData.push({ id: doc.id, ...doc.data() });
+            });
+            return tasksData;
+        } catch (error) {
+            console.error('Error getting personal tasks:', error);
+            showError('Error al cargar las tareas personales: ' + error.message);
+            return [];
+        }
+    },
 
-// Add new lead
-async addLead(leadData) {
-try {
-showLoading(true);
-const docRef = await addDoc(collection(db, 'leads'), {
-...leadData,
-createdAt: new Date(),
-updatedAt: new Date()
-});
-showSuccess('Lead agregado exitosamente');
-return docRef.id;
-} catch (error) {
-console.error('Error adding lead:', error);
-showError('Error al agregar el lead: ' + error.message);
-throw error;
-} finally {
-showLoading(false);
-}
-},
+    // Add new lead
+    async addLead(leadData) {
+        try {
+            showLoading(true);
+            const docRef = await addDoc(collection(db, 'leads'), {
+                ...leadData,
+                createdAt: new Date(),
+                updatedAt: new Date()
+            });
+            showSuccess('Lead agregado exitosamente');
+            return docRef.id;
+        } catch (error) {
+            console.error('Error adding lead:', error);
+            showError('Error al agregar el lead: ' + error.message);
+            throw error;
+        } finally {
+            showLoading(false);
+        }
+    },
 
-// Add new personal task
-async addPersonalTask(taskData) {
-try {
-showLoading(true);
-const docRef = await addDoc(collection(db, 'personalTasks'), {
-...taskData,
-createdAt: new Date(),
-updatedAt: new Date(),
-completed: false
-});
-showSuccess('Tarea personal agregada exitosamente');
-return docRef.id;
-} catch (error) {
-console.error('Error adding personal task:', error);
-showError('Error al agregar la tarea personal: ' + error.message);
-throw error;
-} finally {
-showLoading(false);
-}
-},
+    // Add new personal task
+    async addPersonalTask(taskData) {
+        try {
+            showLoading(true);
+            const docRef = await addDoc(collection(db, 'personalTasks'), {
+                ...taskData,
+                createdAt: new Date(),
+                updatedAt: new Date(),
+                completed: false
+            });
+            showSuccess('Tarea personal agregada exitosamente');
+            return docRef.id;
+        } catch (error) {
+            console.error('Error adding personal task:', error);
+            showError('Error al agregar la tarea personal: ' + error.message);
+            throw error;
+        } finally {
+            showLoading(false);
+        }
+    },
 
-// Update lead
-async updateLead(leadId, leadData) {
-try {
-showLoading(true);
-const leadRef = doc(db, 'leads', leadId);
-await updateDoc(leadRef, {
-...leadData,
-updatedAt: new Date()
-});
-showSuccess('Lead actualizado exitosamente');
-} catch (error) {
-console.error('Error updating lead:', error);
-showError('Error al actualizar el lead: ' + error.message);
-throw error;
-} finally {
-showLoading(false);
-}
-},
+    // Update lead
+    async updateLead(leadId, leadData) {
+        try {
+            showLoading(true);
+            const leadRef = doc(db, 'leads', leadId);
+            await updateDoc(leadRef, {
+                ...leadData,
+                updatedAt: new Date()
+            });
+            showSuccess('Lead actualizado exitosamente');
+        } catch (error) {
+            console.error('Error updating lead:', error);
+            showError('Error al actualizar el lead: ' + error.message);
+            throw error;
+        } finally {
+            showLoading(false);
+        }
+    },
 
-// Update personal task
-async updatePersonalTask(taskId, taskData) {
-try {
-showLoading(true);
-const taskRef = doc(db, 'personalTasks', taskId);
-await updateDoc(taskRef, {
-...taskData,
-updatedAt: new Date()
-});
-showSuccess('Tarea personal actualizada exitosamente');
-} catch (error) {
-console.error('Error updating personal task:', error);
-showError('Error al actualizar la tarea personal: ' + error.message);
-throw error;
-} finally {
-showLoading(false);
-}
-},
+    // Update personal task
+    async updatePersonalTask(taskId, taskData) {
+        try {
+            showLoading(true);
+            const taskRef = doc(db, 'personalTasks', taskId);
+            await updateDoc(taskRef, {
+                ...taskData,
+                updatedAt: new Date()
+            });
+            showSuccess('Tarea personal actualizada exitosamente');
+        } catch (error) {
+            console.error('Error updating personal task:', error);
+            showError('Error al actualizar la tarea personal: ' + error.message);
+            throw error;
+        } finally {
+            showLoading(false);
+        }
+    },
 
-// Delete lead
-async deleteLead(leadId) {
-try {
-showLoading(true);
-const leadRef = doc(db, 'leads', leadId);
-await deleteDoc(leadRef);
-showSuccess('Lead eliminado exitosamente');
-} catch (error) {
-console.error('Error deleting lead:', error);
-showError('Error al eliminar el lead: ' + error.message);
-throw error;
-} finally {
-showLoading(false);
-}
-},
+    // Delete lead
+    async deleteLead(leadId) {
+        try {
+            showLoading(true);
+            const leadRef = doc(db, 'leads', leadId);
+            await deleteDoc(leadRef);
+            showSuccess('Lead eliminado exitosamente');
+        } catch (error) {
+            console.error('Error deleting lead:', error);
+            showError('Error al eliminar el lead: ' + error.message);
+            throw error;
+        } finally {
+            showLoading(false);
+        }
+    },
 
-// Delete personal task
-async deletePersonalTask(taskId) {
-try {
-showLoading(true);
-const taskRef = doc(db, 'personalTasks', taskId);
-await deleteDoc(taskRef);
-showSuccess('Tarea personal eliminada exitosamente');
-} catch (error) {
-console.error('Error deleting personal task:', error);
-showError('Error al eliminar la tarea personal: ' + error.message);
-throw error;
-} finally {
-showLoading(false);
-}
-},
+    // Delete personal task
+    async deletePersonalTask(taskId) {
+        try {
+            showLoading(true);
+            const taskRef = doc(db, 'personalTasks', taskId);
+            await deleteDoc(taskRef);
+            showSuccess('Tarea personal eliminada exitosamente');
+        } catch (error) {
+            console.error('Error deleting personal task:', error);
+            showError('Error al eliminar la tarea personal: ' + error.message);
+            throw error;
+        } finally {
+            showLoading(false);
+        }
+    },
 
-// Real-time listener for leads
-listenToLeads(callback) {
-const q = query(collection(db, 'leads'), orderBy('createdAt', 'desc'));
-return onSnapshot(q, (querySnapshot) => {
-const leadsData = [];
-querySnapshot.forEach((doc) => {
-leadsData.push({ id: doc.id, ...doc.data() });
-});
-callback(leadsData);
-});
-},
+    // Real-time listener for leads
+    listenToLeads(callback) {
+        const q = query(collection(db, 'leads'), orderBy('createdAt', 'desc'));
+        return onSnapshot(q, (querySnapshot) => {
+            const leadsData = [];
+            querySnapshot.forEach((doc) => {
+                leadsData.push({ id: doc.id, ...doc.data() });
+            });
+            callback(leadsData);
+        });
+    },
 
-// Real-time listener for personal tasks
-listenToPersonalTasks(callback) {
-const q = query(collection(db, 'personalTasks'), orderBy('dueDate', 'asc'));
-return onSnapshot(q, (querySnapshot) => {
-const tasksData = [];
-querySnapshot.forEach((doc) => {
-tasksData.push({ id: doc.id, ...doc.data() });
-});
-callback(tasksData);
-});
-}
+    // Real-time listener for personal tasks
+    listenToPersonalTasks(callback) {
+        const q = query(collection(db, 'personalTasks'), orderBy('dueDate', 'asc'));
+        return onSnapshot(q, (querySnapshot) => {
+            const tasksData = [];
+            querySnapshot.forEach((doc) => {
+                tasksData.push({ id: doc.id, ...doc.data() });
+            });
+            callback(tasksData);
+        });
+    }
 };
 
-document.addEventListener('DOMContentLoaded', function() {
-  initializeCRM(); // Inicializa el CRM directamente
-});
+// Initialize the app
+async function initializeCRM() {
+    // Set up real-time listeners
+    window.firebaseDB.listenToLeads((leadsData) => {
+        leads = leadsData;
+        displayLeads();
+        updateStats();
+        updateFollowUp();
+        updateReports();
+        updateTasks();
+    });
 
-window.firebaseDB.listenToPersonalTasks((tasksData) => {
-personalTasks = tasksData;
-updateTasks();
-});
+    window.firebaseDB.listenToPersonalTasks((tasksData) => {
+        personalTasks = tasksData;
+        updateTasks();
+    });
 
-// Set up event listeners
-setupEventListeners();
+    // Set up event listeners
+    setupEventListeners();
 
-// Initialize notes editor
-initializeNotesEditor();
+    // Initialize notes editor
+    initializeNotesEditor();
 }
 
 function initializeNotesEditor() {
-// Initialize Quill editor for notes
-if (typeof Quill !== 'undefined' && !notesEditor) {
-const editorElement = document.getElementById('notesEditor');
-if (editorElement && !editorElement.classList.contains('ql-container')) {
-notesEditor = new Quill('#notesEditor', {
-theme: 'snow',
-placeholder: 'Escribe aquí las notas del lead...',
-modules: {
-toolbar: [
-[{ 'header': [1, 2, 3, false] }],
-['bold', 'italic', 'underline', 'strike'],
-[{ 'color': [] }, { 'background': [] }],
-[{ 'list': 'ordered'}, { 'list': 'bullet' }],
-[{ 'indent': '-1'}, { 'indent': '+1' }],
-[{ 'align': [] }],
-['link', 'blockquote', 'code-block'],
-['clean']
-]
-}
-});
+    // Initialize Quill editor for notes
+    if (typeof Quill !== 'undefined' && !notesEditor) {
+        const editorElement = document.getElementById('notesEditor');
+        if (editorElement && !editorElement.classList.contains('ql-container')) {
+            notesEditor = new Quill('#notesEditor', {
+                theme: 'snow',
+                placeholder: 'Escribe aquí las notas del lead...',
+                modules: {
+                    toolbar: [
+                        [{ 'header': [1, 2, 3, false] }],
+                        ['bold', 'italic', 'underline', 'strike'],
+                        [{ 'color': [] }, { 'background': [] }],
+                        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                        [{ 'indent': '-1'}, { 'indent': '+1' }],
+                        [{ 'align': [] }],
+                        ['link', 'blockquote', 'code-block'],
+                        ['clean']
+                    ]
+                }
+            });
 
-// Update hidden textarea when editor content changes
-notesEditor.on('text-change', function() {
-const htmlContent = notesEditor.root.innerHTML;
-document.getElementById('comentarios').value = htmlContent;
-});
-}
-}
+            // Update hidden textarea when editor content changes
+            notesEditor.on('text-change', function() {
+                const htmlContent = notesEditor.root.innerHTML;
+                document.getElementById('comentarios').value = htmlContent;
+            });
+        }
+    }
 }
 
 function setupEventListeners() {
-// Search functionality
-document.getElementById('searchInput').addEventListener('input', displayLeads);
-document.getElementById('statusFilter').addEventListener('change', displayLeads);
-document.getElementById('salesmanFilter').addEventListener('change', displayLeads);
-document.getElementById('etapaFilter').addEventListener('change', displayLeads);
+    // Search functionality
+    document.getElementById('searchInput').addEventListener('input', displayLeads);
+    document.getElementById('statusFilter').addEventListener('change', displayLeads);
+    document.getElementById('salesmanFilter').addEventListener('change', displayLeads);
+    document.getElementById('etapaFilter').addEventListener('change', displayLeads);
 
-// Task filters
-document.getElementById('taskTypeFilter').addEventListener('change', updateTasks);
-document.getElementById('taskDateFilter').addEventListener('change', updateTasks);
+    // Task filters
+    document.getElementById('taskTypeFilter').addEventListener('change', updateTasks);
+    document.getElementById('taskDateFilter').addEventListener('change', updateTasks);
 
-// Form submissions
-document.getElementById('leadForm').addEventListener('submit', handleFormSubmit);
-document.getElementById('personalTaskForm').addEventListener('submit', handlePersonalTaskFormSubmit);
+    // Form submissions
+    document.getElementById('leadForm').addEventListener('submit', handleFormSubmit);
+    document.getElementById('personalTaskForm').addEventListener('submit', handlePersonalTaskFormSubmit);
 
-// Close modals when clicking outside
-document.getElementById('leadModal').addEventListener('click', (e) => {
-if (e.target === document.getElementById('leadModal')) {
-closeModal();
-}
-});
+    // Close modals when clicking outside
+    document.getElementById('leadModal').addEventListener('click', (e) => {
+        if (e.target === document.getElementById('leadModal')) {
+            closeModal();
+        }
+    });
 
-document.getElementById('personalTaskModal').addEventListener('click', (e) => {
-if (e.target === document.getElementById('personalTaskModal')) {
-closePersonalTaskModal();
-}
-});
+    document.getElementById('personalTaskModal').addEventListener('click', (e) => {
+        if (e.target === document.getElementById('personalTaskModal')) {
+            closePersonalTaskModal();
+        }
+    });
 
-// Add event listeners for automatic calculations
-setupCalculationListeners();
+    // Add event listeners for automatic calculations
+    setupCalculationListeners();
 }
 
 function setupCalculationListeners() {
-// Date fields that trigger calculations
-const dateFields = [
-'fechaPrimerContacto', 'fechaPrimeraReunion', 'fechaOfertaComercial',
-'fechaSegundaReunion', 'fechaNegociacion', 'fechaCierre'
-];
+    // Date fields that trigger calculations
+    const dateFields = [
+        'fechaPrimerContacto', 'fechaPrimeraReunion', 'fechaOfertaComercial',
+        'fechaSegundaReunion', 'fechaNegociacion', 'fechaCierre'
+    ];
 
-dateFields.forEach(fieldId => {
-const field = document.getElementById(fieldId);
-if (field) {
-field.addEventListener('change', calculateMetrics);
-}
-});
+    dateFields.forEach(fieldId => {
+        const field = document.getElementById(fieldId);
+        if (field) {
+            field.addEventListener('change', calculateMetrics);
+        }
+    });
 
-// Product/order calculation
-const productOrderField = document.getElementById('productosOrden');
-if (productOrderField) {
-productOrderField.addEventListener('input', () => {
-document.getElementById('prodOrden').value = productOrderField.value;
-});
-}
+    // Product/order calculation
+    const productOrderField = document.getElementById('productosOrden');
+    if (productOrderField) {
+        productOrderField.addEventListener('input', () => {
+            document.getElementById('prodOrden').value = productOrderField.value;
+        });
+    }
 }
 
 function calculateMetrics() {
-const fechaPc = document.getElementById('fechaPrimerContacto').value;
-const fecha1ra = document.getElementById('fechaPrimeraReunion').value;
-const fechaOc = document.getElementById('fechaOfertaComercial').value;
-const fecha2da = document.getElementById('fechaSegundaReunion').value;
-const fechaNeg = document.getElementById('fechaNegociacion').value;
-const fechaCierre = document.getElementById('fechaCierre').value;
+    const fechaPc = document.getElementById('fechaPrimerContacto').value;
+    const fecha1ra = document.getElementById('fechaPrimeraReunion').value;
+    const fechaOc = document.getElementById('fechaOfertaComercial').value;
+    const fecha2da = document.getElementById('fechaSegundaReunion').value;
+    const fechaNeg = document.getElementById('fechaNegociacion').value;
+    const fechaCierre = document.getElementById('fechaCierre').value;
 
-// Calculate days between dates
-if (fechaPc && fecha1ra) {
-const days = calculateDaysBetween(fechaPc, fecha1ra);
-document.getElementById('pcPrimeraReunion').value = days;
-}
+    // Calculate days between dates
+    if (fechaPc && fecha1ra) {
+        const days = calculateDaysBetween(fechaPc, fecha1ra);
+        document.getElementById('pcPrimeraReunion').value = days;
+    }
 
-if (fecha1ra && fechaOc) {
-const days = calculateDaysBetween(fecha1ra, fechaOc);
-document.getElementById('primeraReunionOC').value = days;
-}
+    if (fecha1ra && fechaOc) {
+        const days = calculateDaysBetween(fecha1ra, fechaOc);
+        document.getElementById('primeraReunionOC').value = days;
+    }
 
-if (fechaOc && fecha2da) {
-const days = calculateDaysBetween(fechaOc, fecha2da);
-document.getElementById('ocSegundaReunion').value = days;
-}
+    if (fechaOc && fecha2da) {
+        const days = calculateDaysBetween(fechaOc, fecha2da);
+        document.getElementById('ocSegundaReunion').value = days;
+    }
 
-if (fecha2da && fechaNeg) {
-const days = calculateDaysBetween(fecha2da, fechaNeg);
-document.getElementById('segundaReunionNeg').value = days;
-}
+    if (fecha2da && fechaNeg) {
+        const days = calculateDaysBetween(fecha2da, fechaNeg);
+        document.getElementById('segundaReunionNeg').value = days;
+    }
 
-if (fechaNeg && fechaCierre) {
-const days = calculateDaysBetween(fechaNeg, fechaCierre);
-document.getElementById('negCierre').value = days;
-}
+    if (fechaNeg && fechaCierre) {
+        const days = calculateDaysBetween(fechaNeg, fechaCierre);
+        document.getElementById('negCierre').value = days;
+    }
 
-if (fechaPc && fechaCierre) {
-const days = calculateDaysBetween(fechaPc, fechaCierre);
-document.getElementById('diasPCCierre').value = days;
-}
+    if (fechaPc && fechaCierre) {
+        const days = calculateDaysBetween(fechaPc, fechaCierre);
+        document.getElementById('diasPCCierre').value = days;
+    }
 }
 
 function calculateDaysBetween(date1, date2) {
-const d1 = new Date(date1);
-const d2 = new Date(date2);
-const timeDiff = d2.getTime() - d1.getTime();
-return Math.ceil(timeDiff / (1000 * 3600 * 24));
+    const d1 = new Date(date1);
+    const d2 = new Date(date2);
+    const timeDiff = d2.getTime() - d1.getTime();
+    return Math.ceil(timeDiff / (1000 * 3600 * 24));
 }
 
 async function handleFormSubmit(e) {
-e.preventDefault();
+    e.preventDefault();
 
-const formData = new FormData(e.target);
-const leadData = Object.fromEntries(formData.entries());
+    const formData = new FormData(e.target);
+    const leadData = Object.fromEntries(formData.entries());
 
-// Get notes from editor
-if (notesEditor) {
-leadData.comentarios = notesEditor.root.innerHTML;
-}
+    // Get notes from editor
+    if (notesEditor) {
+        leadData.comentarios = notesEditor.root.innerHTML;
+    }
 
-// Convert numeric values
-const numericFields = [
-'monto', 'ordenes', 'posicionesAlmacenamiento',
-'diasUC', 'pcPrimeraReunion', 'primeraReunionOC', 'ocSegundaReunion',
-'segundaReunionNeg', 'negCierre', 'diasPCCierre',
-'contador1raReunion', 'contadorOfertaComercial', 'contador2daReunion',
-'contadorNegociacion', 'contadorCierreGanado', 'contadorCierrePerdido',
-'diaMes'
-];
+    // Convert numeric values
+    const numericFields = [
+        'monto', 'ordenes', 'posicionesAlmacenamiento',
+        'diasUC', 'pcPrimeraReunion', 'primeraReunionOC', 'ocSegundaReunion',
+        'segundaReunionNeg', 'negCierre', 'diasPCCierre',
+        'contador1raReunion', 'contadorOfertaComercial', 'contador2daReunion',
+        'contadorNegociacion', 'contadorCierreGanado', 'contadorCierrePerdido',
+        'diaMes'
+    ];
 
-numericFields.forEach(field => {
-if (leadData[field]) {
-leadData[field] = parseFloat(leadData[field]) || 0;
-}
-});
+    numericFields.forEach(field => {
+        if (leadData[field]) {
+            leadData[field] = parseFloat(leadData[field]) || 0;
+        }
+    });
 
-try {
-if (editingLeadId) {
-await window.firebaseDB.updateLead(editingLeadId, leadData);
-} else {
-await window.firebaseDB.addLead(leadData);
-}
-closeModal();
-} catch (error) {
-// Error is already handled in Firebase functions
-}
+    try {
+        if (editingLeadId) {
+            await window.firebaseDB.updateLead(editingLeadId, leadData);
+        } else {
+            await window.firebaseDB.addLead(leadData);
+        }
+        closeModal();
+    } catch (error) {
+        // Error is already handled in Firebase functions
+    }
 }
 
 async function handlePersonalTaskFormSubmit(e) {
-e.preventDefault();
+    e.preventDefault();
 
-const formData = new FormData(e.target);
-const taskData = Object.fromEntries(formData.entries());
+    const formData = new FormData(e.target);
+    const taskData = Object.fromEntries(formData.entries());
 
-try {
-if (editingTaskId) {
-await window.firebaseDB.updatePersonalTask(editingTaskId, taskData);
-} else {
-await window.firebaseDB.addPersonalTask(taskData);
-}
-closePersonalTaskModal();
-} catch (error) {
-// Error is already handled in Firebase functions
-}
+    try {
+        if (editingTaskId) {
+            await window.firebaseDB.updatePersonalTask(editingTaskId, taskData);
+        } else {
+            await window.firebaseDB.addPersonalTask(taskData);
+        }
+        closePersonalTaskModal();
+    } catch (error) {
+        // Error is already handled in Firebase functions
+    }
 }
 
 function updateTasks() {
-const taskTypeFilter = document.getElementById('taskTypeFilter').value;
-const taskDateFilter = document.getElementById('taskDateFilter').value;
-const today = new Date().toISOString().split('T')[0];
+    const taskTypeFilter = document.getElementById('taskTypeFilter').value;
+    const taskDateFilter = document.getElementById('taskDateFilter').value;
+    const today = new Date().toISOString().split('T')[0];
 
-// Filter personal tasks based on date filter
-let filteredPersonalTasks = personalTasks.filter(task => {
-if (task.completed) return false;
+    // Filter personal tasks based on date filter
+    let filteredPersonalTasks = personalTasks.filter(task => {
+        if (task.completed) return false;
 
-if (taskDateFilter === 'today') {
-return task.dueDate === today;
-} else if (taskDateFilter === 'week') {
-const taskDate = new Date(task.dueDate);
-const todayDate = new Date();
-const startOfWeek = new Date(todayDate.setDate(todayDate.getDate() - todayDate.getDay()));
-const endOfWeek = new Date(todayDate.setDate(todayDate.getDate() + 6));
-return taskDate >= startOfWeek && taskDate <= endOfWeek;
-} else if (taskDateFilter === 'month') {
-const taskDate = new Date(task.dueDate);
-const todayDate = new Date();
-return taskDate.getMonth() === todayDate.getMonth() && 
-taskDate.getFullYear() === todayDate.getFullYear();
-} else if (taskDateFilter === 'overdue') {
-return new Date(task.dueDate) < new Date(today);
-}
-return true;
-});
+        if (taskDateFilter === 'today') {
+            return task.dueDate === today;
+        } else if (taskDateFilter === 'week') {
+            const taskDate = new Date(task.dueDate);
+            const todayDate = new Date();
+            const startOfWeek = new Date(todayDate.setDate(todayDate.getDate() - todayDate.getDay()));
+            const endOfWeek = new Date(todayDate.setDate(todayDate.getDate() + 6));
+            return taskDate >= startOfWeek && taskDate <= endOfWeek;
+        } else if (taskDateFilter === 'month') {
+            const taskDate = new Date(task.dueDate);
+            const todayDate = new Date();
+            return taskDate.getMonth() === todayDate.getMonth() && 
+                   taskDate.getFullYear() === todayDate.getFullYear();
+        } else if (taskDateFilter === 'overdue') {
+            return new Date(task.dueDate) < new Date(today);
+        }
+        return true;
+    });
 
-// Update personal tasks count
-document.getElementById('personalTasksCount').textContent = filteredPersonalTasks.length;
+    // Update personal tasks count
+    document.getElementById('personalTasksCount').textContent = filteredPersonalTasks.length;
 
-// Update personal tasks list
-const personalTasksList = document.getElementById('personalTasksList');
-personalTasksList.innerHTML = '';
+    // Update personal tasks list
+    const personalTasksList = document.getElementById('personalTasksList');
+    personalTasksList.innerHTML = '';
 
-if (filteredPersonalTasks.length === 0) {
-personalTasksList.innerHTML = `
-                   <div class="empty-state">
-                       <h3>No hay tareas personales</h3>
-                       <p>¡Buen trabajo! Todo está al día.</p>
-                   </div>
-               `;
-} else {
-filteredPersonalTasks.forEach(task => {
-const taskItem = document.createElement('div');
-taskItem.className = 'task-card';
-taskItem.innerHTML = `
-                       <div class="task-card-content">
-                           <div class="task-card-title">
-                               <span class="task-badge task-badge-personal">Personal</span>
-                               ${task.title}
-                           </div>
-                           <div class="task-card-description">${task.description || 'Sin descripción'}</div>
-                           <div class="task-card-date">Fecha límite: ${formatDate(task.dueDate)}</div>
-                       </div>
-                       <div class="task-card-actions">
-                           <button onclick="completePersonalTask('${task.id}')" style="padding: 8px 12px; border: none; border-radius: 6px; cursor: pointer; font-size: 0.9rem; transition: all 0.2s ease; background: #22c55e; color: white;">Completar</button>
-                           <button onclick="postponePersonalTask('${task.id}')" style="padding: 8px 12px; border: none; border-radius: 6px; cursor: pointer; font-size: 0.9rem; transition: all 0.2s ease; background: #f59e0b; color: white;">Posponer</button>
-                       </div>
-                   `;
-personalTasksList.appendChild(taskItem);
-});
-}
+    if (filteredPersonalTasks.length === 0) {
+        personalTasksList.innerHTML = `
+            <div class="empty-state">
+                <h3>No hay tareas personales</h3>
+                <p>¡Buen trabajo! Todo está al día.</p>
+            </div>
+        `;
+    } else {
+        filteredPersonalTasks.forEach(task => {
+            const taskItem = document.createElement('div');
+            taskItem.className = 'task-card';
+            taskItem.innerHTML = `
+                <div class="task-card-content">
+                    <div class="task-card-title">
+                        <span class="task-badge task-badge-personal">Personal</span>
+                        ${task.title}
+                    </div>
+                    <div class="task-card-description">${task.description || 'Sin descripción'}</div>
+                    <div class="task-card-date">Fecha límite: ${formatDate(task.dueDate)}</div>
+                </div>
+                <div class="task-card-actions">
+                    <button onclick="completePersonalTask('${task.id}')" style="padding: 8px 12px; border: none; border-radius: 6px; cursor: pointer; font-size: 0.9rem; transition: all 0.2s ease; background: #22c55e; color: white;">Completar</button>
+                    <button onclick="postponePersonalTask('${task.id}')" style="padding: 8px 12px; border: none; border-radius: 6px; cursor: pointer; font-size: 0.9rem; transition: all 0.2s ease; background: #f59e0b; color: white;">Posponer</button>
+                </div>
+            `;
+            personalTasksList.appendChild(taskItem);
+        });
+    }
 
-// Filter lead tasks based on date filter
-let filteredLeadTasks = leads.filter(lead => {
-if (lead.estado === 'cliente_cerrado' || lead.estado === 'perdido') return false;
+    // Filter lead tasks based on date filter
+    let filteredLeadTasks = leads.filter(lead => {
+        if (lead.estado === 'cliente_cerrado' || lead.estado === 'perdido') return false;
 
-if (!lead.fechaEstimadaCierre) return false;
+        if (!lead.fechaEstimadaCierre) return false;
 
-if (taskDateFilter === 'today') {
-return lead.fechaEstimadaCierre === today;
-} else if (taskDateFilter === 'week') {
-const leadDate = new Date(lead.fechaEstimadaCierre);
-const todayDate = new Date();
-const startOfWeek = new Date(todayDate.setDate(todayDate.getDate() - todayDate.getDay()));
-const endOfWeek = new Date(todayDate.setDate(todayDate.getDate() + 6));
-return leadDate >= startOfWeek && leadDate <= endOfWeek;
-} else if (taskDateFilter === 'month') {
-const leadDate = new Date(lead.fechaEstimadaCierre);
-const todayDate = new Date();
-return leadDate.getMonth() === todayDate.getMonth() && 
-leadDate.getFullYear() === todayDate.getFullYear();
-} else if (taskDateFilter === 'overdue') {
-return new Date(lead.fechaEstimadaCierre) < new Date(today);
-}
-return true;
-});
+        if (taskDateFilter === 'today') {
+            return lead.fechaEstimadaCierre === today;
+        } else if (taskDateFilter === 'week') {
+            const leadDate = new Date(lead.fechaEstimadaCierre);
+            const todayDate = new Date();
+            const startOfWeek = new Date(todayDate.setDate(todayDate.getDate() - todayDate.getDay()));
+            const endOfWeek = new Date(todayDate.setDate(todayDate.getDate() + 6));
+            return leadDate >= startOfWeek && leadDate <= endOfWeek;
+        } else if (taskDateFilter === 'month') {
+            const leadDate = new Date(lead.fechaEstimadaCierre);
+            const todayDate = new Date();
+            return leadDate.getMonth() === todayDate.getMonth() && 
+                   leadDate.getFullYear() === todayDate.getFullYear();
+        } else if (taskDateFilter === 'overdue') {
+            return new Date(lead.fechaEstimadaCierre) < new Date(today);
+        }
+        return true;
+    });
 
-// Update lead tasks count
-document.getElementById('leadTasksCount').textContent = filteredLeadTasks.length;
+    // Update lead tasks count
+    document.getElementById('leadTasksCount').textContent = filteredLeadTasks.length;
 
-// Update lead tasks list
-const leadTasksList = document.getElementById('leadTasksList');
-leadTasksList.innerHTML = '';
+    // Update lead tasks list
+    const leadTasksList = document.getElementById('leadTasksList');
+    leadTasksList.innerHTML = '';
 
-if (filteredLeadTasks.length === 0) {
-leadTasksList.innerHTML = `
-                   <div class="empty-state">
-                       <h3>No hay tareas de leads</h3>
-                       <p>Todas las tareas están al día</p>
-                   </div>
-               `;
-} else {
-filteredLeadTasks.forEach(lead => {
-const taskItem = document.createElement('div');
-taskItem.className = 'task-card';
-taskItem.innerHTML = `
-                       <div class="task-card-content">
-                           <div class="task-card-title">
-                               <span class="task-badge task-badge-lead">Lead</span>
-                               ${lead.nombreEmpresa}
-                           </div>
-                           <div class="task-card-description">Seguimiento para cierre estimado</div>
-                           <div class="task-card-date">Fecha estimada: ${formatDate(lead.fechaEstimadaCierre)}</div>
-                       </div>
-                       <div class="task-card-actions">
-                           <button onclick="completeLeadTask('${lead.id}')" style="padding: 8px 12px; border: none; border-radius: 6px; cursor: pointer; font-size: 0.9rem; transition: all 0.2s ease; background: #22c55e; color: white;">Completar</button>
-                           <button onclick="editLead('${lead.id}')" style="padding: 8px 12px; border: none; border-radius: 6px; cursor: pointer; font-size: 0.9rem; transition: all 0.2s ease; background: #3b82f6; color: white;">Editar</button>
-                       </div>
-                   `;
-leadTasksList.appendChild(taskItem);
-});
-}
+    if (filteredLeadTasks.length === 0) {
+        leadTasksList.innerHTML = `
+            <div class="empty-state">
+                <h3>No hay tareas de leads</h3>
+                <p>Todas las tareas están al día</p>
+            </div>
+        `;
+    } else {
+        filteredLeadTasks.forEach(lead => {
+            const taskItem = document.createElement('div');
+            taskItem.className = 'task-card';
+            taskItem.innerHTML = `
+                <div class="task-card-content">
+                    <div class="task-card-title">
+                        <span class="task-badge task-badge-lead">Lead</span>
+                        ${lead.nombreEmpresa}
+                    </div>
+                    <div class="task-card-description">Seguimiento para cierre estimado</div>
+                    <div class="task-card-date">Fecha estimada: ${formatDate(lead.fechaEstimadaCierre)}</div>
+                </div>
+                <div class="task-card-actions">
+                    <button onclick="completeLeadTask('${lead.id}')" style="padding: 8px 12px; border: none; border-radius: 6px; cursor: pointer; font-size: 0.9rem; transition: all 0.2s ease; background: #22c55e; color: white;">Completar</button>
+                    <button onclick="editLead('${lead.id}')" style="padding: 8px 12px; border: none; border-radius: 6px; cursor: pointer; font-size: 0.9rem; transition: all 0.2s ease; background: #3b82f6; color: white;">Editar</button>
+                </div>
+            `;
+            leadTasksList.appendChild(taskItem);
+        });
+    }
 
-// Update all tasks table
-const allTasksTable = document.getElementById('allTasksTable');
-allTasksTable.innerHTML = '';
+    // Update all tasks table
+    const allTasksTable = document.getElementById('allTasksTable');
+    allTasksTable.innerHTML = '';
 
-// Combine all tasks
-const allTasks = [
-...personalTasks.map(task => ({ 
-...task, 
-type: 'Personal',
-status: task.completed ? 'completada' : new Date(task.dueDate) < new Date() ? 'pendiente (vencida)' : 'pendiente'
-})),
-...leads.filter(lead => lead.fechaEstimadaCierre && lead.estado !== 'cliente_cerrado' && lead.estado !== 'perdido').map(lead => ({
-id: lead.id,
-title: `Seguimiento ${lead.nombreEmpresa}`,
-description: lead.nombreEmpresa,
-dueDate: lead.fechaEstimadaCierre,
-priority: 'media',
-type: 'Lead',
-status: new Date(lead.fechaEstimadaCierre) < new Date() ? 'pendiente (vencida)' : 'pendiente'
-}))
-].sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate));
+    // Combine all tasks
+    const allTasks = [
+        ...personalTasks.map(task => ({ 
+            ...task, 
+            type: 'Personal',
+            status: task.completed ? 'completada' : new Date(task.dueDate) < new Date() ? 'pendiente (vencida)' : 'pendiente'
+        })),
+        ...leads.filter(lead => lead.fechaEstimadaCierre && lead.estado !== 'cliente_cerrado' && lead.estado !== 'perdido').map(lead => ({
+            id: lead.id,
+            title: `Seguimiento ${lead.nombreEmpresa}`,
+            description: lead.nombreEmpresa,
+            dueDate: lead.fechaEstimadaCierre,
+            priority: 'media',
+            type: 'Lead',
+            status: new Date(lead.fechaEstimadaCierre) < new Date() ? 'pendiente (vencida)' : 'pendiente'
+        }))
+    ].sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate));
 
-// Apply filters to all tasks table
-let filteredAllTasks = allTasks;
+    // Apply filters to all tasks table
+    let filteredAllTasks = allTasks;
 
-if (taskTypeFilter !== 'all') {
-filteredAllTasks = filteredAllTasks.filter(task => 
-taskTypeFilter === 'personal' ? task.type === 'Personal' : task.type === 'Lead'
-);
-}
+    if (taskTypeFilter !== 'all') {
+        filteredAllTasks = filteredAllTasks.filter(task => 
+            taskTypeFilter === 'personal' ? task.type === 'Personal' : task.type === 'Lead'
+        );
+    }
 
-if (taskDateFilter === 'today') {
-filteredAllTasks = filteredAllTasks.filter(task => task.dueDate === today);
-} else if (taskDateFilter === 'week') {
-const todayDate = new Date();
-const startOfWeek = new Date(todayDate.setDate(todayDate.getDate() - todayDate.getDay()));
-const endOfWeek = new Date(todayDate.setDate(todayDate.getDate() + 6));
-filteredAllTasks = filteredAllTasks.filter(task => {
-const taskDate = new Date(task.dueDate);
-return taskDate >= startOfWeek && taskDate <= endOfWeek;
-});
-} else if (taskDateFilter === 'month') {
-const todayDate = new Date();
-filteredAllTasks = filteredAllTasks.filter(task => {
-const taskDate = new Date(task.dueDate);
-return taskDate.getMonth() === todayDate.getMonth() && 
-taskDate.getFullYear() === todayDate.getFullYear();
-});
-} else if (taskDateFilter === 'overdue') {
-filteredAllTasks = filteredAllTasks.filter(task => new Date(task.dueDate) < new Date(today));
-}
+    if (taskDateFilter === 'today') {
+        filteredAllTasks = filteredAllTasks.filter(task => task.dueDate === today);
+    } else if (taskDateFilter === 'week') {
+        const todayDate = new Date();
+        const startOfWeek = new Date(todayDate.setDate(todayDate.getDate() - todayDate.getDay()));
+        const endOfWeek = new Date(todayDate.setDate(todayDate.getDate() + 6));
+        filteredAllTasks = filteredAllTasks.filter(task => {
+            const taskDate = new Date(task.dueDate);
+            return taskDate >= startOfWeek && taskDate <= endOfWeek;
+        });
+    } else if (taskDateFilter === 'month') {
+        const todayDate = new Date();
+        filteredAllTasks = filteredAllTasks.filter(task => {
+            const taskDate = new Date(task.dueDate);
+            return taskDate.getMonth() === todayDate.getMonth() && 
+                   taskDate.getFullYear() === todayDate.getFullYear();
+        });
+    } else if (taskDateFilter === 'overdue') {
+        filteredAllTasks = filteredAllTasks.filter(task => new Date(task.dueDate) < new Date(today));
+    }
 
-if (filteredAllTasks.length === 0) {
-allTasksTable.innerHTML = `
-                   <tr>
-                       <td colspan="7" class="empty-state">
-                           <h3>No hay tareas programadas</h3>
-                           <p>Agrega nuevas tareas para comenzar</p>
-                       </td>
-                   </tr>
-               `;
-return;
-}
+    if (filteredAllTasks.length === 0) {
+        allTasksTable.innerHTML = `
+            <tr>
+                <td colspan="7" class="empty-state">
+                    <h3>No hay tareas programadas</h3>
+                    <p>Agrega nuevas tareas para comenzar</p>
+                </td>
+            </tr>
+        `;
+        return;
+    }
 
-filteredAllTasks.forEach(task => {
-const isOverdue = new Date(task.dueDate) < new Date();
-const row = document.createElement('tr');
-row.innerHTML = `
-                   <td><span style="padding: 4px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: 500; color: white; background: ${task.type === 'Personal' ? '#6b7280' : '#3b82f6'};">${task.type}</span></td>
-                   <td>
-                       <div><strong>${task.title || task.description}</strong></div>
-                       <div style="color: #6b7280; font-size: 0.9rem;">${task.description || 'Sin descripción'}</div>
-                   </td>
-                   <td>${task.type === 'Lead' ? task.description : 'Tarea personal'}</td>
-                   <td style="color: ${isOverdue ? '#ef4444' : '#6b7280'}">${formatDate(task.dueDate)}</td>
-                   <td><span class="priority priority-${task.priority}">${task.priority.toUpperCase()}</span></td>
-                   <td><span class="task-status task-status-${task.status.includes('completada') ? 'completada' : task.status.includes('vencida') ? 'pendiente' : 'pendiente'}">${task.status.toUpperCase()}</span></td>
-                   <td>
-                       <div class="actions">
-                           ${task.type === 'Personal' ? `
-                               <button class="action-btn btn-edit" onclick="editPersonalTask('${task.id}')" title="Editar">
-                                   ✏️
-                               </button>
-                               <button class="action-btn btn-delete" onclick="deletePersonalTask('${task.id}')" title="Eliminar">
-                                   🗑️
-                               </button>
-                           ` : `
-                               <button class="action-btn btn-edit" onclick="editLead('${task.id}')" title="Editar">
-                                   ✏️
-                               </button>
-                           `}
-                       </div>
-                   </td>
-               `;
-allTasksTable.appendChild(row);
-});
+    filteredAllTasks.forEach(task => {
+        const isOverdue = new Date(task.dueDate) < new Date();
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td><span style="padding: 4px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: 500; color: white; background: ${task.type === 'Personal' ? '#6b7280' : '#3b82f6'};">${task.type}</span></td>
+            <td>
+                <div><strong>${task.title || task.description}</strong></div>
+                <div style="color: #6b7280; font-size: 0.9rem;">${task.description || 'Sin descripción'}</div>
+            </td>
+            <td>${task.type === 'Lead' ? task.description : 'Tarea personal'}</td>
+            <td style="color: ${isOverdue ? '#ef4444' : '#6b7280'}">${formatDate(task.dueDate)}</td>
+            <td><span class="priority priority-${task.priority}">${task.priority.toUpperCase()}</span></td>
+            <td><span class="task-status task-status-${task.status.includes('completada') ? 'completada' : task.status.includes('vencida') ? 'pendiente' : 'pendiente'}">${task.status.toUpperCase()}</span></td>
+            <td>
+                <div class="actions">
+                    ${task.type === 'Personal' ? `
+                        <button class="action-btn btn-edit" onclick="editPersonalTask('${task.id}')" title="Editar">
+                            ✏️
+                        </button>
+                        <button class="action-btn btn-delete" onclick="deletePersonalTask('${task.id}')" title="Eliminar">
+                            🗑️
+                        </button>
+                    ` : `
+                        <button class="action-btn btn-edit" onclick="editLead('${task.id}')" title="Editar">
+                            ✏️
+                        </button>
+                    `}
+                </div>
+            </td>
+        `;
+        allTasksTable.appendChild(row);
+    });
 }
 
 function completePersonalTask(taskId) {
-if (confirm('¿Marcar esta tarea como completada?')) {
-window.firebaseDB.updatePersonalTask(taskId, { completed: true });
-}
+    if (confirm('¿Marcar esta tarea como completada?')) {
+        window.firebaseDB.updatePersonalTask(taskId, { completed: true });
+    }
 }
 
 function postponePersonalTask(taskId) {
-const tomorrow = new Date();
-tomorrow.setDate(tomorrow.getDate() + 1);
-const tomorrowStr = tomorrow.toISOString().split('T')[0];
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const tomorrowStr = tomorrow.toISOString().split('T')[0];
 
-window.firebaseDB.updatePersonalTask(taskId, { dueDate: tomorrowStr });
+    window.firebaseDB.updatePersonalTask(taskId, { dueDate: tomorrowStr });
 }
 
 function completeLeadTask(leadId) {
-const lead = leads.find(l => l.id === leadId);
-if (!lead) return;
+    const lead = leads.find(l => l.id === leadId);
+    if (!lead) return;
 
-// Move to next stage or mark as closed
-let nextEtapa = lead.etapaNegociacion;
-if (lead.etapaNegociacion === 'primer_contacto') nextEtapa = 'primera_reunion';
-else if (lead.etapaNegociacion === 'primera_reunion') nextEtapa = 'oferta_comercial';
-else if (lead.etapaNegociacion === 'oferta_comercial') nextEtapa = 'segunda_reunion';
-else if (lead.etapaNegociacion === 'segunda_reunion') nextEtapa = 'negociacion';
-else if (lead.etapaNegociacion === 'negociacion') nextEtapa = 'cierre';
+    // Move to next stage or mark as closed
+    let nextEtapa = lead.etapaNegociacion;
+    if (lead.etapaNegociacion === 'primer_contacto') nextEtapa = 'primera_reunion';
+    else if (lead.etapaNegociacion === 'primera_reunion') nextEtapa = 'oferta_comercial';
+    else if (lead.etapaNegociacion === 'oferta_comercial') nextEtapa = 'segunda_reunion';
+    else if (lead.etapaNegociacion === 'segunda_reunion') nextEtapa = 'negociacion';
+    else if (lead.etapaNegociacion === 'negociacion') nextEtapa = 'cierre';
 
-window.firebaseDB.updateLead(leadId, {
-etapaNegociacion: nextEtapa,
-estado: nextEtapa === 'cierre' ? 'cliente_cerrado' : lead.estado
-});
+    window.firebaseDB.updateLead(leadId, {
+        etapaNegociacion: nextEtapa,
+        estado: nextEtapa === 'cierre' ? 'cliente_cerrado' : lead.estado
+    });
 }
 
 // Notes editor functions
 window.downloadNotes = function() {
-const textContent = notesEditor ? notesEditor.getText() : (document.getElementById('comentarios')?.value || '');
+    const textContent = notesEditor ? notesEditor.getText() : (document.getElementById('comentarios')?.value || '');
 
-if (!textContent.trim()) {
-showError('No hay contenido para descargar');
-return;
-}
+    if (!textContent.trim()) {
+        showError('No hay contenido para descargar');
+        return;
+    }
 
-try {
-// Get lead info for filename
-let filename = 'notas-lead';
-let company = 'Sin especificar';
-let salesman = 'Sin especificar';
+    try {
+        // Get lead info for filename
+        let filename = 'notas-lead';
+        let company = 'Sin especificar';
+        let salesman = 'Sin especificar';
 
-if (editingLeadId) {
-const lead = leads.find(l => l.id === editingLeadId);
-if (lead) {
-company = lead.nombreEmpresa || 'Sin especificar';
-salesman = lead.salesman || 'Sin especificar';
-filename = `notas-${lead.nombreEmpresa?.toLowerCase().replace(/\s+/g, '-') || 'lead'}`;
-}
-} else {
-const companyField = document.getElementById('nombreEmpresa');
-const salesmanField = document.getElementById('salesman');
-if (companyField?.value) {
-company = companyField.value;
-filename = `notas-${companyField.value.toLowerCase().replace(/\s+/g, '-')}`;
-}
-if (salesmanField?.value) {
-salesman = salesmanField.value;
-}
-}
+        if (editingLeadId) {
+            const lead = leads.find(l => l.id === editingLeadId);
+            if (lead) {
+                company = lead.nombreEmpresa || 'Sin especificar';
+                salesman = lead.salesman || 'Sin especificar';
+                filename = `notas-${lead.nombreEmpresa?.toLowerCase().replace(/\s+/g, '-') || 'lead'}`;
+            }
+        } else {
+            const companyField = document.getElementById('nombreEmpresa');
+            const salesmanField = document.getElementById('salesman');
+            if (companyField?.value) {
+                company = companyField.value;
+                filename = `notas-${companyField.value.toLowerCase().replace(/\s+/g, '-')}`;
+            }
+            if (salesmanField?.value) {
+                salesman = salesmanField.value;
+            }
+        }
 
-// Create document content
-const documentContent = `
+        // Create document content
+        const documentContent = `
 NOTAS DEL LEAD - ENVIA.COM FULFILLMENT
 ===============================================
 
@@ -2108,41 +2086,36 @@ Generado por Envia.com CRM - Fulfillment España
 Fecha: ${new Date().toLocaleString('es-ES')}
 `;
 
-// Create and download file
-const blob = new Blob([documentContent], { type: 'text/plain;charset=utf-8' });
-const url = URL.createObjectURL(blob);
-const a = document.createElement('a');
-a.href = url;
-a.download = `${filename}.txt`;
-document.body.appendChild(a);
-a.click();
-document.body.removeChild(a);
-URL.revokeObjectURL(url);
+        // Create and download file
+        const blob = new Blob([documentContent], { type: 'text/plain;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${filename}.txt`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
 
-showSuccess('Notas descargadas exitosamente');
+        showSuccess('Notas descargadas exitosamente');
 
-} catch (error) {
-console.error('Error downloading notes:', error);
-showError('Error al descargar las notas');
-}
+    } catch (error) {
+        console.error('Error downloading notes:', error);
+        showError('Error al descargar las notas');
+    }
 }
 
 window.clearNotes = function() {
-if (notesEditor) {
-if (confirm('¿Estás seguro de que quieres limpiar todas las notas?')) {
-notesEditor.setText('');
-document.getElementById('comentarios').value = '';
-showSuccess('Notas limpiadas');
-}
-}
+    if (notesEditor) {
+        if (confirm('¿Estás seguro de que quieres limpiar todas las notas?')) {
+            notesEditor.setText('');
+            document.getElementById('comentarios').value = '';
+            showSuccess('Notas limpiadas');
+        }
+    }
 }
 
 // Personal task modal functions
-        window.openPersonalTaskModal = function(taskId = null) {
-            editingTaskId = taskId;
-            const modal = document.getElementById('personalTaskModal');
-            const form = document.getElementById('personalTaskForm');
-            const title = document.getElementById('personalTaskModalTitle');
 window.openPersonalTaskModal = function(taskId = null) {
     editingTaskId = taskId;
     const modal = document.getElementById('personalTaskModal');
@@ -2153,29 +2126,6 @@ window.openPersonalTaskModal = function(taskId = null) {
         const task = personalTasks.find(t => t.id === taskId);
         if (task) {
             title.textContent = 'Editar Tarea Personal';
-
-            if (taskId) {
-                const task = personalTasks.find(t => t.id === taskId);
-                if (task) {
-                    title.textContent = 'Editar Tarea Personal';
-                    
-                    document.getElementById('taskTitle').value = task.title || '';
-                    document.getElementById('taskDescription').value = task.description || '';
-                    document.getElementById('taskDueDate').value = task.dueDate || '';
-                    document.getElementById('taskPriority').value = task.priority || 'media';
-                }
-            } else {
-                title.textContent = 'Nueva Tarea Personal';
-                form.reset();
-                
-                // Clear notes editor
-                if (notesEditor) {
-                    notesEditor.setText('');
-                }
-                
-                // Set default date to today
-                document.getElementById('taskDueDate').value = new Date().toISOString().split('T')[0];
-                document.getElementById('taskPriority').value = 'media';
             document.getElementById('taskTitle').value = task.title || '';
             document.getElementById('taskDescription').value = task.description || '';
             document.getElementById('taskDueDate').value = task.dueDate || '';
@@ -2184,347 +2134,320 @@ window.openPersonalTaskModal = function(taskId = null) {
     } else {
         title.textContent = 'Nueva Tarea Personal';
         form.reset();
-        
-        // Limpiar todos los campos manualmente
-        const allInputs = form.querySelectorAll('input, select, textarea');
-        allInputs.forEach(input => {
-            if (input.type !== 'submit' && input.type !== 'button') {
-                input.value = '';
-}
-            
-            modal.style.display = 'block';
-        }
-
-        window.closePersonalTaskModal = function() {
-            document.getElementById('personalTaskModal').style.display = 'none';
-            editingTaskId = null;
-        }
-        });
-        
-        // Establecer valores por defecto
-        document.getElementById('taskPriority').value = 'media';
-        
-        // Establecer fecha de hoy por defecto
         document.getElementById('taskDueDate').value = new Date().toISOString().split('T')[0];
+        document.getElementById('taskPriority').value = 'media';
     }
     
     modal.style.display = 'block';
 };
 
 window.closePersonalTaskModal = function() {
-    const form = document.getElementById('personalTaskForm');
-    form.reset();
     document.getElementById('personalTaskModal').style.display = 'none';
     editingTaskId = null;
 };
 
 window.editPersonalTask = function(taskId) {
-openPersonalTaskModal(taskId);
+    openPersonalTaskModal(taskId);
 }
 
 window.deletePersonalTask = async function(taskId) {
-if (confirm('¿Estás seguro de que quieres eliminar esta tarea personal?')) {
-try {
-await window.firebaseDB.deletePersonalTask(taskId);
-} catch (error) {
-// Error is already handled in Firebase functions
-}
-}
+    if (confirm('¿Estás seguro de que quieres eliminar esta tarea personal?')) {
+        try {
+            await window.firebaseDB.deletePersonalTask(taskId);
+        } catch (error) {
+            // Error is already handled in Firebase functions
+        }
+    }
 }
 
 // Display functions
 function displayLeads() {
-const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-const statusFilter = document.getElementById('statusFilter').value;
-const salesmanFilter = document.getElementById('salesmanFilter').value;
-const etapaFilter = document.getElementById('etapaFilter').value;
+    const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+    const statusFilter = document.getElementById('statusFilter').value;
+    const salesmanFilter = document.getElementById('salesmanFilter').value;
+    const etapaFilter = document.getElementById('etapaFilter').value;
 
-let filteredLeads = leads.filter(lead => {
-const matchesSearch = (lead.nombreEmpresa || '').toLowerCase().includes(searchTerm) ||
-(lead.salesman || '').toLowerCase().includes(searchTerm) ||
-(lead.tipoProducto || '').toLowerCase().includes(searchTerm);
-const matchesStatus = !statusFilter || lead.estado === statusFilter;
-const matchesSalesman = !salesmanFilter || lead.salesman === salesmanFilter;
-const matchesEtapa = !etapaFilter || lead.etapaNegociacion === etapaFilter;
+    let filteredLeads = leads.filter(lead => {
+        const matchesSearch = (lead.nombreEmpresa || '').toLowerCase().includes(searchTerm) ||
+                             (lead.salesman || '').toLowerCase().includes(searchTerm) ||
+                             (lead.tipoProducto || '').toLowerCase().includes(searchTerm);
+        const matchesStatus = !statusFilter || lead.estado === statusFilter;
+        const matchesSalesman = !salesmanFilter || lead.salesman === salesmanFilter;
+        const matchesEtapa = !etapaFilter || lead.etapaNegociacion === etapaFilter;
 
-return matchesSearch && matchesStatus && matchesSalesman && matchesEtapa;
-});
+        return matchesSearch && matchesStatus && matchesSalesman && matchesEtapa;
+    });
 
-const tbody = document.getElementById('leadsTable');
-tbody.innerHTML = '';
+    const tbody = document.getElementById('leadsTable');
+    tbody.innerHTML = '';
 
-filteredLeads.forEach(lead => {
-const row = document.createElement('tr');
-row.onclick = () => toggleLeadDetails(lead.id, row);
-row.innerHTML = `
-                   <td>
-                       <div><strong>${lead.nombreEmpresa || 'Sin nombre'}</strong></div>
-                       <div style="color: #6b7280; font-size: 0.8rem;">${lead.fuente || 'N/A'}</div>
-                   </td>
-                   <td><strong>${lead.salesman || 'N/A'}</strong></td>
-                   <td><span class="etapa etapa-${lead.etapaNegociacion || 'primer_contacto'}">${getEtapaText(lead.etapaNegociacion)}</span></td>
-                   <td><span class="status status-${lead.estado || 'nuevo'}">${getStatusText(lead.estado)}</span></td>
-                   <td>${lead.tipoProducto || 'N/A'}</td>
-                   <td><strong>${lead.monto ? formatCurrency(lead.monto) : 'N/A'}</strong></td>
-                   <td>${lead.ordenes || 'N/A'}</td>
-                   <td>${lead.diasUC || '0'}</td>
-                   <td>${lead.fechaEstimadaCierre ? formatDate(lead.fechaEstimadaCierre) : 'N/A'}</td>
-                   <td>
-                       <div class="actions">
-                           <button class="action-btn btn-edit" onclick="event.stopPropagation(); editLead('${lead.id}')" title="Editar">
-                               ✏️
-                           </button>
-                           <button class="action-btn btn-delete" onclick="event.stopPropagation(); deleteLead('${lead.id}')" title="Eliminar">
-                               🗑️
-                           </button>
-                       </div>
-                   </td>
-               `;
-tbody.appendChild(row);
+    filteredLeads.forEach(lead => {
+        const row = document.createElement('tr');
+        row.onclick = () => toggleLeadDetails(lead.id, row);
+        row.innerHTML = `
+            <td>
+                <div><strong>${lead.nombreEmpresa || 'Sin nombre'}</strong></div>
+                <div style="color: #6b7280; font-size: 0.8rem;">${lead.fuente || 'N/A'}</div>
+            </td>
+            <td><strong>${lead.salesman || 'N/A'}</strong></td>
+            <td><span class="etapa etapa-${lead.etapaNegociacion || 'primer_contacto'}">${getEtapaText(lead.etapaNegociacion)}</span></td>
+            <td><span class="status status-${lead.estado || 'nuevo'}">${getStatusText(lead.estado)}</span></td>
+            <td>${lead.tipoProducto || 'N/A'}</td>
+            <td><strong>${lead.monto ? formatCurrency(lead.monto) : 'N/A'}</strong></td>
+            <td>${lead.ordenes || 'N/A'}</td>
+            <td>${lead.diasUC || '0'}</td>
+            <td>${lead.fechaEstimadaCierre ? formatDate(lead.fechaEstimadaCierre) : 'N/A'}</td>
+            <td>
+                <div class="actions">
+                    <button class="action-btn btn-edit" onclick="event.stopPropagation(); editLead('${lead.id}')" title="Editar">
+                        ✏️
+                    </button>
+                    <button class="action-btn btn-delete" onclick="event.stopPropagation(); deleteLead('${lead.id}')" title="Eliminar">
+                        🗑️
+                    </button>
+                </div>
+            </td>
+        `;
+        tbody.appendChild(row);
 
-// Add details row (initially hidden)
-const detailsRow = document.createElement('tr');
-detailsRow.id = `details-${lead.id}`;
-detailsRow.style.display = 'none';
-detailsRow.innerHTML = `
-                   <td colspan="10">
-                       <div class="lead-details" id="lead-details-${lead.id}">
-                           <div class="details-grid">
-                               <div class="detail-item">
-                                   <h4>Información Básica</h4>
-                                   <p><strong>Empresa:</strong> ${lead.nombreEmpresa || 'N/A'}</p>
-                                   <p><strong>Salesman:</strong> ${lead.salesman || 'N/A'}</p>
-                                   <p><strong>Tipo Producto:</strong> ${lead.tipoProducto || 'N/A'}</p>
-                                   <p><strong>Fuente:</strong> ${lead.fuente || 'N/A'}</p>
-                                   <p><strong>Tier:</strong> ${lead.tier || 'N/A'}</p>
-                                   <p><strong>Días U.C.:</strong> ${lead.diasUC || '0'}</p>
-                               </div>
-                               <div class="detail-item">
-                                   <h4>Información Comercial</h4>
-                                   <p><strong>Monto:</strong> ${lead.monto ? formatCurrency(lead.monto) : 'N/A'}</p>
-                                   <p><strong>Órdenes/Mes:</strong> ${lead.ordenes || 'N/A'}</p>
-                                   <p><strong>Productos/Orden:</strong> ${lead.productosOrden || 'N/A'}</p>
-                                   <p><strong>Posiciones Almacenamiento:</strong> ${lead.posicionesAlmacenamiento || 'N/A'}</p>
-                                   <p><strong>Plan Picking:</strong> ${lead.planPicking || 'N/A'}</p>
-                                   <p><strong>Plan Almacenamiento:</strong> ${lead.planAlmacenamiento || 'N/A'}</p>
-                               </div>
-                               <div class="detail-item">
-                                   <h4>Estados y Etapas</h4>
-                                   <p><strong>Estado:</strong> ${getStatusText(lead.estado)}</p>
-                                   <p><strong>Etapa Negociación:</strong> ${getEtapaText(lead.etapaNegociacion)}</p>
-                                   <p><strong>G/P:</strong> ${lead.gp || 'En proceso'}</p>
-                               </div>
-                               <div class="detail-item">
-                                   <h4>Fechas Importantes</h4>
-                                   <p><strong>Primer Contacto:</strong> ${lead.fechaPrimerContacto ? formatDate(lead.fechaPrimerContacto) : 'N/A'}</p>
-                                   <p><strong>1ra Reunión:</strong> ${lead.fechaPrimeraReunion ? formatDate(lead.fechaPrimeraReunion) : 'N/A'}</p>
-                                   <p><strong>Oferta Comercial:</strong> ${lead.fechaOfertaComercial ? formatDate(lead.fechaOfertaComercial) : 'N/A'}</p>
-                                   <p><strong>2da Reunión:</strong> ${lead.fechaSegundaReunion ? formatDate(lead.fechaSegundaReunion) : 'N/A'}</p>
-                                   <p><strong>Negociación:</strong> ${lead.fechaNegociacion ? formatDate(lead.fechaNegociacion) : 'N/A'}</p>
-                                   <p><strong>Cierre:</strong> ${lead.fechaCierre ? formatDate(lead.fechaCierre) : 'N/A'}</p>
-                                   <p><strong>Estimada Cierre:</strong> ${lead.fechaEstimadaCierre ? formatDate(lead.fechaEstimadaCierre) : 'N/A'}</p>
-                               </div>
-                               <div class="detail-item">
-                                   <h4>Métricas Calculadas</h4>
-                                   <p><strong>P.C. a 1er Reunión:</strong> ${lead.pcPrimeraReunion || '0'} días</p>
-                                   <p><strong>1er Reunión a O.C.:</strong> ${lead.primeraReunionOC || '0'} días</p>
-                                   <p><strong>O.C. a 2da Reunión:</strong> ${lead.ocSegundaReunion || '0'} días</p>
-                                   <p><strong>2da Reunión a Neg:</strong> ${lead.segundaReunionNeg || '0'} días</p>
-                                   <p><strong>Neg a Cierre:</strong> ${lead.negCierre || '0'} días</p>
-                                   <p><strong>P.C. a Cierre Total:</strong> ${lead.diasPCCierre || '0'} días</p>
-                               </div>
-                               <div class="detail-item">
-                                   <h4>Contadores</h4>
-                                   <p><strong># 1ra Reunión:</strong> ${lead.contador1raReunion || '0'}</p>
-                                   <p><strong># Oferta Comercial:</strong> ${lead.contadorOfertaComercial || '0'}</p>
-                                   <p><strong># 2da Reunión:</strong> ${lead.contador2daReunion || '0'}</p>
-                                   <p><strong># Negociación:</strong> ${lead.contadorNegociacion || '0'}</p>
-                                   <p><strong># Cierre Ganado:</strong> ${lead.contadorCierreGanado || '0'}</p>
-                                   <p><strong># Cierre Perdido:</strong> ${lead.contadorCierrePerdido || '0'}</p>
-                               </div>
-                               <div class="detail-item" style="grid-column: 1 / -1;">
-                                   <h4>Comentarios</h4>
-                                   <p>${lead.comentarios || 'Sin comentarios adicionales'}</p>
-                               </div>
-                           </div>
-                       </div>
-                   </td>
-               `;
-tbody.appendChild(detailsRow);
-});
+        // Add details row (initially hidden)
+        const detailsRow = document.createElement('tr');
+        detailsRow.id = `details-${lead.id}`;
+        detailsRow.style.display = 'none';
+        detailsRow.innerHTML = `
+            <td colspan="10">
+                <div class="lead-details" id="lead-details-${lead.id}">
+                    <div class="details-grid">
+                        <div class="detail-item">
+                            <h4>Información Básica</h4>
+                            <p><strong>Empresa:</strong> ${lead.nombreEmpresa || 'N/A'}</p>
+                            <p><strong>Salesman:</strong> ${lead.salesman || 'N/A'}</p>
+                            <p><strong>Tipo Producto:</strong> ${lead.tipoProducto || 'N/A'}</p>
+                            <p><strong>Fuente:</strong> ${lead.fuente || 'N/A'}</p>
+                            <p><strong>Tier:</strong> ${lead.tier || 'N/A'}</p>
+                            <p><strong>Días U.C.:</strong> ${lead.diasUC || '0'}</p>
+                        </div>
+                        <div class="detail-item">
+                            <h4>Información Comercial</h4>
+                            <p><strong>Monto:</strong> ${lead.monto ? formatCurrency(lead.monto) : 'N/A'}</p>
+                            <p><strong>Órdenes/Mes:</strong> ${lead.ordenes || 'N/A'}</p>
+                            <p><strong>Productos/Orden:</strong> ${lead.productosOrden || 'N/A'}</p>
+                            <p><strong>Posiciones Almacenamiento:</strong> ${lead.posicionesAlmacenamiento || 'N/A'}</p>
+                            <p><strong>Plan Picking:</strong> ${lead.planPicking || 'N/A'}</p>
+                            <p><strong>Plan Almacenamiento:</strong> ${lead.planAlmacenamiento || 'N/A'}</p>
+                        </div>
+                        <div class="detail-item">
+                            <h4>Estados y Etapas</h4>
+                            <p><strong>Estado:</strong> ${getStatusText(lead.estado)}</p>
+                            <p><strong>Etapa Negociación:</strong> ${getEtapaText(lead.etapaNegociacion)}</p>
+                            <p><strong>G/P:</strong> ${lead.gp || 'En proceso'}</p>
+                        </div>
+                        <div class="detail-item">
+                            <h4>Fechas Importantes</h4>
+                            <p><strong>Primer Contacto:</strong> ${lead.fechaPrimerContacto ? formatDate(lead.fechaPrimerContacto) : 'N/A'}</p>
+                            <p><strong>1ra Reunión:</strong> ${lead.fechaPrimeraReunion ? formatDate(lead.fechaPrimeraReunion) : 'N/A'}</p>
+                            <p><strong>Oferta Comercial:</strong> ${lead.fechaOfertaComercial ? formatDate(lead.fechaOfertaComercial) : 'N/A'}</p>
+                            <p><strong>2da Reunión:</strong> ${lead.fechaSegundaReunion ? formatDate(lead.fechaSegundaReunion) : 'N/A'}</p>
+                            <p><strong>Negociación:</strong> ${lead.fechaNegociacion ? formatDate(lead.fechaNegociacion) : 'N/A'}</p>
+                            <p><strong>Cierre:</strong> ${lead.fechaCierre ? formatDate(lead.fechaCierre) : 'N/A'}</p>
+                            <p><strong>Estimada Cierre:</strong> ${lead.fechaEstimadaCierre ? formatDate(lead.fechaEstimadaCierre) : 'N/A'}</p>
+                        </div>
+                        <div class="detail-item">
+                            <h4>Métricas Calculadas</h4>
+                            <p><strong>P.C. a 1er Reunión:</strong> ${lead.pcPrimeraReunion || '0'} días</p>
+                            <p><strong>1er Reunión a O.C.:</strong> ${lead.primeraReunionOC || '0'} días</p>
+                            <p><strong>O.C. a 2da Reunión:</strong> ${lead.ocSegundaReunion || '0'} días</p>
+                            <p><strong>2da Reunión a Neg:</strong> ${lead.segundaReunionNeg || '0'} días</p>
+                            <p><strong>Neg a Cierre:</strong> ${lead.negCierre || '0'} días</p>
+                            <p><strong>P.C. a Cierre Total:</strong> ${lead.diasPCCierre || '0'} días</p>
+                        </div>
+                        <div class="detail-item">
+                            <h4>Contadores</h4>
+                            <p><strong># 1ra Reunión:</strong> ${lead.contador1raReunion || '0'}</p>
+                            <p><strong># Oferta Comercial:</strong> ${lead.contadorOfertaComercial || '0'}</p>
+                            <p><strong># 2da Reunión:</strong> ${lead.contador2daReunion || '0'}</p>
+                            <p><strong># Negociación:</strong> ${lead.contadorNegociacion || '0'}</p>
+                            <p><strong># Cierre Ganado:</strong> ${lead.contadorCierreGanado || '0'}</p>
+                            <p><strong># Cierre Perdido:</strong> ${lead.contadorCierrePerdido || '0'}</p>
+                        </div>
+                        <div class="detail-item" style="grid-column: 1 / -1;">
+                            <h4>Comentarios</h4>
+                            <p>${lead.comentarios || 'Sin comentarios adicionales'}</p>
+                        </div>
+                    </div>
+                </div>
+            </td>
+        `;
+        tbody.appendChild(detailsRow);
+    });
 }
 
 function toggleLeadDetails(leadId, row) {
-const detailsRow = document.getElementById(`details-${leadId}`);
-const detailsContent = document.getElementById(`lead-details-${leadId}`);
+    const detailsRow = document.getElementById(`details-${leadId}`);
+    const detailsContent = document.getElementById(`lead-details-${leadId}`);
 
-// Close all other details
-document.querySelectorAll('[id^="details-"]').forEach(dr => {
-if (dr.id !== `details-${leadId}`) {
-dr.style.display = 'none';
-dr.previousElementSibling.classList.remove('expanded');
-const otherContent = document.querySelector(`#lead-details-${dr.id.split('-')[1]}`);
-if (otherContent) otherContent.classList.remove('active');
-}
-});
+    // Close all other details
+    document.querySelectorAll('[id^="details-"]').forEach(dr => {
+        if (dr.id !== `details-${leadId}`) {
+            dr.style.display = 'none';
+            dr.previousElementSibling.classList.remove('expanded');
+            const otherContent = document.querySelector(`#lead-details-${dr.id.split('-')[1]}`);
+            if (otherContent) otherContent.classList.remove('active');
+        }
+    });
 
-if (detailsRow.style.display === 'none') {
-detailsRow.style.display = 'table-row';
-row.classList.add('expanded');
-setTimeout(() => {
-detailsContent.classList.add('active');
-}, 10);
-} else {
-detailsContent.classList.remove('active');
-row.classList.remove('expanded');
-setTimeout(() => {
-detailsRow.style.display = 'none';
-}, 300);
-}
+    if (detailsRow.style.display === 'none') {
+        detailsRow.style.display = 'table-row';
+        row.classList.add('expanded');
+        setTimeout(() => {
+            detailsContent.classList.add('active');
+        }, 10);
+    } else {
+        detailsContent.classList.remove('active');
+        row.classList.remove('expanded');
+        setTimeout(() => {
+            detailsRow.style.display = 'none';
+        }, 300);
+    }
 }
 
 function updateStats() {
-const totalLeads = leads.length;
-const newLeads = leads.filter(lead => lead.estado === 'nuevo').length;
-const closedLeads = leads.filter(lead => lead.estado === 'cliente_cerrado').length;
-const totalValue = leads.reduce((sum, lead) => sum + (lead.monto || 0), 0);
-const conversionRate = totalLeads > 0 ? ((closedLeads / totalLeads) * 100).toFixed(1) : 0;
+    const totalLeads = leads.length;
+    const newLeads = leads.filter(lead => lead.estado === 'nuevo').length;
+    const closedLeads = leads.filter(lead => lead.estado === 'cliente_cerrado').length;
+    const totalValue = leads.reduce((sum, lead) => sum + (lead.monto || 0), 0);
+    const conversionRate = totalLeads > 0 ? ((closedLeads / totalLeads) * 100).toFixed(1) : 0;
 
-// Calculate average orders
-const leadsWithOrders = leads.filter(lead => lead.ordenes && lead.ordenes > 0);
-const averageOrders = leadsWithOrders.length > 0 ? 
-Math.round(leadsWithOrders.reduce((sum, lead) => sum + lead.ordenes, 0) / leadsWithOrders.length) : 0;
+    // Calculate average orders
+    const leadsWithOrders = leads.filter(lead => lead.ordenes && lead.ordenes > 0);
+    const averageOrders = leadsWithOrders.length > 0 ? 
+        Math.round(leadsWithOrders.reduce((sum, lead) => sum + lead.ordenes, 0) / leadsWithOrders.length) : 0;
 
-// Calculate average days to close
-const closedLeadsWithDays = leads.filter(lead => lead.diasPCCierre && lead.diasPCCierre > 0);
-const averageDays = closedLeadsWithDays.length > 0 ? 
-Math.round(closedLeadsWithDays.reduce((sum, lead) => sum + lead.diasPCCierre, 0) / closedLeadsWithDays.length) : 0;
+    // Calculate average days to close
+    const closedLeadsWithDays = leads.filter(lead => lead.diasPCCierre && lead.diasPCCierre > 0);
+    const averageDays = closedLeadsWithDays.length > 0 ? 
+        Math.round(closedLeadsWithDays.reduce((sum, lead) => sum + lead.diasPCCierre, 0) / closedLeadsWithDays.length) : 0;
 
-// Find top tier
-const tierCounts = {};
-leads.forEach(lead => {
-if (lead.tier) {
-tierCounts[lead.tier] = (tierCounts[lead.tier] || 0) + 1;
-}
-});
-const topTier = Object.keys(tierCounts).reduce((a, b) => 
-tierCounts[a] > tierCounts[b] ? a : b, '-');
+    // Find top tier
+    const tierCounts = {};
+    leads.forEach(lead => {
+        if (lead.tier) {
+            tierCounts[lead.tier] = (tierCounts[lead.tier] || 0) + 1;
+        }
+    });
+    const topTier = Object.keys(tierCounts).reduce((a, b) => 
+        tierCounts[a] > tierCounts[b] ? a : b, '-');
 
-document.getElementById('totalLeads').textContent = totalLeads;
-document.getElementById('newLeads').textContent = newLeads;
-document.getElementById('closedLeads').textContent = closedLeads;
-document.getElementById('totalValue').textContent = formatCurrency(totalValue);
-document.getElementById('conversionRate').textContent = conversionRate + '%';
-document.getElementById('averageOrders').textContent = averageOrders;
-document.getElementById('averageDays').textContent = averageDays;
-document.getElementById('topTier').textContent = topTier;
+    document.getElementById('totalLeads').textContent = totalLeads;
+    document.getElementById('newLeads').textContent = newLeads;
+    document.getElementById('closedLeads').textContent = closedLeads;
+    document.getElementById('totalValue').textContent = formatCurrency(totalValue);
+    document.getElementById('conversionRate').textContent = conversionRate + '%';
+    document.getElementById('averageOrders').textContent = averageOrders;
+    document.getElementById('averageDays').textContent = averageDays;
+    document.getElementById('topTier').textContent = topTier;
 }
 
 function updateFollowUp() {
-const followUpLeads = leads.filter(lead => lead.fechaEstimadaCierre);
-const tbody = document.getElementById('followUpTable');
-tbody.innerHTML = '';
+    const followUpLeads = leads.filter(lead => lead.fechaEstimadaCierre);
+    const tbody = document.getElementById('followUpTable');
+    tbody.innerHTML = '';
 
-// Sort by estimated close date
-followUpLeads.sort((a, b) => new Date(a.fechaEstimadaCierre) - new Date(b.fechaEstimadaCierre));
+    // Sort by estimated close date
+    followUpLeads.sort((a, b) => new Date(a.fechaEstimadaCierre) - new Date(b.fechaEstimadaCierre));
 
-followUpLeads.forEach(lead => {
-const today = new Date();
-const closeDate = new Date(lead.fechaEstimadaCierre);
-const daysRemaining = Math.ceil((closeDate - today) / (1000 * 60 * 60 * 24));
+    followUpLeads.forEach(lead => {
+        const today = new Date();
+        const closeDate = new Date(lead.fechaEstimadaCierre);
+        const daysRemaining = Math.ceil((closeDate - today) / (1000 * 60 * 60 * 24));
 
-const row = document.createElement('tr');
-const isOverdue = daysRemaining < 0;
+        const row = document.createElement('tr');
+        const isOverdue = daysRemaining < 0;
 
-row.innerHTML = `
-                   <td><strong>${lead.nombreEmpresa || 'Sin nombre'}</strong></td>
-                   <td>${formatDate(lead.fechaEstimadaCierre)}</td>
-                   <td style="color: ${isOverdue ? '#ef4444' : daysRemaining <= 7 ? '#f59e0b' : '#10b981'}">${daysRemaining} días</td>
-                   <td><strong>${lead.salesman || 'N/A'}</strong></td>
-                   <td><span class="etapa etapa-${lead.etapaNegociacion || 'primer_contacto'}">${getEtapaText(lead.etapaNegociacion)}</span></td>
-                   <td><strong>${lead.monto ? formatCurrency(lead.monto) : 'N/A'}</strong></td>
-               `;
-tbody.appendChild(row);
-});
+        row.innerHTML = `
+            <td><strong>${lead.nombreEmpresa || 'Sin nombre'}</strong></td>
+            <td>${formatDate(lead.fechaEstimadaCierre)}</td>
+            <td style="color: ${isOverdue ? '#ef4444' : daysRemaining <= 7 ? '#f59e0b' : '#10b981'}">${daysRemaining} días</td>
+            <td><strong>${lead.salesman || 'N/A'}</strong></td>
+            <td><span class="etapa etapa-${lead.etapaNegociacion || 'primer_contacto'}">${getEtapaText(lead.etapaNegociacion)}</span></td>
+            <td><strong>${lead.monto ? formatCurrency(lead.monto) : 'N/A'}</strong></td>
+        `;
+        tbody.appendChild(row);
+    });
 }
 
 function updateReports() {
-// Calculate top salesman
-const salesmanStats = {};
-leads.forEach(lead => {
-if (lead.salesman) {
-if (!salesmanStats[lead.salesman]) {
-salesmanStats[lead.salesman] = { total: 0, closed: 0, value: 0 };
-}
-salesmanStats[lead.salesman].total++;
-if (lead.estado === 'cliente_cerrado') {
-salesmanStats[lead.salesman].closed++;
-salesmanStats[lead.salesman].value += (lead.monto || 0);
-}
-}
-});
+    // Calculate top salesman
+    const salesmanStats = {};
+    leads.forEach(lead => {
+        if (lead.salesman) {
+            if (!salesmanStats[lead.salesman]) {
+                salesmanStats[lead.salesman] = { total: 0, closed: 0, value: 0 };
+            }
+            salesmanStats[lead.salesman].total++;
+            if (lead.estado === 'cliente_cerrado') {
+                salesmanStats[lead.salesman].closed++;
+                salesmanStats[lead.salesman].value += (lead.monto || 0);
+            }
+        }
+    });
 
-let topSalesman = '-';
-let maxValue = 0;
-for (const salesman in salesmanStats) {
-if (salesmanStats[salesman].value > maxValue) {
-maxValue = salesmanStats[salesman].value;
-topSalesman = salesman;
-}
-}
+    let topSalesman = '-';
+    let maxValue = 0;
+    for (const salesman in salesmanStats) {
+        if (salesmanStats[salesman].value > maxValue) {
+            maxValue = salesmanStats[salesman].value;
+            topSalesman = salesman;
+        }
+    }
 
-// Calculate best source
-const sourceStats = {};
-leads.forEach(lead => {
-if (lead.fuente) {
-if (!sourceStats[lead.fuente]) {
-sourceStats[lead.fuente] = { total: 0, closed: 0 };
-}
-sourceStats[lead.fuente].total++;
-if (lead.estado === 'cliente_cerrado') {
-sourceStats[lead.fuente].closed++;
-}
-}
-});
+    // Calculate best source
+    const sourceStats = {};
+    leads.forEach(lead => {
+        if (lead.fuente) {
+            if (!sourceStats[lead.fuente]) {
+                sourceStats[lead.fuente] = { total: 0, closed: 0 };
+            }
+            sourceStats[lead.fuente].total++;
+            if (lead.estado === 'cliente_cerrado') {
+                sourceStats[lead.fuente].closed++;
+            }
+        }
+    });
 
-let bestSource = '-';
-let bestConversion = 0;
-for (const source in sourceStats) {
-const conversion = sourceStats[source].total > 0 ? 
-(sourceStats[source].closed / sourceStats[source].total) : 0;
-if (conversion > bestConversion) {
-bestConversion = conversion;
-bestSource = source;
-}
-}
+    let bestSource = '-';
+    let bestConversion = 0;
+    for (const source in sourceStats) {
+        const conversion = sourceStats[source].total > 0 ? 
+            (sourceStats[source].closed / sourceStats[source].total) : 0;
+        if (conversion > bestConversion) {
+            bestConversion = conversion;
+            bestSource = source;
+        }
+    }
 
-// Calculate top product
-const productStats = {};
-leads.forEach(lead => {
-if (lead.tipoProducto) {
-productStats[lead.tipoProducto] = (productStats[lead.tipoProducto] || 0) + 1;
-}
-});
-const topProduct = Object.keys(productStats).reduce((a, b) => 
-productStats[a] > productStats[b] ? a : b, '-');
+    // Calculate top product
+    const productStats = {};
+    leads.forEach(lead => {
+        if (lead.tipoProducto) {
+            productStats[lead.tipoProducto] = (productStats[lead.tipoProducto] || 0) + 1;
+        }
+    });
+    const topProduct = Object.keys(productStats).reduce((a, b) => 
+        productStats[a] > productStats[b] ? a : b, '-');
 
-// Calculate average time to close
-const closedLeadsWithDays = leads.filter(lead => lead.diasPCCierre && lead.diasPCCierre > 0);
-const avgTimeToClose = closedLeadsWithDays.length > 0 ? 
-Math.round(closedLeadsWithDays.reduce((sum, lead) => sum + lead.diasPCCierre, 0) / closedLeadsWithDays.length) : 0;
+    // Calculate average time to close
+    const closedLeadsWithDays = leads.filter(lead => lead.diasPCCierre && lead.diasPCCierre > 0);
+    const avgTimeToClose = closedLeadsWithDays.length > 0 ? 
+        Math.round(closedLeadsWithDays.reduce((sum, lead) => sum + lead.diasPCCierre, 0) / closedLeadsWithDays.length) : 0;
 
-document.getElementById('topSalesman').textContent = topSalesman;
-document.getElementById('bestSource').textContent = bestSource;
-document.getElementById('topProduct').textContent = topProduct;
-document.getElementById('avgTimeToClose').textContent = avgTimeToClose + ' días';
+    document.getElementById('topSalesman').textContent = topSalesman;
+    document.getElementById('bestSource').textContent = bestSource;
+    document.getElementById('topProduct').textContent = topProduct;
+    document.getElementById('avgTimeToClose').textContent = avgTimeToClose + ' días';
 }
 
 // Modal functions
-        window.openModal = function(leadId = null) {
-            editingLeadId = leadId;
-            const modal = document.getElementById('leadModal');
-            const form = document.getElementById('leadForm');
-            const title = document.getElementById('modalTitle');
 window.openModal = function(leadId = null) {
     editingLeadId = leadId;
     const modal = document.getElementById('leadModal');
@@ -2535,90 +2458,42 @@ window.openModal = function(leadId = null) {
         const lead = leads.find(l => l.id === leadId);
         if (lead) {
             title.textContent = 'Editar Lead';
-
-            if (leadId) {
-                const lead = leads.find(l => l.id === leadId);
-                if (lead) {
-                    title.textContent = 'Editar Lead';
-                    
-                    // Fill form with existing data
-                    Object.keys(lead).forEach(key => {
-                        const field = document.getElementById(key);
-                        if (field && key !== 'comentarios') {
-                            field.value = lead[key] || '';
-                        }
-                    });
-                    
-                    // Set notes in editor
-                    if (notesEditor && lead.comentarios) {
-                        notesEditor.root.innerHTML = lead.comentarios;
-                    }
+            
             // Fill form with existing data
             Object.keys(lead).forEach(key => {
                 const field = document.getElementById(key);
                 if (field && key !== 'comentarios') {
                     field.value = lead[key] || '';
-}
-            } else {
-                title.textContent = 'Agregar Nuevo Lead';
-                form.reset();
-                
-                // Set default values
-                document.getElementById('estado').value = 'nuevo';
-                document.getElementById('etapaNegociacion').value = 'primer_contacto';
-                document.getElementById('diasUC').value = '0';
-                
-                // Set default date to today
-                const today = new Date().toISOString().split('T')[0];
-                document.getElementById('fechaPrimerContacto').value = today;
-            }
+                }
             });
-
-            modal.style.display = 'block';
-        }
-
-        window.closeModal = function() {
-            document.getElementById('leadModal').style.display = 'none';
-            editingLeadId = null;
+            
             // Set notes in editor
             if (notesEditor && lead.comentarios) {
                 notesEditor.root.innerHTML = lead.comentarios;
             }
-}
+        }
     } else {
         title.textContent = 'Agregar Nuevo Lead';
         form.reset();
         
-        // Limpiar todos los campos manualmente
-        const allInputs = form.querySelectorAll('input, select, textarea');
-        allInputs.forEach(input => {
-            if (input.type !== 'submit' && input.type !== 'button') {
-                input.value = '';
-            }
-        });
-        
-        // Limpiar el editor de notas
-        if (notesEditor) {
-            notesEditor.setText('');
-        }
-        
-        // Establecer valores por defecto
+        // Set default values
         document.getElementById('estado').value = 'nuevo';
         document.getElementById('etapaNegociacion').value = 'primer_contacto';
         document.getElementById('diasUC').value = '0';
         
-        // Establecer fecha de hoy para el primer contacto
+        // Set default date to today
         const today = new Date().toISOString().split('T')[0];
         document.getElementById('fechaPrimerContacto').value = today;
     }
     
     modal.style.display = 'block';
 };
+
 window.closeModal = function() {
     const form = document.getElementById('leadForm');
     form.reset();
     
-    // Limpiar el editor de notas
+    // Clear notes editor
     if (notesEditor) {
         notesEditor.setText('');
     }
@@ -2629,241 +2504,240 @@ window.closeModal = function() {
 
 // CRUD functions
 window.editLead = function(leadId) {
-openModal(leadId);
+    openModal(leadId);
 }
 
 window.deleteLead = async function(leadId) {
-if (confirm('¿Estás seguro de que quieres eliminar este lead?')) {
-try {
-await window.firebaseDB.deleteLead(leadId);
-} catch (error) {
-// Error is already handled in Firebase functions
-}
-}
+    if (confirm('¿Estás seguro de que quieres eliminar este lead?')) {
+        try {
+            await window.firebaseDB.deleteLead(leadId);
+        } catch (error) {
+            // Error is already handled in Firebase functions
+        }
+    }
 }
 
 // Tab functions
 window.showTab = function(tabName) {
-// Remove active class from all tabs
-document.querySelectorAll('.tab').forEach(tab => {
-tab.classList.remove('active');
-});
+    // Remove active class from all tabs
+    document.querySelectorAll('.tab').forEach(tab => {
+        tab.classList.remove('active');
+    });
 
-// Hide all tab contents
-document.querySelectorAll('.tab-content').forEach(content => {
-content.classList.remove('active');
-});
+    // Hide all tab contents
+    document.querySelectorAll('.tab-content').forEach(content => {
+        content.classList.remove('active');
+    });
 
-// Show selected tab
-document.getElementById(tabName).classList.add('active');
+    // Show selected tab
+    document.getElementById(tabName).classList.add('active');
 
-// Add active class to clicked tab
-event.target.classList.add('active');
+    // Add active class to clicked tab
+    event.target.classList.add('active');
 
-// Update tasks when switching to tasks tab
-if (tabName === 'tareas') {
-updateTasks();
-}
+    // Update tasks when switching to tasks tab
+    if (tabName === 'tareas') {
+        updateTasks();
+    }
 }
 
 // Utility functions
 function getStatusText(status) {
-const statusMap = {
-'nuevo': 'Nuevo',
-'contactado': 'Contactado',
-'propuesta_enviada': 'Propuesta Enviada',
-'interesado': 'Interesado',
-'cliente_cerrado': 'Cliente Cerrado',
-'perdido': 'Perdido'
-};
-return statusMap[status] || status;
+    const statusMap = {
+        'nuevo': 'Nuevo',
+        'contactado': 'Contactado',
+        'propuesta_enviada': 'Propuesta Enviada',
+        'interesado': 'Interesado',
+        'cliente_cerrado': 'Cliente Cerrado',
+        'perdido': 'Perdido'
+    };
+    return statusMap[status] || status;
 }
 
 function getEtapaText(etapa) {
-const etapaMap = {
-'primer_contacto': 'Primer Contacto',
-'primera_reunion': 'Primera Reunión',
-'oferta_comercial': 'Oferta Comercial',
-'segunda_reunion': 'Segunda Reunión',
-'negociacion': 'Negociación',
-'cierre': 'Cierre'
-};
-return etapaMap[etapa] || etapa;
+    const etapaMap = {
+        'primer_contacto': 'Primer Contacto',
+        'primera_reunion': 'Primera Reunión',
+        'oferta_comercial': 'Oferta Comercial',
+        'segunda_reunion': 'Segunda Reunión',
+        'negociacion': 'Negociación',
+        'cierre': 'Cierre'
+    };
+    return etapaMap[etapa] || etapa;
 }
 
 function formatCurrency(amount) {
-return new Intl.NumberFormat('es-ES', {
-style: 'currency',
-currency: 'EUR'
-}).format(amount || 0);
+    return new Intl.NumberFormat('es-ES', {
+        style: 'currency',
+        currency: 'EUR'
+    }).format(amount || 0);
 }
 
 function formatDate(dateString) {
-if (!dateString) return '';
-return new Date(dateString).toLocaleDateString('es-ES');
+    if (!dateString) return '';
+    return new Date(dateString).toLocaleDateString('es-ES');
 }
 
 function showLoading(show) {
-const loading = document.getElementById('loading');
-if (show) {
-loading.style.display = 'block';
-} else {
-loading.style.display = 'none';
-}
+    const loading = document.getElementById('loading');
+    if (show) {
+        loading.style.display = 'block';
+    } else {
+        loading.style.display = 'none';
+    }
 }
 
 function showError(message) {
-const container = document.getElementById('error-container');
-container.innerHTML = `<div class="error-message">${message}</div>`;
-setTimeout(() => {
-container.innerHTML = '';
-}, 5000);
+    const container = document.getElementById('error-container');
+    container.innerHTML = `<div class="error-message">${message}</div>`;
+    setTimeout(() => {
+        container.innerHTML = '';
+    }, 5000);
 }
 
 function showSuccess(message) {
-const container = document.getElementById('error-container');
-container.innerHTML = `<div class="success-message">${message}</div>`;
-setTimeout(() => {
-container.innerHTML = '';
-}, 3000);
+    const container = document.getElementById('error-container');
+    container.innerHTML = `<div class="success-message">${message}</div>`;
+    setTimeout(() => {
+        container.innerHTML = '';
+    }, 3000);
 }
 
 // Sample data insertion (only for demo)
 window.insertSampleData = async function() {
-const sampleLeads = [
-{
-nombreEmpresa: "TechStore Madrid",
-salesman: "Dulce",
-tipoProducto: "Fulfillment Premium",
-fuente: "Web Orgánica",
-tier: "Tier 1",
-diasUC: 5,
-monto: 15000,
-ordenes: 150,
-productosOrden: 3.2,
-posicionesAlmacenamiento: 500,
-planPicking: "Premium",
-planAlmacenamiento: "Dedicado",
-estado: "interesado",
-etapaNegociacion: "oferta_comercial",
-gp: "",
-fechaPrimerContacto: "2025-07-01",
-fechaPrimeraReunion: "2025-07-05",
-fechaOfertaComercial: "2025-07-10",
-fechaEstimadaCierre: "2025-07-30",
-mesEstimado: "2025-07",
-pcPrimeraReunion: 4,
-primeraReunionOC: 5,
-contador1raReunion: 1,
-contadorOfertaComercial: 1,
-comentarios: "Cliente muy interesado en solución premium",
-diaMes: 15
-},
-{
-nombreEmpresa: "ModaStyle Barcelona",
-salesman: "Pablo",
-tipoProducto: "Fulfillment Básico",
-fuente: "LinkedIn Ads",
-tier: "Tier 2",
-diasUC: 3,
-monto: 8500,
-ordenes: 80,
-productosOrden: 2.1,
-posicionesAlmacenamiento: 200,
-planPicking: "Estándar",
-planAlmacenamiento: "Compartido",
-estado: "contactado",
-etapaNegociacion: "primera_reunion",
-gp: "",
-fechaPrimerContacto: "2025-07-10",
-fechaPrimeraReunion: "2025-07-15",
-fechaEstimadaCierre: "2025-08-15",
-mesEstimado: "2025-08",
-pcPrimeraReunion: 5,
-contador1raReunion: 1,
-comentarios: "Necesitan solución para su nueva línea de productos",
-diaMes: 15
-},
-{
-nombreEmpresa: "SportGear Valencia",
-salesman: "Javi",
-tipoProducto: "Logística Integral",
-fuente: "Referido Cliente",
-tier: "Tier 1",
-diasUC: 1,
-monto: 25000,
-ordenes: 300,
-productosOrden: 4.5,
-posicionesAlmacenamiento: 800,
-planPicking: "Premium",
-planAlmacenamiento: "Dedicado",
-estado: "cliente_cerrado",
-etapaNegociacion: "cierre",
-gp: "Ganado",
-fechaPrimerContacto: "2025-06-01",
-fechaPrimeraReunion: "2025-06-05",
-fechaOfertaComercial: "2025-06-12",
-fechaSegundaReunion: "2025-06-18",
-fechaNegociacion: "2025-06-25",
-fechaCierre: "2025-07-01",
-fechaEstimadaCierre: "2025-07-01",
-mesEstimado: "2025-07",
-pcPrimeraReunion: 4,
-primeraReunionOC: 7,
-ocSegundaReunion: 6,
-segundaReunionNeg: 7,
-negCierre: 6,
-diasPCCierre: 30,
-contador1raReunion: 1,
-contadorOfertaComercial: 1,
-contador2daReunion: 1,
-contadorNegociacion: 1,
-contadorCierreGanado: 1,
-comentarios: "Cliente referido muy satisfecho con el servicio",
-diaMes: 1
-}
-];
+    const sampleLeads = [
+        {
+            nombreEmpresa: "TechStore Madrid",
+            salesman: "Dulce",
+            tipoProducto: "Fulfillment Premium",
+            fuente: "Web Orgánica",
+            tier: "Tier 1",
+            diasUC: 5,
+            monto: 15000,
+            ordenes: 150,
+            productosOrden: 3.2,
+            posicionesAlmacenamiento: 500,
+            planPicking: "Premium",
+            planAlmacenamiento: "Dedicado",
+            estado: "interesado",
+            etapaNegociacion: "oferta_comercial",
+            gp: "",
+            fechaPrimerContacto: "2025-07-01",
+            fechaPrimeraReunion: "2025-07-05",
+            fechaOfertaComercial: "2025-07-10",
+            fechaEstimadaCierre: "2025-07-30",
+            mesEstimado: "2025-07",
+            pcPrimeraReunion: 4,
+            primeraReunionOC: 5,
+            contador1raReunion: 1,
+            contadorOfertaComercial: 1,
+            comentarios: "Cliente muy interesado en solución premium",
+            diaMes: 15
+        },
+        {
+            nombreEmpresa: "ModaStyle Barcelona",
+            salesman: "Pablo",
+            tipoProducto: "Fulfillment Básico",
+            fuente: "LinkedIn Ads",
+            tier: "Tier 2",
+            diasUC: 3,
+            monto: 8500,
+            ordenes: 80,
+            productosOrden: 2.1,
+            posicionesAlmacenamiento: 200,
+            planPicking: "Estándar",
+            planAlmacenamiento: "Compartido",
+            estado: "contactado",
+            etapaNegociacion: "primera_reunion",
+            gp: "",
+            fechaPrimerContacto: "2025-07-10",
+            fechaPrimeraReunion: "2025-07-15",
+            fechaEstimadaCierre: "2025-08-15",
+            mesEstimado: "2025-08",
+            pcPrimeraReunion: 5,
+            contador1raReunion: 1,
+            comentarios: "Necesitan solución para su nueva línea de productos",
+            diaMes: 15
+        },
+        {
+            nombreEmpresa: "SportGear Valencia",
+            salesman: "Javi",
+            tipoProducto: "Logística Integral",
+            fuente: "Referido Cliente",
+            tier: "Tier 1",
+            diasUC: 1,
+            monto: 25000,
+            ordenes: 300,
+            productosOrden: 4.5,
+            posicionesAlmacenamiento: 800,
+            planPicking: "Premium",
+            planAlmacenamiento: "Dedicado",
+            estado: "cliente_cerrado",
+            etapaNegociacion: "cierre",
+            gp: "Ganado",
+            fechaPrimerContacto: "2025-06-01",
+            fechaPrimeraReunion: "2025-06-05",
+            fechaOfertaComercial: "2025-06-12",
+            fechaSegundaReunion: "2025-06-18",
+            fechaNegociacion: "2025-06-25",
+            fechaCierre: "2025-07-01",
+            fechaEstimadaCierre: "2025-07-01",
+            mesEstimado: "2025-07",
+            pcPrimeraReunion: 4,
+            primeraReunionOC: 7,
+            ocSegundaReunion: 6,
+            segundaReunionNeg: 7,
+            negCierre: 6,
+            diasPCCierre: 30,
+            contador1raReunion: 1,
+            contadorOfertaComercial: 1,
+            contador2daReunion: 1,
+            contadorNegociacion: 1,
+            contadorCierreGanado: 1,
+            comentarios: "Cliente referido muy satisfecho con el servicio",
+            diaMes: 1
+        }
+    ];
 
-const samplePersonalTasks = [
-{
-title: 'Revisar informe mensual fulfillment',
-description: 'Revisar y aprobar el informe de operaciones del mes',
-dueDate: new Date().toISOString().split('T')[0],
-priority: 'alta',
-completed: false
-},
-{
-title: 'Reunión con equipo logística',
-description: 'Planificar las mejoras en el proceso de picking',
-dueDate: new Date().toISOString().split('T')[0],
-priority: 'media',
-completed: false
-},
-{
-title: 'Actualizar precios servicios',
-description: 'Revisar y actualizar la tarifa de servicios 2025',
-dueDate: new Date(new Date().setDate(new Date().getDate() + 2)).toISOString().split('T')[0],
-priority: 'baja',
-completed: false
-}
-];
+    const samplePersonalTasks = [
+        {
+            title: 'Revisar informe mensual fulfillment',
+            description: 'Revisar y aprobar el informe de operaciones del mes',
+            dueDate: new Date().toISOString().split('T')[0],
+            priority: 'alta',
+            completed: false
+        },
+        {
+            title: 'Reunión con equipo logística',
+            description: 'Planificar las mejoras en el proceso de picking',
+            dueDate: new Date().toISOString().split('T')[0],
+            priority: 'media',
+            completed: false
+        },
+        {
+            title: 'Actualizar precios servicios',
+            description: 'Revisar y actualizar la tarifa de servicios 2025',
+            dueDate: new Date(new Date().setDate(new Date().getDate() + 2)).toISOString().split('T')[0],
+            priority: 'baja',
+            completed: false
+        }
+    ];
 
-try {
-showLoading(true);
-for (const lead of sampleLeads) {
-await window.firebaseDB.addLead(lead);
+    try {
+        showLoading(true);
+        for (const lead of sampleLeads) {
+            await window.firebaseDB.addLead(lead);
+        }
+        for (const task of samplePersonalTasks) {
+            await window.firebaseDB.addPersonalTask(task);
+        }
+        showSuccess('Datos de ejemplo insertados exitosamente');
+    } catch (error) {
+        showError('Error al insertar datos de ejemplo');
+    } finally {
+        showLoading(false);
+    }
 }
-for (const task of samplePersonalTasks) {
-await window.firebaseDB.addPersonalTask(task);
-}
-showSuccess('Datos de ejemplo insertados exitosamente');
-} catch (error) {
-showError('Error al insertar datos de ejemplo');
-} finally {
-showLoading(false);
-}
-}
-
 </script>
 </body>
 </html>
