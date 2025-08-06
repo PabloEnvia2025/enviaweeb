@@ -1397,26 +1397,32 @@ let notesEditor = null;
 
 // Password protection
 function checkPassword() {
-const password = document.getElementById('passwordInput').value;
-const correctPassword = 'EnviaEspana2025';
-
-if (password === correctPassword) {
-document.getElementById('loginScreen').style.display = 'none';
-document.querySelector('.container').style.display = 'block';
-initializeCRM();
-} else {
-document.getElementById('loginError').style.display = 'block';
-document.getElementById('passwordInput').value = '';
-document.getElementById('passwordInput').focus();
-}
+    const password = document.getElementById('passwordInput').value;
+    const correctPassword = 'EnviaEspana2025';
+    
+    console.log('Contraseña ingresada:', password); // Para depuración
+    console.log('Contraseña esperada:', correctPassword); // Para depuración
+    
+    if (password === correctPassword) {
+        console.log('Contraseña correcta - Acceso concedido');
+        document.getElementById('loginScreen').style.display = 'none';
+        document.querySelector('.container').style.display = 'block';
+        initializeCRM();
+    } else {
+        console.log('Contraseña incorrecta');
+        document.getElementById('loginError').style.display = 'block';
+        document.getElementById('passwordInput').value = '';
+        document.getElementById('passwordInput').focus();
+    }
 }
 
 // Allow Enter key to submit password
 document.addEventListener('DOMContentLoaded', function() {
 document.getElementById('passwordInput').addEventListener('keypress', function(e) {
-if (e.key === 'Enter') {
-checkPassword();
-}
+    if (e.key === 'Enter') {
+        e.preventDefault(); // Previene cualquier acción por defecto
+        checkPassword();
+    }
 });
 document.getElementById('passwordInput').focus();
 });
